@@ -93,7 +93,7 @@ body{min-height:100vh;min-height:100dvh}
 .class-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:8px 16px}
 .eyebrow{font-size:12.5px}
 .class-name{margin:0;font-size:22px}
-.section{padding:12px 12px 4px}
+.section{padding:14px 12px 4px}
 .sec-title{margin:0 2px 10px}
 .sec-title h2{font-size:16px;gap:8px}
 .step{width:24px;height:24px;border-radius:7px;font-size:13px}
@@ -128,8 +128,12 @@ body{min-height:100vh;min-height:100dvh}
 
 
 /* ===== الترويسة ===== */
-.hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#1b5a48 0%,var(--green-800) 45%,var(--green-900) 100%);color:#fff;border-top:4px solid var(--gold);text-align:center;padding:calc(18px + var(--hero-extra,0px)/2) 16px calc(40px + var(--hero-extra,0px)/2)}
+.hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#1b5a48 0%,var(--green-800) 45%,var(--green-900) 100%);color:#fff;border-top:4px solid var(--gold);text-align:center;padding:calc(16px + env(safe-area-inset-top) + var(--hero-extra,0px)/2) 16px calc(38px + var(--hero-extra,0px)/2)}
 .hero-deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.plaque{display:inline-flex;flex-direction:column;align-items:center;gap:2px;margin:14px auto 0;min-width:190px;padding:8px 26px 10px;border:1.5px solid rgba(212,165,90,.75);border-radius:16px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 4px rgba(212,165,90,.08)}
+.plaque span{font-size:12px;font-weight:600;color:#e9d9b4}
+.plaque strong{font-size:25px;font-weight:700;line-height:1.3;color:#fff}
+.hero-date{margin:10px 0 0;font-size:12.5px;color:#cfe0d8}
 .hero-in{position:relative;max-width:640px;margin:0 auto}
 .hero-top{display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;font-weight:500;color:#cfe0d8;letter-spacing:0}
 .hero-top i{width:4px;height:4px;border-radius:50%;background:var(--gold)}
@@ -143,16 +147,21 @@ body{min-height:100vh;min-height:100dvh}
 .hero-title .mark svg{width:22px;height:29px}
 .hero h1{margin:0;font-size:32px;font-weight:700;line-height:1.2}
 .tagline{margin:8px 0 0;font-size:15px;font-weight:500;color:#e9d9b4}
-.hero.tight{padding-top:calc(12px + var(--hero-extra,0px)/2);padding-bottom:calc(32px + var(--hero-extra,0px)/2)}
-.hero.mid{padding-top:calc(14px + var(--hero-extra,0px)/2);padding-bottom:calc(36px + var(--hero-extra,0px)/2)}
-.hero.mid .hero-top,.hero.mid .hero-orn{display:none}
+.hero.tight{padding-top:calc(10px + env(safe-area-inset-top) + var(--hero-extra,0px)/2);padding-bottom:calc(32px + var(--hero-extra,0px)/2)}
+.hero.mid{padding-top:calc(12px + env(safe-area-inset-top) + var(--hero-extra,0px)/2);padding-bottom:calc(36px + var(--hero-extra,0px)/2)}
+.hero.mid .hero-top,.hero.mid .hero-orn,.hero.mid .hero-date{display:none}
+.hero.mid .plaque{margin-top:10px;padding:6px 22px 8px}
+.hero.mid .plaque strong{font-size:22px}
 .hero.mid .school{margin:0 0 8px;font-size:12.5px}
 .hero.mid h1{font-size:27px}
 .hero.mid .hero-title .mark{width:38px;height:38px}
 .hero.mid .tagline{margin-top:6px;font-size:14px}
-.hero.tight .hero-top,.hero.tight .hero-orn,.hero.tight .tagline{display:none}
-.hero.tight .school{margin:4px 0 0;font-size:12px;order:2}
-.hero.tight .hero-in{display:flex;flex-direction:column-reverse}
+.hero.tight .hero-top,.hero.tight .hero-orn,.hero.tight .tagline,.hero.tight .hero-date,.hero.tight .plaque span{display:none}
+.hero.tight .plaque{margin-top:8px;padding:4px 20px;min-width:0;flex-direction:row}
+.hero.tight .plaque strong{font-size:20px}
+.hero.tight .school{font-size:12px}
+.hero.tight .hero-in{display:flex;flex-direction:column}
+.hero.tight .school{order:0;margin:0 0 4px}
 .hero.tight h1{font-size:24px}
 .hero.tight .hero-title .mark{width:36px;height:36px}
 .sheet{margin-top:-24px}
@@ -161,10 +170,9 @@ body{min-height:100vh;min-height:100dvh}
 </head>
 <body>
 <header class="hero" id="hero">
-  <svg class="hero-deco" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <ellipse cx="200" cy="150" rx="150" ry="230" fill="none" stroke="#d4a55a" stroke-opacity=".16" stroke-width="1.5"/>
-    <ellipse cx="200" cy="150" rx="132" ry="210" fill="none" stroke="#d4a55a" stroke-opacity=".10" stroke-width="1"/>
-    <path d="M40 300 L120 -20 M70 300 L150 -20" stroke="#fff" stroke-opacity=".035" stroke-width="18"/>
+  <svg class="hero-deco" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <ellipse cx="200" cy="200" rx="170" ry="260" fill="none" stroke="#d4a55a" stroke-opacity=".13" stroke-width="1.4"/>
+    <ellipse cx="200" cy="200" rx="160" ry="250" fill="none" stroke="#d4a55a" stroke-opacity=".07" stroke-width="1"/>
   </svg>
   <div class="hero-in">
     <div class="hero-top"><span>وزارة التعليم</span><i></i><span>إدارة التعليم بمنطقة القصيم</span></div>
@@ -175,16 +183,14 @@ body{min-height:100vh;min-height:100dvh}
       <h1>مرآة الصف</h1>
     </div>
     <p class="tagline">معلمتنا.. شاركينا انعكاس الحصة</p>
+    <div class="plaque" id="plaque" hidden><span>تقييم أداء الصف</span><strong id="className"></strong></div>
+    <p class="hero-date" id="heroDate"></p>
   </div>
 </header>
 
 <main class="wrap">
   <div class="sheet" id="sheet">
     <div id="app" hidden>
-      <div class="class-head">
-        <div class="eyebrow">تقييم أداء الصف</div>
-        <h2 class="class-name" id="className"></h2>
-      </div>
       <div id="demoFlag" class="demo-flag" hidden>وضع التجربة: تُحفظ التقييمات في هذا الجهاز فقط إلى حين ربط قاعدة البيانات.</div>
       <section class="section" aria-labelledby="subjTitle">
         <div class="sec-title">
@@ -266,6 +272,8 @@ body{min-height:100vh;min-height:100dvh}
   $("app").hidden = false;
   $("dock").hidden = false;
   $("className").textContent = cls.name;
+  $("plaque").hidden = false;
+  $("heroDate").textContent = new Date().toLocaleDateString("ar-SA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   if (S.demo) $("demoFlag").hidden = false;
 
   var subject = "", busy = false;
@@ -329,7 +337,7 @@ body{min-height:100vh;min-height:100dvh}
     h = Math.max(42, Math.min(h, cap));
     grid.style.setProperty("--btn-h", h + "px");
     /* المساحة الزائدة (بعد قياس ارتفاع المواد الفعلي) تذهب إلى الترويسة */
-    var extra = Math.max(0, Math.min(avail - grid.offsetHeight - 4, 200));
+    var extra = Math.max(0, Math.min(avail - grid.offsetHeight - 4, 160));
     hero.style.setProperty("--hero-extra", Math.floor(extra) + "px");
     return avail - grid.offsetHeight;
   }
