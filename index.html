@@ -126,15 +126,55 @@ body{min-height:100vh;min-height:100dvh}
 .site-foot{margin:6px 12px 0;padding:10px 0 6px;font-size:11.5px}
 @media (min-width:600px){.subj{font-size:16px}.subjects.c3 .subj{font-size:15px}.rate{min-height:72px;font-size:17px}.dock .wrap{max-width:760px}}
 
+
+/* ===== الترويسة ===== */
+.hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#1b5a48 0%,var(--green-800) 45%,var(--green-900) 100%);color:#fff;border-top:4px solid var(--gold);text-align:center;padding:calc(18px + var(--hero-extra,0px)/2) 16px calc(40px + var(--hero-extra,0px)/2)}
+.hero-deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero-in{position:relative;max-width:640px;margin:0 auto}
+.hero-top{display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;font-weight:500;color:#cfe0d8;letter-spacing:0}
+.hero-top i{width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.hero .school{margin:4px 0 0;font-size:13.5px;font-weight:600;color:#fff}
+.hero-orn{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px auto 12px;max-width:220px}
+.hero-orn b{flex:1;height:1px;background:linear-gradient(90deg,transparent,#d4a55a)}
+.hero-orn b:last-child{background:linear-gradient(90deg,#d4a55a,transparent)}
+.hero-orn em{width:8px;height:8px;background:#d4a55a;transform:rotate(45deg)}
+.hero-title{display:flex;align-items:center;justify-content:center;gap:12px}
+.hero-title .mark{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--gold);display:grid;place-items:center;background:rgba(255,255,255,.05)}
+.hero-title .mark svg{width:22px;height:29px}
+.hero h1{margin:0;font-size:32px;font-weight:700;line-height:1.2}
+.tagline{margin:8px 0 0;font-size:15px;font-weight:500;color:#e9d9b4}
+.hero.tight{padding-top:calc(12px + var(--hero-extra,0px)/2);padding-bottom:calc(32px + var(--hero-extra,0px)/2)}
+.hero.mid{padding-top:calc(14px + var(--hero-extra,0px)/2);padding-bottom:calc(36px + var(--hero-extra,0px)/2)}
+.hero.mid .hero-top,.hero.mid .hero-orn{display:none}
+.hero.mid .school{margin:0 0 8px;font-size:12.5px}
+.hero.mid h1{font-size:27px}
+.hero.mid .hero-title .mark{width:38px;height:38px}
+.hero.mid .tagline{margin-top:6px;font-size:14px}
+.hero.tight .hero-top,.hero.tight .hero-orn,.hero.tight .tagline{display:none}
+.hero.tight .school{margin:4px 0 0;font-size:12px;order:2}
+.hero.tight .hero-in{display:flex;flex-direction:column-reverse}
+.hero.tight h1{font-size:24px}
+.hero.tight .hero-title .mark{width:36px;height:36px}
+.sheet{margin-top:-24px}
+.fitted .hero-in{max-width:616px}
 </style>
 </head>
 <body>
-<header class="masthead compact">
-  <div class="wrap">
-    <div class="brand">
+<header class="hero" id="hero">
+  <svg class="hero-deco" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <ellipse cx="200" cy="150" rx="150" ry="230" fill="none" stroke="#d4a55a" stroke-opacity=".16" stroke-width="1.5"/>
+    <ellipse cx="200" cy="150" rx="132" ry="210" fill="none" stroke="#d4a55a" stroke-opacity=".10" stroke-width="1"/>
+    <path d="M40 300 L120 -20 M70 300 L150 -20" stroke="#fff" stroke-opacity=".035" stroke-width="18"/>
+  </svg>
+  <div class="hero-in">
+    <div class="hero-top"><span>وزارة التعليم</span><i></i><span>إدارة التعليم بمنطقة القصيم</span></div>
+    <p class="school" id="school"></p>
+    <div class="hero-orn" aria-hidden="true"><b></b><em></em><b></b></div>
+    <div class="hero-title">
       <div class="mark" aria-hidden="true"><svg viewBox="0 0 26 34"><ellipse cx="13" cy="17" rx="10.5" ry="15" fill="none" stroke="#d4a55a" stroke-width="2"/><path d="M10 22l6-11M13 24l4-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
-      <div><h1>مرآة الصف</h1><p class="school" id="school"></p></div>
+      <h1>مرآة الصف</h1>
     </div>
+    <p class="tagline">معلمتنا.. شاركينا انعكاس الحصة</p>
   </div>
 </header>
 
@@ -257,7 +297,20 @@ body{min-height:100vh;min-height:100dvh}
   var dock = $("dock");
   var count = grid.children.length;
   function topOf(el) { var y = 0; while (el) { y += el.offsetTop; el = el.offsetParent; } return y; }
+  var hero = $("hero");
   function fit() {
+    hero.style.setProperty("--hero-extra", "0px");
+    hero.classList.remove("mid", "tight");
+    /* تُعرض الترويسة كاملة إن اتسعت الشاشة، وإلا تُختصر على مرحلتين حتى تظهر المواد كلها */
+    if (measure() < 0) {
+      hero.classList.add("mid"); hero.style.setProperty("--hero-extra", "0px");
+      if (measure() < 0) {
+        hero.classList.remove("mid"); hero.classList.add("tight"); hero.style.setProperty("--hero-extra", "0px");
+        measure();
+      }
+    }
+  }
+  function measure() {
     var root = document.documentElement, z = parseFloat(root.style.zoom) || 1;
     /* عند التكبير التلقائي تُقاس الأبعاد بعد التكبير (يختلف أسلوب المتصفحات في ذلك) */
     var w = root.clientWidth, vh = window.innerHeight;
@@ -271,8 +324,14 @@ body{min-height:100vh;min-height:100dvh}
     var other = $("otherBox").classList.contains("show") ? $("otherBox").offsetHeight + 8 : 0;
     var avail = vh - dock.offsetHeight - topOf(grid) - other - 14;
     var rows = Math.ceil(count / cols), gap = 8;
+    var cap = w < 600 ? 60 : 68;                    /* ارتفاع مريح ثابت لأزرار المواد */
     var h = Math.floor((avail - (rows - 1) * gap) / rows);
-    grid.style.setProperty("--btn-h", Math.max(40, Math.min(h, w < 600 ? 112 : 96)) + "px");
+    h = Math.max(42, Math.min(h, cap));
+    grid.style.setProperty("--btn-h", h + "px");
+    /* المساحة الزائدة (بعد قياس ارتفاع المواد الفعلي) تذهب إلى الترويسة */
+    var extra = Math.max(0, Math.min(avail - grid.offsetHeight - 4, 200));
+    hero.style.setProperty("--hero-extra", Math.floor(extra) + "px");
+    return avail - grid.offsetHeight;
   }
   if (window.ResizeObserver) new ResizeObserver(fit).observe(dock);
   window.addEventListener("resize", fit);
