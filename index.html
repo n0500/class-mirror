@@ -3,258 +3,217 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#12473a">
+<meta name="theme-color" content="#dfe6ee">
 <title>مرآة الصف</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312473a'/%3E%3Cellipse cx='32' cy='32' rx='14' ry='20' fill='none' stroke='%23d4a55a' stroke-width='3.5'/%3E%3Cpath d='M28 38l7-12M32 40l5-9' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@500;600;700&family=Noto+Kufi+Arabic:wght@800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script src="assets/fit.js"></script>
 <style>
-body{min-height:100vh;min-height:100dvh}
-.sheet{position:relative;margin:-40px 12px 0;background:var(--card);border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 -2px 0 rgba(0,0,0,.02),0 10px 30px rgba(13,58,46,.08);min-height:60vh}
-.class-head{padding:20px 20px 16px;border-bottom:1px solid var(--line);border-inline-start:4px solid var(--gold);border-start-start-radius:var(--radius)}
-.eyebrow{font-size:14px;font-weight:600;color:var(--gold)}
-.class-name{margin:2px 0 0;font-size:28px;font-weight:700;line-height:1.25;color:var(--ink)}
-.section{padding:18px 16px 8px}
-.sec-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 4px 14px}
-.sec-title h2{margin:0;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
-.step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--gold-bg);border:1px solid var(--gold-soft);color:var(--gold);font-size:15px;font-weight:700}
-.sec-note{font-size:13px;color:var(--muted)}
-.subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.subj{min-height:64px;padding:10px 10px;font-size:clamp(15px,4.3vw,17px);border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-weight:600;line-height:1.35;text-align:center;overflow-wrap:anywhere;word-break:break-word;transition:border-color .15s,background .15s,box-shadow .15s}
+:root{
+  --cream:#fbf8f1;
+  --cream-2:#f7f2e6;
+  --line-gold:#e2cf9f;
+  --ink-green:#0d3b2f;
+  --sel:#0b5c37;
+  --r-excellent:#1f8a45; --r-excellent-d:#166734;
+  --r-good:#1466d6;      --r-good-d:#0f4ea6;
+  --r-follow:#d2640f;    --r-follow-d:#a34c0a;
+  --gold-grad:linear-gradient(135deg,#7c4a12 0%,#d49a3a 16%,#f6d68a 30%,#b87a22 46%,#eec06a 62%,#9a5f17 80%,#e2b45a 100%);
+}
+body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
+.bg{position:fixed;inset:-20px;background:url("assets/classroom-bg.jpg") center/cover no-repeat;filter:blur(2px) saturate(1.05);z-index:0}
+.stage{position:relative;z-index:1;max-width:470px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) 22px calc(6px + env(safe-area-inset-bottom))}
+
+/* الإطار الذهبي على شكل قوس */
+.frame{position:relative;padding:6px;border-radius:50% 50% 30px 30px / 170px 170px 30px 30px;background:var(--gold-grad);box-shadow:0 10px 28px rgba(40,30,10,.28),inset 0 0 0 1px rgba(90,55,10,.55)}
+.frame::before{content:"";position:absolute;inset:3px;border-radius:inherit;border:1.5px solid rgba(255,236,180,.7);pointer-events:none}
+.panel{position:relative;display:flex;flex-direction:column;border-radius:50% 50% 25px 25px / 164px 164px 25px 25px;background:radial-gradient(120% 60% at 50% 0%,#fffdf8 0%,var(--cream) 55%,var(--cream-2) 100%);box-shadow:inset 0 0 0 1.5px #8f5a18,inset 0 0 18px rgba(160,120,50,.12);padding:calc(44px + var(--head-extra,0px)) 16px 12px}
+.crest{position:absolute;top:-20px;left:50%;width:96px;transform:translateX(-50%);z-index:2;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(60,35,5,.35))}
+
+/* الرأس */
+.p-head{text-align:center}
+.p-head h1{margin:0;font-family:"Noto Kufi Arabic","IBM Plex Sans Arabic",sans-serif;font-weight:800;font-size:34px;line-height:1.3;color:var(--ink-green)}
+.p-head .school{margin:2px 0 0;font-size:13px;font-weight:600;color:#1d2e28}
+.plaque{position:relative;width:min(190px,58%);aspect-ratio:270/58;margin:10px auto 0;display:grid;place-items:center}
+.plaque svg{position:absolute;inset:0;width:100%;height:100%}
+.plaque span{position:relative;font-size:17px;font-weight:700;color:var(--ink-green)}
+
+/* المواد */
+.row-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}
+.row-title h2,.rate-title{margin:0;font-size:20px;font-weight:700;color:var(--ink-green)}
+.other-btn{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 16px;border:1.5px solid #c79a45;border-radius:11px;background:var(--cream);color:var(--ink-green);font-size:16px;font-weight:600}
+.other-btn svg{width:15px;height:15px}
+.other-btn[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:#fff}
+.other-box{margin:0 0 12px}
+.other-box input{width:100%;padding:12px 14px;border:1.5px solid var(--line-gold);border-radius:12px;background:#fff;font-size:16px;color:var(--ink-green)}
+.other-box input:focus{outline:none;border-color:var(--sel)}
+.subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px}
+.subjects.c3{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.subj{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;min-height:var(--btn-h,52px);padding:4px 8px;border:1px solid var(--line-gold);border-radius:11px;background:#fdfbf6;color:var(--ink-green);font-size:16px;font-weight:700;line-height:1.35;text-align:center;overflow-wrap:anywhere;box-shadow:0 1px 0 rgba(180,150,90,.12)}
+.subjects.c3 .subj{font-size:14px;padding:4px 5px;border-radius:10px}
+.subj .ck{display:none;flex:none;width:22px;height:22px}
+.subj[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:#fff;box-shadow:0 3px 8px rgba(11,92,55,.28)}
+.subj[aria-pressed="true"] .ck{display:block}
+.subjects.c3 .subj .ck{width:20px;height:20px}
 .subj:active{transform:scale(.985)}
-.subj[aria-pressed="true"]{border-color:var(--green-600);background:#e9f4ef;color:var(--green-800);box-shadow:inset 0 0 0 1.5px var(--green-600)}
-.subj.other{border-style:dashed;color:var(--ink-2)}
-.other-box{display:none;margin-top:12px}
-.other-box.show{display:block}
-.field{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;color:var(--ink);background:#fbfcfb}
-.field:focus{outline:none;border-color:var(--green-600);background:#fff}
-.stamp{margin:10px 4px 0;font-size:13px;color:var(--muted);text-align:center}
 
-/* شريط التقدير الثابت */
-.dock{position:fixed;inset-inline:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--line);border-radius:20px 20px 0 0;box-shadow:0 -10px 28px rgba(13,58,46,.10);padding:14px 14px calc(12px + env(safe-area-inset-bottom))}
-.dock .wrap{max-width:640px}
-@media (min-width:1000px){.sheet{margin-inline:auto}}
+/* التقييم */
+.rate-title{margin:12px 0 8px}
+.rates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:78px;padding:8px 4px;border:0;border-radius:10px;color:#fff;font-size:17px;font-weight:700;line-height:1.2}
+.rate svg{width:32px;height:32px}
+.rate.excellent{background:var(--r-excellent);box-shadow:0 3px 0 var(--r-excellent-d)}
+.rate.good{background:var(--r-good);box-shadow:0 3px 0 var(--r-good-d)}
+.rate.follow{background:var(--r-follow);box-shadow:0 3px 0 var(--r-follow-d)}
+.rate:active{transform:translateY(2px);box-shadow:none}
+.rates.busy .rate{opacity:.6;pointer-events:none}
+.status{margin:12px 0 4px;text-align:center;font-size:13.5px;font-weight:500;color:#2a3a34}
+.status.warn{color:var(--r-follow-d);font-weight:700;animation:nudge .35s}
+.status.bad{color:#b3261e;font-weight:700}
+@keyframes nudge{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.demo-note{margin:10px auto 0;padding:4px 12px;width:fit-content;border-radius:999px;background:#fff4dc;border:1px solid #e9d29a;font-size:12px;color:#7a5a1f}
 
-.fitted .sheet{margin-inline:12px;min-height:0}
-.site-foot{border-top:1px solid var(--line);margin:8px 16px 0;padding-inline:0}
-.dock .sec-title{margin:0 2px 12px}
-.hint{font-size:13.5px;font-weight:600;color:var(--muted);text-align:left}
-.hint.ok{color:var(--green-700)}
-.hint.warn{color:var(--follow);animation:nudge .35s}
-@keyframes nudge{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-.rates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-.rate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:84px;padding:10px 4px;border:0;border-radius:15px;color:#fff;font-size:17px;font-weight:700;line-height:1.25;text-align:center}
-.rate svg{width:26px;height:26px;flex:none}
-.rate.excellent{background:var(--excellent);box-shadow:0 4px 0 var(--excellent-d)}
-.rate.good{background:var(--good);box-shadow:0 4px 0 var(--good-d)}
-.rate.follow{background:var(--follow);box-shadow:0 4px 0 var(--follow-d)}
-.rate:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
-.rates.locked .rate{opacity:.55}
-.rates.busy .rate{pointer-events:none;opacity:.6}
-.note-toggle{display:block;margin:12px auto 0;padding:4px 8px;border:0;background:none;color:var(--green-700);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:4px}
-.note-box{display:none;margin-top:10px}
-.note-box.show{display:block}
-.note-box textarea{min-height:64px;resize:none}
-
-/* صفحة الشكر بعد الحفظ */
-.done{padding:34px 22px 44px;text-align:center;animation:up .25s ease-out}
-@keyframes up{from{transform:translateY(16px);opacity:.3}}
-.done-icon{width:68px;height:68px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;color:#fff}
-.done-icon svg{width:34px;height:34px}
-.done h2{margin:0;font-size:26px}
-.done-lead{margin:4px 0 20px;color:var(--ink-2);font-size:17px}
-.done-sum{margin:0 auto;max-width:360px;border:1px solid var(--line);border-radius:14px;text-align:start}
-.done-sum div{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+/* صفحة الشكر */
+.done{margin-top:18px;text-align:center}
+.done-icon{width:74px;height:74px;margin:6px auto 12px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.done-icon svg{width:38px;height:38px}
+.done h2{margin:0;font-size:28px;color:var(--ink-green)}
+.done-lead{margin:4px 0 18px;font-size:17px;color:#2a3a34}
+.done-sum{margin:0 auto;max-width:340px;border:1.3px solid var(--line-gold);border-radius:14px;background:#fdfbf6;text-align:start}
+.done-sum div{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #eee3c8}
 .done-sum div:last-child{border-bottom:0}
-.done-sum dt{color:var(--muted);font-size:14.5px}
-.done-sum dd{margin:0;font-weight:700;font-size:15.5px;text-align:end;overflow-wrap:anywhere}
-.done-foot{margin:18px 0 0;color:var(--muted);font-size:14px}
-.err{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fdecea;color:var(--danger);font-size:14px;font-weight:600;text-align:center}
-.err.show{display:block}
+.done-sum dt{color:#6c6a5e;font-size:15px}
+.done-sum dd{margin:0;font-weight:700;font-size:16px;color:var(--ink-green);text-align:end}
+.done-foot{margin:16px 0 6px;font-size:14px;color:#6c6a5e}
+.invalid{margin-top:22px;text-align:center}
+.invalid h2{margin:0 0 6px;font-size:22px;color:var(--ink-green)}
+.invalid p{margin:0;color:#2a3a34}
 
-/* رابط غير صالح */
-.invalid{padding:34px 22px 40px;text-align:center}
-.invalid h2{margin:0 0 8px;font-size:21px}
-.invalid p{margin:0;color:var(--ink-2)}
-.demo-flag{margin:14px 16px 0;padding:8px 12px;border-radius:10px;background:var(--gold-bg);border:1px solid var(--gold-soft);font-size:13px;color:#7a5a1f;text-align:center}
+.rights{margin:10px auto 0;width:fit-content;padding:2px 12px;border-radius:999px;background:rgba(255,255,255,.72);text-align:center;font-size:11.5px;font-weight:500;color:#2f3d38}
 
-/* ===== تخطيط مضغوط: تظهر المواد وأزرار التقدير في شاشة واحدة ===== */
-.masthead.compact{padding:10px 16px 28px;border-top-width:4px}
-.masthead.compact h1{line-height:1.25}
-.masthead.compact .brand{gap:10px}
-.masthead.compact .mark{width:36px;height:36px;border-radius:10px}
-.masthead.compact .mark svg{width:19px;height:25px}
-.masthead.compact h1{font-size:21px}
-.masthead.compact .school{margin:1px 0 0;font-size:12px;line-height:1.4}
-.sheet{margin-top:-20px;min-height:0}
-.class-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:8px 16px}
-.eyebrow{font-size:12.5px}
-.class-name{margin:0;font-size:22px}
-.section{padding:14px 12px 4px}
-.sec-title{margin:0 2px 10px}
-.sec-title h2{font-size:16px;gap:8px}
-.step{width:24px;height:24px;border-radius:7px;font-size:13px}
-.sec-note{font-size:12px}
-.subjects{gap:8px}
-.subjects.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.subjects.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
-.subjects.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.subj{min-height:var(--btn-h,56px);padding:4px 6px;border-radius:12px;font-size:15px;line-height:1.3}
-.subjects.c3 .subj{font-size:14px}
-.stamp{display:none}
-.other-box{margin-top:8px}
-.field{padding:11px 12px}
-/* المواد والتقدير بطاقة واحدة متصلة */
-.sheet{border-radius:var(--radius) var(--radius) 0 0;box-shadow:none}
-.dock{position:sticky;bottom:0;inset-inline:auto;margin:0 12px;border:0;border-top:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius);box-shadow:0 -6px 16px rgba(13,58,46,.06),0 12px 26px rgba(13,58,46,.08);padding:12px 12px calc(10px + env(safe-area-inset-bottom))}
-.dock .wrap{max-width:none}
-@media (min-width:760px){.dock{max-width:736px;margin-inline:auto}}
-.fitted .dock{max-width:616px;margin-inline:auto}
-.fitted .dock .wrap{max-width:none}
-.site-foot{border-top:0;margin-top:0}
-.dock .sec-title{margin:0 2px 8px}
-.rates{gap:8px}
-.rate{min-height:62px;gap:3px;padding:6px 4px;border-radius:13px;font-size:15.5px}
-.rate svg{width:21px;height:21px}
-.note-toggle{display:inline;margin:0;padding:2px 0;font-size:13px}
-.sec-title .hint{font-size:12.5px;text-align:left;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.note-box{margin-top:6px}
-.note-box textarea{min-height:52px}
-.site-foot{margin:6px 12px 0;padding:10px 0 6px;font-size:11.5px}
-@media (min-width:600px){.subj{font-size:16px}.subjects.c3 .subj{font-size:15px}.rate{min-height:72px;font-size:17px}.dock .wrap{max-width:760px}}
+/* مستوى مضغوط للشاشات القصيرة */
+.compact .stage{padding-top:calc(18px + env(safe-area-inset-top))}
+.compact .panel{padding-top:calc(34px + var(--head-extra,0px));padding-bottom:8px}
+.compact .crest{width:80px;top:-16px}
+.compact .p-head h1{font-size:27px}
+.compact .p-head .school{font-size:12px}
+.compact .plaque{margin-top:6px;width:min(170px,52%)}
+.compact .plaque span{font-size:15.5px}
+.compact .row-title{margin:8px 0 6px}
+.compact .row-title h2,.compact .rate-title{font-size:17px}
+.compact .other-btn{min-height:32px;font-size:15px}
+.compact .rate-title{margin:8px 0 6px}
+.compact .rate{min-height:62px;font-size:15px}
+.compact .rate svg{width:24px;height:24px}
+.compact .status{margin:8px 0 2px;font-size:12.5px}
+.compact .rights{margin-top:6px}
 
+/* الشاشات الصغيرة */
+@media (max-width:370px){
+  .stage{padding-inline:12px}
+  .p-head h1{font-size:30px}
+  .row-title h2,.rate-title{font-size:18px}
+  .subj{font-size:15px}
+  .rate{font-size:16px;min-height:70px}
+  .rate svg{width:28px;height:28px}
+}
 
-/* ===== الترويسة ===== */
-.hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#1b5a48 0%,var(--green-800) 45%,var(--green-900) 100%);color:#fff;border-top:4px solid var(--gold);text-align:center;padding:calc(16px + env(safe-area-inset-top) + var(--hero-extra,0px)/2) 16px calc(38px + var(--hero-extra,0px)/2)}
-.hero-deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.plaque{display:inline-flex;flex-direction:column;align-items:center;gap:2px;margin:14px auto 0;min-width:190px;padding:8px 26px 10px;border:1.5px solid rgba(212,165,90,.75);border-radius:16px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 4px rgba(212,165,90,.08)}
-.plaque span{font-size:12px;font-weight:600;color:#e9d9b4}
-.plaque strong{font-size:25px;font-weight:700;line-height:1.3;color:#fff}
-.hero-date{margin:10px 0 0;font-size:12.5px;color:#cfe0d8}
-.hero-in{position:relative;max-width:640px;margin:0 auto}
-.hero-top{display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;font-weight:500;color:#cfe0d8;letter-spacing:0}
-.hero-top i{width:4px;height:4px;border-radius:50%;background:var(--gold)}
-.hero .school{margin:4px 0 0;font-size:13.5px;font-weight:600;color:#fff}
-.hero-orn{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px auto 12px;max-width:220px}
-.hero-orn b{flex:1;height:1px;background:linear-gradient(90deg,transparent,#d4a55a)}
-.hero-orn b:last-child{background:linear-gradient(90deg,#d4a55a,transparent)}
-.hero-orn em{width:8px;height:8px;background:#d4a55a;transform:rotate(45deg)}
-.hero-title{display:flex;align-items:center;justify-content:center;gap:12px}
-.hero-title .mark{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--gold);display:grid;place-items:center;background:rgba(255,255,255,.05)}
-.hero-title .mark svg{width:22px;height:29px}
-.hero h1{margin:0;font-size:32px;font-weight:700;line-height:1.2}
-.tagline{margin:8px 0 0;font-size:15px;font-weight:500;color:#e9d9b4}
-.hero.tight{padding-top:calc(10px + env(safe-area-inset-top) + var(--hero-extra,0px)/2);padding-bottom:calc(32px + var(--hero-extra,0px)/2)}
-.hero.mid{padding-top:calc(12px + env(safe-area-inset-top) + var(--hero-extra,0px)/2);padding-bottom:calc(36px + var(--hero-extra,0px)/2)}
-.hero.mid .hero-top,.hero.mid .hero-orn,.hero.mid .hero-date{display:none}
-.hero.mid .plaque{margin-top:10px;padding:6px 22px 8px}
-.hero.mid .plaque strong{font-size:22px}
-.hero.mid .school{margin:0 0 8px;font-size:12.5px}
-.hero.mid h1{font-size:27px}
-.hero.mid .hero-title .mark{width:38px;height:38px}
-.hero.mid .tagline{margin-top:6px;font-size:14px}
-.hero.tight .hero-top,.hero.tight .hero-orn,.hero.tight .tagline,.hero.tight .hero-date,.hero.tight .plaque span{display:none}
-.hero.tight .plaque{margin-top:8px;padding:4px 20px;min-width:0;flex-direction:row}
-.hero.tight .plaque strong{font-size:20px}
-.hero.tight .school{font-size:12px}
-.hero.tight .hero-in{display:flex;flex-direction:column}
-.hero.tight .school{order:0;margin:0 0 4px}
-.hero.tight h1{font-size:24px}
-.hero.tight .hero-title .mark{width:36px;height:36px}
-.sheet{margin-top:-24px}
-.fitted .hero-in{max-width:616px}
+/* الملاحظة */
+.rate-row{margin:12px 0 8px}
+.rate-row .rate-title{margin:0}
+.note-btn{min-height:32px;padding:0 13px;font-size:14.5px;gap:6px}
+.note-btn svg{width:13px;height:13px}
+.note-btn[aria-expanded="true"] .v{display:none}
+.note-btn[aria-expanded="true"]{background:var(--sel);border-color:var(--sel);color:#fff}
+.note-box{margin:0 0 8px}
+.note-box textarea{width:100%;min-height:46px;padding:10px 12px;border:1.5px solid var(--line-gold);border-radius:12px;background:#fff;font:inherit;font-size:16px;color:var(--ink-green);resize:none}
+.note-box textarea:focus{outline:none;border-color:var(--sel)}
+.compact .rate-row{margin:8px 0 6px}
 </style>
 </head>
 <body>
-<header class="hero" id="hero">
-  <svg class="hero-deco" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-    <ellipse cx="200" cy="200" rx="170" ry="260" fill="none" stroke="#d4a55a" stroke-opacity=".13" stroke-width="1.4"/>
-    <ellipse cx="200" cy="200" rx="160" ry="250" fill="none" stroke="#d4a55a" stroke-opacity=".07" stroke-width="1"/>
-  </svg>
-  <div class="hero-in">
-    <div class="hero-top"><span>وزارة التعليم</span><i></i><span>إدارة التعليم بمنطقة القصيم</span></div>
-    <p class="school" id="school"></p>
-    <div class="hero-orn" aria-hidden="true"><b></b><em></em><b></b></div>
-    <div class="hero-title">
-      <div class="mark" aria-hidden="true"><svg viewBox="0 0 26 34"><ellipse cx="13" cy="17" rx="10.5" ry="15" fill="none" stroke="#d4a55a" stroke-width="2"/><path d="M10 22l6-11M13 24l4-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
-      <h1>مرآة الصف</h1>
-    </div>
-    <p class="tagline">معلمتنا.. شاركينا انعكاس الحصة</p>
-    <div class="plaque" id="plaque" hidden><span>تقييم أداء الصف</span><strong id="className"></strong></div>
-    <p class="hero-date" id="heroDate"></p>
-  </div>
-</header>
+<div class="bg" aria-hidden="true"></div>
+<main class="stage">
+  <div class="frame">
+    <img class="crest" src="assets/crest.png" alt="" aria-hidden="true">
+    <div class="panel" id="panel">
+      <header class="p-head">
+        <h1>مرآة الصف</h1>
+        <p class="school" id="school"></p>
+        <div class="plaque" id="plaque" hidden>
+          <svg viewBox="0 0 270 58" aria-hidden="true">
+            <path d="M16 2H254A14 14 0 0 0 268 16V42A14 14 0 0 0 254 56H16A14 14 0 0 0 2 42V16A14 14 0 0 0 16 2Z" fill="#fdf9ef" stroke="#c9973f" stroke-width="2.2"/>
+            <path d="M19 6.5H251A12 12 0 0 0 263.5 19V39A12 12 0 0 0 251 51.5H19A12 12 0 0 0 6.5 39V19A12 12 0 0 0 19 6.5Z" fill="none" stroke="#e3c47f" stroke-width="1"/>
+          </svg>
+          <span id="className"></span>
+        </div>
+        <div class="demo-note" id="demoFlag" hidden>وضع التجربة: تُحفظ التقييمات في هذا الجهاز فقط</div>
+      </header>
 
-<main class="wrap">
-  <div class="sheet" id="sheet">
-    <div id="app" hidden>
-      <div id="demoFlag" class="demo-flag" hidden>وضع التجربة: تُحفظ التقييمات في هذا الجهاز فقط إلى حين ربط قاعدة البيانات.</div>
-      <section class="section" aria-labelledby="subjTitle">
-        <div class="sec-title">
-          <h2 id="subjTitle"><span class="step">١</span>المادة الدراسية</h2>
-          <span class="hint" id="hint" aria-live="polite">حدّدي المادة أولًا</span>
+      <section id="app" hidden>
+        <div class="row-title">
+          <h2 id="subjTitle">المادة الدراسية</h2>
+          <button type="button" class="other-btn" id="otherBtn" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg>أخرى
+          </button>
+        </div>
+        <div class="other-box" id="otherBox" hidden>
+          <label class="sr" for="otherName">اسم المادة</label>
+          <input id="otherName" maxlength="60" placeholder="اكتبي اسم المادة (اختياري)" autocomplete="off">
         </div>
         <div class="subjects" id="subjects" role="group" aria-labelledby="subjTitle"></div>
-        <div class="other-box" id="otherBox">
-          <label class="sr" for="otherName">اسم المادة</label>
-          <input class="field" id="otherName" maxlength="60" placeholder="اسم المادة (اختياري)" autocomplete="off">
+
+        <div class="row-title rate-row">
+          <h2 class="rate-title">التقييم</h2>
+          <button type="button" class="other-btn note-btn" id="noteBtn" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path class="v" d="M12 4v16"/><path d="M4 12h16"/></svg><span>ملاحظة</span>
+          </button>
         </div>
-        <p class="stamp">يُسجَّل التاريخ والوقت تلقائيًا عند الحفظ.</p>
+        <div class="note-box" id="noteBox" hidden>
+          <label class="sr" for="note">ملاحظة</label>
+          <textarea id="note" maxlength="300" rows="1" placeholder="ملاحظة اختيارية تُحفظ مع التقييم"></textarea>
+        </div>
+        <div class="rates" id="rates">
+          <button class="rate excellent" data-rating="متميز" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1.03 6-5.38-2.83-5.38 2.83 1.03-6L3.3 9.6l6-.9z"/></svg>
+            متميز
+          </button>
+          <button class="rate good" data-rating="جيد" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.8"/><path d="M8.2 12.3l2.6 2.6 5-5.2"/></svg>
+            جيد
+          </button>
+          <button class="rate follow" data-rating="يحتاج متابعة" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 14.5h7M8.5 18h4"/></svg>
+            يحتاج متابعة
+          </button>
+        </div>
+        <p class="status" id="hint" role="status" aria-live="polite">يحفظ التقييم مباشرة عند الاختيار</p>
+      </section>
+
+      <section class="done" id="done" hidden>
+        <div class="done-icon" id="doneIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h2>شكرًا لكِ</h2>
+        <p class="done-lead">تم حفظ تقييم حصتك.</p>
+        <dl class="done-sum">
+          <div><dt>الفصل</dt><dd id="doneClass"></dd></div>
+          <div><dt>المادة</dt><dd id="doneSubject"></dd></div>
+          <div><dt>التقدير</dt><dd id="doneRating"></dd></div>
+          <div><dt>الوقت</dt><dd id="doneTime"></dd></div>
+        </dl>
+        <p class="done-foot">يمكنكِ إغلاق هذه الصفحة.</p>
+      </section>
+
+      <section class="invalid" id="invalid" hidden>
+        <h2>لم يُحدَّد الفصل</h2>
+        <p>يُرجى مسح رمز QR الملصق في الفصل، أو فتح الرابط الخاص به.</p>
       </section>
     </div>
-
-    <div id="done" class="done" hidden>
-      <div class="done-icon" id="doneIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-      <h2 id="doneTitle">شكرًا لكِ</h2>
-      <p class="done-lead">تم حفظ تقييم حصتك.</p>
-      <dl class="done-sum">
-        <div><dt>الفصل</dt><dd id="doneClass"></dd></div>
-        <div><dt>المادة</dt><dd id="doneSubject"></dd></div>
-        <div><dt>التقدير</dt><dd id="doneRating"></dd></div>
-        <div><dt>الوقت</dt><dd id="doneTime"></dd></div>
-      </dl>
-      <p class="done-foot">يمكنكِ إغلاق هذه الصفحة.</p>
-    </div>
-
-    <div id="invalid" class="invalid" hidden>
-      <h2>لم يُحدَّد الفصل</h2>
-      <p>يُرجى مسح رمز QR الملصق في الفصل، أو فتح الرابط الخاص به.</p>
-    </div>
   </div>
+  <p class="rights">فكرة وتصميم: أ. نهى فالح المطيري © 2026</p>
 </main>
-
-<div class="dock" id="dock" hidden>
-  <div class="wrap">
-    <div class="sec-title">
-      <h2><span class="step">٢</span>التقدير العام</h2>
-      <button class="note-toggle" id="noteToggle" type="button" aria-expanded="false">إضافة ملاحظة</button>
-    </div>
-    <div class="rates locked" id="rates">
-      <button class="rate excellent" data-rating="متميز" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1.03 6-5.38-2.83-5.38 2.83 1.03-6L3.3 9.6l6-.9z"/></svg>
-        متميز
-      </button>
-      <button class="rate good" data-rating="جيد" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.8"/><path d="M8.2 12.3l2.6 2.6 5-5.2"/></svg>
-        جيد
-      </button>
-      <button class="rate follow" data-rating="يحتاج متابعة" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 14.5h7M8.5 18h4"/></svg>
-        يحتاج متابعة
-      </button>
-    </div>
-    <div class="err" id="err" role="alert"></div>
-    <div class="note-box" id="noteBox">
-      <label class="sr" for="note">ملاحظة</label>
-      <textarea class="field" id="note" maxlength="300" placeholder="تُحفظ الملاحظة مع التقدير"></textarea>
-    </div>
-  </div>
-</div>
-
-<footer class="site-foot">فكرة وتصميم: أ. نهى فالح المطيري © 2026</footer>
 
 <script src="config.js"></script>
 <script src="assets/common.js"></script>
@@ -266,150 +225,136 @@ body{min-height:100vh;min-height:100dvh}
 
   var params = new URLSearchParams(location.search);
   var cls = M.findClass(params.get("c") || params.get("class"));
+  var panel = $("panel");
   if (!cls) { $("invalid").hidden = false; return; }
 
   document.title = "مرآة الصف — " + cls.name;
   $("app").hidden = false;
-  $("dock").hidden = false;
-  $("className").textContent = cls.name;
   $("plaque").hidden = false;
-  $("heroDate").textContent = new Date().toLocaleDateString("ar-SA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  $("className").textContent = cls.name;
   if (S.demo) $("demoFlag").hidden = false;
 
   var subject = "", busy = false;
-  var grid = $("subjects"), hint = $("hint"), rates = $("rates");
+  var grid = $("subjects"), hint = $("hint"), rates = $("rates"), otherBtn = $("otherBtn");
+  var CHECK = '<svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M7.2 12.4l3.1 3.1 6.4-6.6" fill="none" stroke="#0b5c37" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-  M.subjectsFor(cls).forEach(function (name) {
+  /* «أخرى» زر مستقل بجانب العنوان، والمواد في الشبكة */
+  var subjects = M.subjectsFor(cls).filter(function (n) { return n !== "أخرى"; });
+  subjects.forEach(function (name) {
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "subj" + (name === "أخرى" ? " other" : "");
-    b.textContent = name;
+    b.className = "subj";
+    b.innerHTML = '<span></span>' + CHECK;
+    b.firstChild.textContent = name;
     b.setAttribute("aria-pressed", "false");
     b.addEventListener("click", function () { pick(name, b); });
     grid.appendChild(b);
+  });
+  otherBtn.addEventListener("click", function () { pick("أخرى", otherBtn); $("otherName").focus(); });
+  $("noteBtn").addEventListener("click", function () {
+    var open = $("noteBox").hidden;
+    $("noteBox").hidden = !open;
+    this.setAttribute("aria-expanded", String(open));
+    this.querySelector("span").textContent = open ? "إخفاء الملاحظة" : "ملاحظة";
+    keep2 = open && !grid.classList.contains("c3");
+    fit();
+    if (open) $("note").focus();
   });
 
   function pick(name, btn) {
     subject = name;
     grid.querySelectorAll(".subj").forEach(function (e) { e.setAttribute("aria-pressed", String(e === btn)); });
-    $("otherBox").classList.toggle("show", name === "أخرى");
+    otherBtn.setAttribute("aria-pressed", String(btn === otherBtn));
+    $("otherBox").hidden = name !== "أخرى";
+    setStatus("", "يحفظ التقييم مباشرة عند الاختيار");
     fit();
-    rates.classList.remove("locked");
-    hint.className = "hint ok";
-    hint.textContent = name === "أخرى" ? "أخرى" : name;
-    $("err").classList.remove("show");
   }
 
-  /* المسافة السفلية تساوي ارتفاع شريط التقدير دائمًا، فلا يُغطّى زر «أخرى».
-     ويُحسب عدد الأعمدة وارتفاع أزرار المواد لتظهر كلها مع أزرار التقدير في شاشة واحدة. */
-  var dock = $("dock");
-  var count = grid.children.length;
+  var statusTimer = null;
+  function setStatus(kind, text, revert) {
+    clearTimeout(statusTimer);
+    hint.className = "status";
+    void hint.offsetWidth;
+    if (kind) hint.classList.add(kind);
+    hint.textContent = text;
+    if (revert) statusTimer = setTimeout(function () { setStatus("", "يحفظ التقييم مباشرة عند الاختيار"); }, 2600);
+  }
+
+  /* ملاءمة الصفحة لطول الشاشة: تُحسب أعمدة المواد وارتفاعها، والمساحة الزائدة تذهب إلى أعلى الإطار */
   function topOf(el) { var y = 0; while (el) { y += el.offsetTop; el = el.offsetParent; } return y; }
-  var hero = $("hero");
-  function fit() {
-    hero.style.setProperty("--hero-extra", "0px");
-    hero.classList.remove("mid", "tight");
-    /* تُعرض الترويسة كاملة إن اتسعت الشاشة، وإلا تُختصر على مرحلتين حتى تظهر المواد كلها */
-    if (measure() < 0) {
-      hero.classList.add("mid"); hero.style.setProperty("--hero-extra", "0px");
-      if (measure() < 0) {
-        hero.classList.remove("mid"); hero.classList.add("tight"); hero.style.setProperty("--hero-extra", "0px");
-        measure();
-      }
-    }
-  }
-  function measure() {
+  function viewport() {
     var root = document.documentElement, z = parseFloat(root.style.zoom) || 1;
-    /* عند التكبير التلقائي تُقاس الأبعاد بعد التكبير (يختلف أسلوب المتصفحات في ذلك) */
-    var w = root.clientWidth, vh = window.innerHeight;
-    if (z !== 1) {
-      if (w / z >= 300) w = w / z;
-      if (vh / z >= 300) vh = vh / z;
-    }
-    var cols = w >= 900 ? 4 : w >= 600 ? 3 : w < 340 ? 2 : (count >= 9 ? 3 : 2);
-    grid.className = "subjects c" + cols;
-    var foot = document.querySelector(".site-foot");
-    var other = $("otherBox").classList.contains("show") ? $("otherBox").offsetHeight + 8 : 0;
-    var avail = vh - dock.offsetHeight - topOf(grid) - other - 14;
-    var rows = Math.ceil(count / cols), gap = 8;
-    var cap = w < 600 ? 60 : 68;                    /* ارتفاع مريح ثابت لأزرار المواد */
-    var h = Math.floor((avail - (rows - 1) * gap) / rows);
-    h = Math.max(42, Math.min(h, cap));
-    grid.style.setProperty("--btn-h", h + "px");
-    /* المساحة الزائدة (بعد قياس ارتفاع المواد الفعلي) تذهب إلى الترويسة */
-    var extra = Math.max(0, Math.min(avail - grid.offsetHeight - 4, 160));
-    hero.style.setProperty("--hero-extra", Math.floor(extra) + "px");
-    return avail - grid.offsetHeight;
+    var w = root.clientWidth, h = window.innerHeight;
+    if (z !== 1) { if (w / z >= 300) w = w / z; if (h / z >= 300) h = h / z; }
+    return { w: w, h: h };
   }
-  if (window.ResizeObserver) new ResizeObserver(fit).observe(dock);
+  function layout(cols, btnH, extra) {
+    grid.className = "subjects" + (cols === 3 ? " c3" : "");
+    grid.style.setProperty("--btn-h", btnH + "px");
+    panel.style.setProperty("--head-extra", extra + "px");
+  }
+  function overflow(vh) {
+    var bottom = topOf(panel) + panel.offsetHeight + 7 + document.querySelector(".rights").offsetHeight + 14;
+    return vh - bottom;             /* موجب = مساحة زائدة، سالب = الصفحة أطول من الشاشة */
+  }
+  var keep2 = false;
+  function fit() {
+    document.documentElement.classList.remove("compact");
+    var v = viewport(), n = subjects.length;
+    var cols = v.w >= 360 && n > 10 ? 3 : 2;
+    var min = cols === 3 ? 44 : 48, cap = 62;
+    layout(cols, min, 0);
+    var slack = overflow(v.h);
+    /* الترتيب: ضغط المسافات أولًا مع بقاء عدد الأعمدة، ثم ثلاثة أعمدة إن لزم */
+    if (slack < 0) { document.documentElement.classList.add("compact"); min = cols === 3 ? 42 : 46; layout(cols, min, 0); slack = overflow(v.h); }
+    if (slack < 0 && cols === 2 && v.w >= 340 && !keep2) {
+      document.documentElement.classList.remove("compact");
+      cols = 3; min = 44; layout(cols, min, 0); slack = overflow(v.h);
+      if (slack < 0) { document.documentElement.classList.add("compact"); min = 42; layout(cols, min, 0); slack = overflow(v.h); }
+    }
+    if (slack <= 0) return;
+    var rows = Math.ceil(n / cols);
+    var grow = Math.min(cap - min, Math.floor(slack / rows));
+    layout(cols, min + grow, 0);
+    slack = overflow(v.h);
+    if (slack > 0) layout(cols, min + grow, Math.min(Math.floor(slack), 90));
+  }
   window.addEventListener("resize", fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   fit();
 
-  $("noteToggle").addEventListener("click", function () {
-    var open = !$("noteBox").classList.contains("show");
-    $("noteBox").classList.toggle("show", open);
-    this.setAttribute("aria-expanded", String(open));
-    this.textContent = open ? "إخفاء الملاحظة" : "إضافة ملاحظة";
-    if (open) $("note").focus();
-  });
-
   rates.querySelectorAll(".rate").forEach(function (b) {
-    b.addEventListener("click", function () { rate(b.getAttribute("data-rating"), b); });
+    b.addEventListener("click", function () { rate(b.getAttribute("data-rating")); });
   });
 
-  function rate(rating, btn) {
+  function rate(rating) {
     if (busy) return;
-    if (!subject) {
-      hint.className = "hint";
-      void hint.offsetWidth;
-      hint.className = "hint warn";
-      hint.textContent = "حدّدي المادة أولًا";
-      return;
-    }
+    if (!subject) { setStatus("warn", "حدّدي المادة أولًا", true); return; }
     var other = $("otherName").value.trim();
     var subj = subject === "أخرى" ? (other ? "أخرى: " + other : "أخرى") : subject;
     busy = true;
     rates.classList.add("busy");
-    hint.textContent = "جارٍ الحفظ…";
+    setStatus("", "جارٍ الحفظ…");
     S.save({ classCode: cls.code, classroom: cls.name, stage: cls.stage, subject: subj, rating: rating, note: $("note").value.trim() })
       .then(function () {
-        var colors = { "متميز": "var(--excellent)", "جيد": "var(--good)", "يحتاج متابعة": "var(--follow)" };
+        var colors = { "متميز": "var(--r-excellent)", "جيد": "var(--r-good)", "يحتاج متابعة": "var(--r-follow)" };
         $("doneIcon").style.background = colors[rating];
         $("doneClass").textContent = cls.name;
         $("doneSubject").textContent = subj;
         $("doneRating").textContent = rating;
         $("doneRating").style.color = colors[rating];
         $("doneTime").textContent = new Date().toLocaleString("ar-SA", { weekday: "long", hour: "numeric", minute: "2-digit" });
-        /* انتهى التقييم: تُخفى المواد وشريط التقدير، ولا يُتاح تقييم آخر من الصفحة نفسها */
+        /* انتهى التقييم: تُخفى المواد والتقدير، ولا يُتاح تقييم آخر من الصفحة نفسها */
         $("app").hidden = true;
-        $("dock").hidden = true;
         $("done").hidden = false;
+        panel.style.setProperty("--head-extra", "0px");
         window.scrollTo(0, 0);
-        return;
       })
       .catch(function () {
-        $("err").textContent = "تعذّر الحفظ. تحقّقي من الاتصال بالإنترنت ثم أعيدي المحاولة.";
-        $("err").classList.add("show");
-        hint.className = "hint ok";
-        hint.textContent = subject;
+        setStatus("bad", "تعذّر الحفظ. تحقّقي من الاتصال ثم أعيدي المحاولة.");
       })
       .then(function () { busy = false; rates.classList.remove("busy"); });
   }
-
-  function reset() {
-    subject = "";
-    grid.querySelectorAll(".subj").forEach(function (e) { e.setAttribute("aria-pressed", "false"); });
-    $("otherBox").classList.remove("show");
-    $("otherName").value = "";
-    $("note").value = "";
-    $("noteBox").classList.remove("show");
-    $("noteToggle").textContent = "إضافة ملاحظة";
-    $("noteToggle").setAttribute("aria-expanded", "false");
-    rates.classList.add("locked");
-    hint.className = "hint";
-    hint.textContent = "حدّدي المادة أولًا";
-  }
-
 })();
 </script>
 </body>
