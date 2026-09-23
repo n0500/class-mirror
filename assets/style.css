@@ -1,0 +1,42 @@
+/* مرآة الصف — الهوية البصرية المشتركة */
+:root{
+  --green-900:#0d3a2e;
+  --green-800:#12473a;
+  --green-700:#165a48;
+  --green-600:#1d6b55;
+  --gold:#b8893a;
+  --gold-soft:#e9d9b4;
+  --gold-bg:#faf5ea;
+  --ink:#163229;
+  --ink-2:#3d554c;
+  --muted:#6c7b74;
+  --line:#dfe6e2;
+  --bg:#f3f6f4;
+  --card:#ffffff;
+  --excellent:#2e7d4a;
+  --excellent-d:#1f5d36;
+  --good:#2f63c9;
+  --good-d:#214a9c;
+  --follow:#c05a1f;
+  --follow-d:#924214;
+  --danger:#b3261e;
+  --radius:18px;
+  --font:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{margin:0;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5}
+button,input,textarea,select{font-family:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* الترويسة */
+.masthead{background:linear-gradient(160deg,var(--green-800),var(--green-900));color:#fff;border-top:5px solid var(--gold);padding:22px 20px 58px}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{flex:none;width:48px;height:48px;border-radius:14px;border:1.5px solid var(--gold);display:grid;place-items:center;background:rgba(255,255,255,.04)}
+.mark svg{width:26px;height:34px}
+.brand h1{margin:0;font-size:27px;font-weight:700;letter-spacing:0}
+.school{margin:8px 0 0;font-size:14px;color:#d7e3dd}
+.wrap{max-width:640px;margin:0 auto}

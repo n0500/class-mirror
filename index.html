@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12473a">
+<title>مرآة الصف</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312473a'/%3E%3Cellipse cx='32' cy='32' rx='14' ry='20' fill='none' stroke='%23d4a55a' stroke-width='3.5'/%3E%3Cpath d='M28 38l7-12M32 40l5-9' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+body{min-height:100vh;min-height:100dvh}
+.sheet{position:relative;margin:-40px 12px 0;background:var(--card);border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 -2px 0 rgba(0,0,0,.02),0 10px 30px rgba(13,58,46,.08);min-height:60vh}
+.class-head{padding:20px 20px 16px;border-bottom:1px solid var(--line);border-inline-start:4px solid var(--gold);border-start-start-radius:var(--radius)}
+.eyebrow{font-size:14px;font-weight:600;color:var(--gold)}
+.class-name{margin:2px 0 0;font-size:28px;font-weight:700;line-height:1.25;color:var(--ink)}
+.section{padding:18px 16px 8px}
+.sec-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 4px 14px}
+.sec-title h2{margin:0;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--gold-bg);border:1px solid var(--gold-soft);color:var(--gold);font-size:15px;font-weight:700}
+.sec-note{font-size:13px;color:var(--muted)}
+.subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.subj{min-height:64px;padding:10px 10px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-size:16.5px;font-weight:600;line-height:1.35;text-align:center;overflow-wrap:anywhere;word-break:break-word;transition:border-color .15s,background .15s,box-shadow .15s}
+.subj:active{transform:scale(.985)}
+.subj[aria-pressed="true"]{border-color:var(--green-600);background:#e9f4ef;color:var(--green-800);box-shadow:inset 0 0 0 1.5px var(--green-600)}
+.subj.other{border-style:dashed;color:var(--ink-2)}
+.other-box{display:none;margin-top:12px}
+.other-box.show{display:block}
+.field{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;color:var(--ink);background:#fbfcfb}
+.field:focus{outline:none;border-color:var(--green-600);background:#fff}
+.stamp{margin:10px 4px 0;font-size:13px;color:var(--muted);text-align:center}
+
+/* شريط التقدير الثابت */
+.dock{position:fixed;inset-inline:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--line);border-radius:20px 20px 0 0;box-shadow:0 -10px 28px rgba(13,58,46,.10);padding:14px 14px calc(12px + env(safe-area-inset-bottom))}
+.dock .wrap{max-width:640px}
+.dock .sec-title{margin:0 2px 12px}
+.hint{font-size:13.5px;font-weight:600;color:var(--muted);text-align:left}
+.hint.ok{color:var(--green-700)}
+.hint.warn{color:var(--follow);animation:nudge .35s}
+@keyframes nudge{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.rates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.rate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:84px;padding:10px 4px;border:0;border-radius:15px;color:#fff;font-size:17px;font-weight:700;line-height:1.25;text-align:center}
+.rate svg{width:26px;height:26px;flex:none}
+.rate.excellent{background:var(--excellent);box-shadow:0 4px 0 var(--excellent-d)}
+.rate.good{background:var(--good);box-shadow:0 4px 0 var(--good-d)}
+.rate.follow{background:var(--follow);box-shadow:0 4px 0 var(--follow-d)}
+.rate:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.rates.locked .rate{opacity:.55}
+.rates.busy .rate{pointer-events:none;opacity:.6}
+.note-toggle{display:block;margin:12px auto 0;padding:4px 8px;border:0;background:none;color:var(--green-700);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:4px}
+.note-box{display:none;margin-top:10px}
+.note-box.show{display:block}
+.note-box textarea{min-height:64px;resize:none}
+
+/* نافذة التأكيد */
+.done{position:fixed;inset:0;z-index:40;display:none;align-items:flex-end;justify-content:center;background:rgba(13,34,28,.45)}
+.done.show{display:flex}
+.done-card{width:100%;max-width:640px;background:#fff;border-radius:22px 22px 0 0;padding:26px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+.done-icon{width:62px;height:62px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.done-icon svg{width:32px;height:32px}
+.done h3{margin:0 0 4px;font-size:22px}
+.done p{margin:0;color:var(--ink-2);font-size:16px}
+.done .time{margin-top:6px;font-size:13px;color:var(--muted)}
+.done button{margin-top:18px;width:100%;min-height:54px;border:0;border-radius:14px;background:var(--green-700);color:#fff;font-size:17px;font-weight:700}
+.err{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fdecea;color:var(--danger);font-size:14px;font-weight:600;text-align:center}
+.err.show{display:block}
+
+/* رابط غير صالح */
+.invalid{padding:34px 22px 40px;text-align:center}
+.invalid h2{margin:0 0 8px;font-size:21px}
+.invalid p{margin:0;color:var(--ink-2)}
+.demo-flag{margin:14px 16px 0;padding:8px 12px;border-radius:10px;background:var(--gold-bg);border:1px solid var(--gold-soft);font-size:13px;color:#7a5a1f;text-align:center}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg viewBox="0 0 26 34"><ellipse cx="13" cy="17" rx="10.5" ry="15" fill="none" stroke="#d4a55a" stroke-width="2"/><path d="M10 22l6-11M13 24l4-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <h1>مرآة الصف</h1>
+    </div>
+    <p class="school" id="school"></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="sheet" id="sheet">
+    <div id="app" hidden>
+      <div class="class-head">
+        <div class="eyebrow">تقييم أداء الصف</div>
+        <h2 class="class-name" id="className"></h2>
+      </div>
+      <div id="demoFlag" class="demo-flag" hidden>وضع التجربة: تُحفظ التقييمات في هذا الجهاز فقط إلى حين ربط قاعدة البيانات.</div>
+      <section class="section" aria-labelledby="subjTitle">
+        <div class="sec-title">
+          <h2 id="subjTitle"><span class="step">١</span>المادة الدراسية</h2>
+          <span class="sec-note">مواد الصف</span>
+        </div>
+        <div class="subjects" id="subjects" role="group" aria-labelledby="subjTitle"></div>
+        <div class="other-box" id="otherBox">
+          <label class="sr" for="otherName">اسم المادة</label>
+          <input class="field" id="otherName" maxlength="60" placeholder="اسم المادة (اختياري)" autocomplete="off">
+        </div>
+        <p class="stamp">يُسجَّل التاريخ والوقت تلقائيًا عند الحفظ.</p>
+      </section>
+      <div id="spacer" aria-hidden="true"></div>
+    </div>
+
+    <div id="invalid" class="invalid" hidden>
+      <h2>لم يُحدَّد الفصل</h2>
+      <p>يُرجى مسح رمز QR الملصق في الفصل، أو فتح الرابط الخاص به.</p>
+    </div>
+  </div>
+</main>
+
+<div class="dock" id="dock" hidden>
+  <div class="wrap">
+    <div class="sec-title">
+      <h2><span class="step">٢</span>التقدير العام</h2>
+      <span class="hint" id="hint" aria-live="polite">حدّدي المادة أولًا</span>
+    </div>
+    <div class="rates locked" id="rates">
+      <button class="rate excellent" data-rating="متميز" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1.03 6-5.38-2.83-5.38 2.83 1.03-6L3.3 9.6l6-.9z"/></svg>
+        متميز
+      </button>
+      <button class="rate good" data-rating="جيد" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.8"/><path d="M8.2 12.3l2.6 2.6 5-5.2"/></svg>
+        جيد
+      </button>
+      <button class="rate follow" data-rating="يحتاج متابعة" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 14.5h7M8.5 18h4"/></svg>
+        يحتاج متابعة
+      </button>
+    </div>
+    <div class="err" id="err" role="alert"></div>
+    <button class="note-toggle" id="noteToggle" type="button" aria-expanded="false">إضافة ملاحظة (اختياري)</button>
+    <div class="note-box" id="noteBox">
+      <label class="sr" for="note">ملاحظة</label>
+      <textarea class="field" id="note" maxlength="300" placeholder="تُحفظ الملاحظة مع التقدير"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="done" id="done" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+  <div class="done-card">
+    <div class="done-icon" id="doneIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h3 id="doneTitle">تم حفظ التقييم</h3>
+    <p id="doneText"></p>
+    <div class="time" id="doneTime"></div>
+    <button type="button" id="again">تقييم مادة أخرى</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  var M = window.Miraat, S = M.Store;
+  var $ = function (id) { return document.getElementById(id); };
+  $("school").textContent = M.SCHOOL;
+
+  var params = new URLSearchParams(location.search);
+  var cls = M.findClass(params.get("c") || params.get("class"));
+  if (!cls) { $("invalid").hidden = false; return; }
+
+  document.title = "مرآة الصف — " + cls.name;
+  $("app").hidden = false;
+  $("dock").hidden = false;
+  $("className").textContent = cls.name;
+  if (S.demo) $("demoFlag").hidden = false;
+
+  var subject = "", busy = false;
+  var grid = $("subjects"), hint = $("hint"), rates = $("rates");
+
+  M.subjectsFor(cls).forEach(function (name) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "subj" + (name === "أخرى" ? " other" : "");
+    b.textContent = name;
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function () { pick(name, b); });
+    grid.appendChild(b);
+  });
+
+  function pick(name, btn) {
+    subject = name;
+    grid.querySelectorAll(".subj").forEach(function (e) { e.setAttribute("aria-pressed", String(e === btn)); });
+    $("otherBox").classList.toggle("show", name === "أخرى");
+    rates.classList.remove("locked");
+    hint.className = "hint ok";
+    hint.textContent = name === "أخرى" ? "أخرى" : name;
+    $("err").classList.remove("show");
+  }
+
+  /* المسافة السفلية تساوي ارتفاع شريط التقدير دائمًا، فلا يُغطّى زر «أخرى» */
+  var dock = $("dock"), spacer = $("spacer");
+  function fit() { spacer.style.height = (dock.offsetHeight + 16) + "px"; }
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(dock);
+  window.addEventListener("resize", fit);
+  fit();
+
+  $("noteToggle").addEventListener("click", function () {
+    var open = !$("noteBox").classList.contains("show");
+    $("noteBox").classList.toggle("show", open);
+    this.setAttribute("aria-expanded", String(open));
+    this.textContent = open ? "إخفاء الملاحظة" : "إضافة ملاحظة (اختياري)";
+    if (open) $("note").focus();
+  });
+
+  rates.querySelectorAll(".rate").forEach(function (b) {
+    b.addEventListener("click", function () { rate(b.getAttribute("data-rating"), b); });
+  });
+
+  function rate(rating, btn) {
+    if (busy) return;
+    if (!subject) {
+      hint.className = "hint";
+      void hint.offsetWidth;
+      hint.className = "hint warn";
+      hint.textContent = "حدّدي المادة أولًا";
+      return;
+    }
+    var other = $("otherName").value.trim();
+    var subj = subject === "أخرى" ? (other ? "أخرى: " + other : "أخرى") : subject;
+    busy = true;
+    rates.classList.add("busy");
+    hint.textContent = "جارٍ الحفظ…";
+    S.save({ classCode: cls.code, classroom: cls.name, stage: cls.stage, subject: subj, rating: rating, note: $("note").value.trim() })
+      .then(function () {
+        var colors = { "متميز": "var(--excellent)", "جيد": "var(--good)", "يحتاج متابعة": "var(--follow)" };
+        $("doneIcon").style.background = colors[rating];
+        $("doneText").textContent = subj + " — " + rating;
+        $("doneTime").textContent = new Date().toLocaleString("ar-SA", { weekday: "long", hour: "numeric", minute: "2-digit" });
+        $("done").classList.add("show");
+        $("again").focus();
+        reset();
+      })
+      .catch(function () {
+        $("err").textContent = "تعذّر الحفظ. تحقّقي من الاتصال بالإنترنت ثم أعيدي المحاولة.";
+        $("err").classList.add("show");
+        hint.className = "hint ok";
+        hint.textContent = subject;
+      })
+      .then(function () { busy = false; rates.classList.remove("busy"); });
+  }
+
+  function reset() {
+    subject = "";
+    grid.querySelectorAll(".subj").forEach(function (e) { e.setAttribute("aria-pressed", "false"); });
+    $("otherBox").classList.remove("show");
+    $("otherName").value = "";
+    $("note").value = "";
+    $("noteBox").classList.remove("show");
+    $("noteToggle").textContent = "إضافة ملاحظة (اختياري)";
+    $("noteToggle").setAttribute("aria-expanded", "false");
+    rates.classList.add("locked");
+    hint.className = "hint";
+    hint.textContent = "حدّدي المادة أولًا";
+  }
+
+  $("again").addEventListener("click", function () {
+    $("done").classList.remove("show");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>

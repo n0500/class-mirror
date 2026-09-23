@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12473a">
+<meta name="robots" content="noindex">
+<title>لوحة المتابعة — مرآة الصف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.masthead{padding-bottom:22px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top-links{display:flex;gap:8px;flex-wrap:wrap}
+.top-links a,.top-links button{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:11px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);color:#fff;font-size:14px;font-weight:600;text-decoration:none}
+.page{max-width:1040px;margin:0 auto;padding:18px 14px 60px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.panel h2{margin:0 0 4px;font-size:18px}
+.panel .sub{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+.demo{padding:12px 14px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-soft);color:#6f521b;font-size:14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.demo button{min-height:36px;padding:0 12px;border-radius:9px;border:1px solid var(--gold);background:#fff;color:#6f521b;font-weight:600;font-size:13.5px}
+
+/* الدخول */
+.login{max-width:420px;margin:30px auto}
+.login label{display:block;margin:12px 0 6px;font-weight:600;font-size:14px}
+.field{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;background:#fbfcfb;color:var(--ink)}
+.field:focus{outline:none;border-color:var(--green-600);background:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:0;border-radius:12px;background:var(--green-700);color:#fff;font-size:16px;font-weight:700}
+.btn.full{width:100%;margin-top:18px}
+.btn.ghost{background:#fff;color:var(--green-700);border:1.5px solid var(--line)}
+.link{border:0;background:none;color:var(--green-700);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:4px;margin-top:12px;padding:4px}
+.msg{margin-top:12px;font-size:14px;font-weight:600}
+.msg.bad{color:var(--danger)}.msg.good{color:var(--green-700)}
+
+/* المرشحات */
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink-2);font-size:14.5px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--green-700);border-color:var(--green-700);color:#fff}
+.filters select{min-height:42px;padding:0 12px;border:1.5px solid var(--line);border-radius:11px;background:#fff;font-size:15px;color:var(--ink);max-width:100%}
+.filters .grow{flex:1}
+@media(max-width:640px){.filters .grow{display:none}.filters select{flex:1 1 40%;min-width:0}.chips{width:100%}.chip{flex:1;padding:0 4px;white-space:nowrap;font-size:13.5px}}
+
+/* المؤشرات */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px}
+.kpi .lbl{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.kpi .dot{width:10px;height:10px;border-radius:3px;flex:none}
+.kpi .num{font-size:30px;font-weight:700;line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .pct{font-size:13px;color:var(--muted)}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* الأشرطة */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-2);margin-bottom:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.bar{display:flex;gap:2px;height:14px;border-radius:4px;overflow:hidden;background:#eef2f0}
+.bar.big{height:22px}
+.bar b{display:block;height:100%;min-width:0}
+.bar b:first-child{border-start-start-radius:4px;border-end-start-radius:4px}
+.bar b:last-child{border-start-end-radius:4px;border-end-end-radius:4px}
+.c-excellent{background:var(--excellent)}.c-good{background:var(--good)}.c-follow{background:var(--follow)}
+.rows{display:grid;gap:4px}
+.row{display:grid;grid-template-columns:minmax(96px,150px) minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 6px;border-radius:10px;border:0;background:none;text-align:inherit;font:inherit;color:inherit;width:100%}
+button.row:hover{background:#f3f7f5}
+.row .name{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.row .counts{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .counts em{font-style:normal;color:var(--muted)}
+.flagtxt{display:table;margin-top:3px;padding:0 7px;border-radius:6px;background:#fbeee6;color:var(--follow-d);font-size:11.5px;font-weight:600}
+@media(max-width:560px){.row{grid-template-columns:1fr auto}.row .bar{grid-column:1/-1;order:3}}
+.empty{padding:22px 8px;text-align:center;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+
+/* السجل */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:start;font-weight:600;color:var(--muted);font-size:13px;padding:8px 6px;border-bottom:1px solid var(--line)}
+.tbl td{padding:10px 6px;border-bottom:1px solid #eef2f0;vertical-align:top}
+.tag{display:inline-flex;align-items:center;gap:6px;font-weight:600;white-space:nowrap}
+.tag i{width:10px;height:10px;border-radius:3px}
+.tbl .note{color:var(--ink-2);font-size:13px;margin-top:3px}
+.tbl .when{color:var(--muted);white-space:nowrap;font-size:13px}
+.del{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:2px}
+@media(max-width:620px){
+  .tbl thead{display:none}
+  .tbl tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 2px;border-bottom:1px solid #eef2f0}
+  .tbl td{padding:0;border:0}
+  .tbl td.c-cls{grid-column:1}.tbl td.c-rate{grid-column:2;grid-row:1}
+  .tbl td.c-sub{grid-column:1/-1}.tbl td.c-when{grid-column:1}.tbl td.c-act{grid-column:2}
+}
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:#fff;padding:7px 10px;border-radius:9px;font-size:13px;line-height:1.5;box-shadow:0 6px 18px rgba(0,0,0,.18);display:none;max-width:240px}
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.links-grid div{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;font-size:14px}
+.links-grid a{color:var(--green-700);font-weight:600;text-decoration:none}
+.links-grid button{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline}
+details summary{cursor:pointer;font-weight:700;font-size:17px}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="page" style="padding:0 0">
+    <div class="top">
+      <div>
+        <div class="brand">
+          <div class="mark" aria-hidden="true"><svg viewBox="0 0 26 34"><ellipse cx="13" cy="17" rx="10.5" ry="15" fill="none" stroke="#d4a55a" stroke-width="2"/><path d="M10 22l6-11M13 24l4-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <h1>لوحة المتابعة</h1>
+        </div>
+        <p class="school" id="school"></p>
+      </div>
+      <nav class="top-links" id="nav" hidden>
+        <a href="cards.html">بطاقات الفصول</a>
+        <button type="button" id="logout">تسجيل الخروج</button>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <!-- الدخول -->
+  <section class="panel login" id="loginView" hidden>
+    <h2>دخول الإدارة</h2>
+    <p class="sub">لوحة المتابعة خاصة بالإدارة ومالكة المبادرة.</p>
+    <form id="loginForm" novalidate>
+      <label for="email">البريد الإلكتروني</label>
+      <input class="field" id="email" type="email" autocomplete="username" dir="ltr" required>
+      <label for="pw">كلمة المرور</label>
+      <input class="field" id="pw" type="password" autocomplete="current-password" dir="ltr" required>
+      <button class="btn full" type="submit" id="loginBtn">دخول</button>
+    </form>
+    <button class="link" type="button" id="forgot">نسيت كلمة المرور</button>
+    <div class="msg" id="loginMsg" role="status"></div>
+  </section>
+
+  <section class="panel login" id="deniedView" hidden>
+    <h2>لا تتوفر صلاحية</h2>
+    <p class="sub">هذا الحساب غير مُدرج ضمن حسابات الإدارة.</p>
+    <button class="btn ghost" type="button" id="logout2">تسجيل الخروج</button>
+  </section>
+
+  <!-- اللوحة -->
+  <div id="dash" hidden>
+    <div class="demo" id="demoBar" hidden>
+      <span>وضع التجربة: البيانات محفوظة في هذا الجهاز فقط. اربطي Firebase من ملف config.js لتفعيل الحفظ المشترك.</span>
+      <span style="display:flex;gap:6px"><button type="button" id="seed">إضافة بيانات تجريبية</button><button type="button" id="clear">مسح البيانات</button></span>
+    </div>
+
+    <section class="panel">
+      <div class="filters">
+        <div class="chips" role="group" aria-label="الفترة" id="period">
+          <button class="chip" data-p="today" aria-pressed="false" type="button">اليوم</button>
+          <button class="chip" data-p="week" aria-pressed="true" type="button">هذا الأسبوع</button>
+          <button class="chip" data-p="month" aria-pressed="false" type="button">هذا الشهر</button>
+          <button class="chip" data-p="all" aria-pressed="false" type="button">الكل</button>
+        </div>
+        <span class="grow"></span>
+        <label class="sr" for="fClass">الفصل</label>
+        <select id="fClass"><option value="">جميع الفصول</option></select>
+        <label class="sr" for="fSubject">المادة</label>
+        <select id="fSubject"><option value="">جميع المواد</option></select>
+        <button class="btn ghost" type="button" id="refresh" style="min-height:42px">تحديث</button>
+      </div>
+    </section>
+
+    <div class="kpis" id="kpis"></div>
+
+    <section class="panel" style="margin-top:14px">
+      <h2>التوزيع العام</h2>
+      <p class="sub" id="distSub"></p>
+      <div class="legend" id="legend"></div>
+      <div class="bar big" id="distBar"></div>
+    </section>
+
+    <div class="two">
+      <section class="panel">
+        <h2>حسب الفصل</h2>
+        <p class="sub">اضغطي على الفصل لعرض تفاصيله.</p>
+        <div class="rows" id="byClass"></div>
+      </section>
+      <section class="panel">
+        <h2>حسب المادة</h2>
+        <p class="sub" id="bySubjectSub">ضمن الفصول المحددة.</p>
+        <div class="rows" id="bySubject"></div>
+        <div style="text-align:center"><button class="link" type="button" id="subjMore" hidden></button></div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div><h2>سجل التقييمات</h2><p class="sub" id="logSub" style="margin:0"></p></div>
+        <button class="btn ghost" type="button" id="csv" style="min-height:42px">تصدير Excel (CSV)</button>
+      </div>
+      <table class="tbl" style="margin-top:10px">
+        <thead><tr><th>الفصل</th><th>المادة</th><th>التقدير</th><th>التاريخ والوقت</th><th></th></tr></thead>
+        <tbody id="log"></tbody>
+      </table>
+      <div style="text-align:center"><button class="link" type="button" id="more" hidden>عرض المزيد</button></div>
+    </section>
+
+    <section class="panel">
+      <details>
+        <summary>روابط الفصول</summary>
+        <p class="sub" style="margin-top:8px">رابط مستقل لكل فصل، وهو نفسه المضمَّن في رمز QR.</p>
+        <div class="links-grid" id="links"></div>
+      </details>
+    </section>
+  </div>
+</main>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script src="config.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  var M = window.Miraat, S = M.Store;
+  var $ = function (id) { return document.getElementById(id); };
+  var R = M.RATINGS;
+  var fmt = new Intl.NumberFormat("ar-SA");
+  var pctFmt = new Intl.NumberFormat("ar-SA", { style: "percent", maximumFractionDigits: 0 });
+  $("school").textContent = M.SCHOOL;
+
+  var state = { period: "week", cls: "", subject: "", rows: [], shown: 25 };
+
+  /* ---------- الدخول ---------- */
+  function show(view) {
+    ["loginView", "deniedView", "dash"].forEach(function (v) { $(v).hidden = v !== view; });
+    $("nav").hidden = view !== "dash";
+  }
+  S.onAuth(function (user) {
+    if (!user) return show("loginView");
+    if (!S.isAdmin(user)) return show("deniedView");
+    show("dash");
+    if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
+    load();
+  });
+  $("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var m = $("loginMsg");
+    m.className = "msg"; m.textContent = "جارٍ التحقق…";
+    $("loginBtn").disabled = true;
+    S.signIn($("email").value.trim(), $("pw").value).catch(function () {
+      m.className = "msg bad"; m.textContent = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+    }).then(function () { $("loginBtn").disabled = false; });
+  });
+  $("forgot").addEventListener("click", function () {
+    var m = $("loginMsg"), em = $("email").value.trim();
+    if (!em) { m.className = "msg bad"; m.textContent = "اكتبي البريد الإلكتروني أولًا."; return; }
+    S.resetPassword(em).then(function () {
+      m.className = "msg good"; m.textContent = "أُرسل رابط إعادة تعيين كلمة المرور إلى بريدك.";
+    }).catch(function () { m.className = "msg bad"; m.textContent = "تعذّر إرسال الرابط. تحقّقي من البريد."; });
+  });
+  function out() { S.signOut().then(function () { location.reload(); }); }
+  $("logout").addEventListener("click", out);
+  $("logout2").addEventListener("click", out);
+
+  /* ---------- المرشحات ---------- */
+  M.CLASSES.forEach(function (c) {
+    var o = document.createElement("option"); o.value = c.code; o.textContent = c.name; $("fClass").appendChild(o);
+  });
+  $("period").addEventListener("click", function (e) {
+    var b = e.target.closest(".chip"); if (!b) return;
+    state.period = b.getAttribute("data-p");
+    this.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    load();
+  });
+  $("fClass").addEventListener("change", function () { state.cls = this.value; state.subject = ""; render(); });
+  $("fSubject").addEventListener("change", function () { state.subject = this.value; render(); });
+  $("refresh").addEventListener("click", load);
+
+  function since(p) {
+    var d = new Date(); d.setHours(0, 0, 0, 0);
+    if (p === "today") return d;
+    if (p === "week") { d.setDate(d.getDate() - d.getDay()); return d; } /* الأسبوع يبدأ الأحد */
+    if (p === "month") { d.setDate(1); return d; }
+    return null;
+  }
+
+  function load() {
+    $("log").innerHTML = '<tr><td colspan="5" class="empty">جارٍ التحميل…</td></tr>';
+    S.list(since(state.period)).then(function (rows) {
+      rows.forEach(function (r) { r.rating = M.normRating(r.rating); if (!r.classCode) { var c = M.findClass(r.classroom); r.classCode = c ? c.code : ""; } });
+      state.rows = rows; state.shown = 25; render();
+    }).catch(function (e) {
+      $("log").innerHTML = '<tr><td colspan="5" class="empty">تعذّر تحميل البيانات. ' + (e && e.code === "permission-denied" ? "تحقّقي من إضافة بريد الإدارة في قواعد الحماية." : "") + "</td></tr>";
+    });
+  }
+
+  /* ---------- الحساب والعرض ---------- */
+  function count(rows) {
+    var c = { total: rows.length };
+    R.forEach(function (r) { c[r.key] = 0; });
+    rows.forEach(function (x) { if (c[x.rating] !== undefined) c[x.rating]++; });
+    return c;
+  }
+  function bar(c, big) {
+    if (!c.total) return '<div class="bar' + (big ? " big" : "") + '"></div>';
+    return '<div class="bar' + (big ? " big" : "") + '">' + R.map(function (r) {
+      var n = c[r.key]; if (!n) return "";
+      return '<b class="c-' + r.cls + '" style="flex:' + n + '" data-tip="' + esc(r.key) + ": " + fmt.format(n) + " (" + pctFmt.format(n / c.total) + ')"></b>';
+    }).join("") + "</div>";
+  }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]; }); }
+  function counts(c) {
+    return fmt.format(c.total) + " <em>تقييم</em>";
+  }
+
+  function render() {
+    var byCls = state.cls ? state.rows.filter(function (r) { return r.classCode === state.cls; }) : state.rows;
+    /* قائمة المواد المتاحة ضمن الفصل المحدد */
+    var subs = {};
+    byCls.forEach(function (r) { subs[r.subject] = 1; });
+    var sel = $("fSubject"), cur = state.subject;
+    sel.innerHTML = '<option value="">جميع المواد</option>' + Object.keys(subs).sort().map(function (s) { return '<option' + (s === cur ? " selected" : "") + ">" + esc(s) + "</option>"; }).join("");
+    var rows = state.subject ? byCls.filter(function (r) { return r.subject === state.subject; }) : byCls;
+    var c = count(rows);
+
+    /* المؤشرات */
+    var colors = { "متميز": "var(--excellent)", "جيد": "var(--good)", "يحتاج متابعة": "var(--follow)" };
+    $("kpis").innerHTML =
+      '<div class="kpi"><div class="lbl">إجمالي التقييمات</div><div class="num">' + fmt.format(c.total) + '</div><div class="pct">' + periodLabel() + "</div></div>" +
+      R.map(function (r) {
+        return '<div class="kpi"><div class="lbl"><span class="dot" style="background:' + colors[r.key] + '"></span>' + r.key + '</div><div class="num">' + fmt.format(c[r.key]) + '</div><div class="pct">' + (c.total ? pctFmt.format(c[r.key] / c.total) : "—") + " من الإجمالي</div></div>";
+      }).join("");
+
+    $("legend").innerHTML = R.map(function (r) { return '<span><i class="c-' + r.cls + '"></i>' + r.key + "</span>"; }).join("");
+    $("distBar").outerHTML = bar(c, true).replace('<div class="bar big"', '<div class="bar big" id="distBar"');
+    $("distSub").textContent = c.total ? scopeLabel() : "لا توجد تقييمات في هذه الفترة.";
+
+    /* حسب الفصل (يتجاهل مرشح الفصل ليُظهر المقارنة) */
+    var base = state.subject ? state.rows.filter(function (r) { return r.subject === state.subject; }) : state.rows;
+    var clsStats = M.CLASSES.map(function (k) {
+      var cc = count(base.filter(function (r) { return r.classCode === k.code; }));
+      return { k: k, c: cc, share: cc.total ? cc["يحتاج متابعة"] / cc.total : 0 };
+    });
+    var maxShare = Math.max.apply(null, clsStats.map(function (s) { return s.c.total >= 3 ? s.share : 0; }));
+    $("byClass").innerHTML = clsStats.map(function (s) {
+      var flag = maxShare > 0 && s.c.total >= 3 && s.share === maxShare;
+      var on = state.cls === s.k.code;
+      return '<button type="button" class="row" data-c="' + s.k.code + '"' + (on ? ' style="background:#e9f4ef"' : "") + '><span class="name">' + esc(s.k.name) + (flag ? '<small class="flagtxt">أعلى نسبة متابعة</small>' : "") + "</span>" + bar(s.c) + '<span class="counts">' + counts(s.c) + "</span></button>";
+    }).join("");
+
+    /* حسب المادة */
+    var sm = {};
+    byCls.forEach(function (r) { (sm[r.subject] = sm[r.subject] || []).push(r); });
+    var list = Object.keys(sm).map(function (k) { return { k: k, c: count(sm[k]) }; }).sort(function (a, b) { return b.c.total - a.c.total; });
+    $("bySubjectSub").textContent = state.cls ? "ضمن " + M.findClass(state.cls).name + "." : "ضمن جميع الفصول.";
+    var full = list.length;
+    if (!state.allSubj) list = list.slice(0, 12);
+    $("subjMore").hidden = full <= 12;
+    $("subjMore").textContent = state.allSubj ? "عرض أقل" : "عرض جميع المواد (" + fmt.format(full) + ")";
+    $("bySubject").innerHTML = list.length ? list.map(function (s) {
+      return '<div class="row"><span class="name">' + esc(s.k) + "</span>" + bar(s.c) + '<span class="counts">' + counts(s.c) + "</span></div>";
+    }).join("") : '<div class="empty">لا توجد تقييمات.</div>';
+
+    /* السجل */
+    var shown = rows.slice(0, state.shown);
+    $("logSub").textContent = fmt.format(rows.length) + " تقييم — " + scopeLabel();
+    $("log").innerHTML = shown.length ? shown.map(function (r) {
+      var rr = R.filter(function (x) { return x.key === r.rating; })[0] || { cls: "" };
+      return "<tr><td class=\"c-cls\"><strong>" + esc(r.classroom || "غير محدد") + '</strong></td><td class="c-sub">' + esc(r.subject) + (r.note ? '<div class="note">' + esc(r.note) + "</div>" : "") +
+        '</td><td class="c-rate"><span class="tag"><i class="c-' + rr.cls + '"></i>' + esc(r.rating) + '</span></td><td class="c-when when">' + r.createdAt.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) +
+        '</td><td class="c-act"><button class="del" type="button" data-id="' + esc(r.id) + '">حذف</button></td></tr>';
+    }).join("") : '<tr><td colspan="5" class="empty">لا توجد تقييمات في هذه الفترة.</td></tr>';
+    $("more").hidden = rows.length <= state.shown;
+    state.current = rows;
+  }
+
+  function periodLabel() {
+    return { today: "اليوم", week: "هذا الأسبوع", month: "هذا الشهر", all: "جميع الفترات" }[state.period];
+  }
+  function scopeLabel() {
+    var p = [periodLabel()];
+    if (state.cls) p.push(M.findClass(state.cls).name);
+    if (state.subject) p.push(state.subject);
+    return p.join(" · ");
+  }
+
+  $("byClass").addEventListener("click", function (e) {
+    var b = e.target.closest(".row"); if (!b) return;
+    var code = b.getAttribute("data-c");
+    state.cls = state.cls === code ? "" : code; state.subject = "";
+    $("fClass").value = state.cls; render();
+  });
+  $("subjMore").addEventListener("click", function () { state.allSubj = !state.allSubj; render(); });
+  $("more").addEventListener("click", function () { state.shown += 50; render(); });
+  $("log").addEventListener("click", function (e) {
+    var b = e.target.closest(".del"); if (!b) return;
+    if (!confirm("هل تريدين حذف هذا التقييم نهائيًا؟")) return;
+    S.remove(b.getAttribute("data-id")).then(load).catch(function () { alert("تعذّر الحذف."); });
+  });
+
+  /* تلميح المرور على الأشرطة */
+  var tip = $("tip");
+  document.addEventListener("pointermove", function (e) {
+    var t = e.target.closest && e.target.closest("[data-tip]");
+    if (!t) { tip.style.display = "none"; return; }
+    tip.textContent = t.getAttribute("data-tip");
+    tip.style.display = "block";
+    var x = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8);
+    tip.style.left = Math.max(8, x) + "px"; tip.style.top = (e.clientY - tip.offsetHeight - 12) + "px";
+  });
+
+  /* التصدير */
+  $("csv").addEventListener("click", function () {
+    var rows = state.current || [];
+    var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+    var lines = [["الفصل", "المادة", "التقدير", "الملاحظة", "التاريخ", "الوقت"].map(q).join(",")];
+    rows.forEach(function (r) {
+      lines.push([r.classroom, r.subject, r.rating, r.note, r.createdAt.toLocaleDateString("en-CA"), r.createdAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })].map(q).join(","));
+    });
+    var blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "مرآة-الصف-" + new Date().toLocaleDateString("en-CA") + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  /* روابط الفصول */
+  var base = location.href.replace(/[^\/]*$/, "");
+  $("links").innerHTML = M.CLASSES.map(function (c) {
+    var u = base + "?c=" + c.code;
+    return '<div><a href="' + u + '" target="_blank" rel="noopener">' + esc(c.name) + '</a><button type="button" data-u="' + u + '">نسخ الرابط</button></div>';
+  }).join("");
+  $("links").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var u = b.getAttribute("data-u");
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () {
+      b.textContent = "نُسخ"; setTimeout(function () { b.textContent = "نسخ الرابط"; }, 1500);
+    }).catch(function () { prompt("انسخي الرابط:", u); });
+  });
+
+  /* أدوات وضع التجربة */
+  $("seed").addEventListener("click", function () { S.seedDemo(); load(); });
+  $("clear").addEventListener("click", function () { if (confirm("مسح جميع بيانات التجربة من هذا الجهاز؟")) { S.clearDemo(); load(); } });
+})();
+</script>
+</body>
+</html>

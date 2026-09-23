@@ -1,0 +1,38 @@
+rules_version = '2';
+// مرآة الصف — قواعد حماية قاعدة البيانات
+// المعلمات: يُسمح لهن بإضافة تقييم جديد فقط (دون تسجيل دخول)، ولا يمكنهن القراءة أو التعديل أو الحذف.
+// الإدارة: القراءة والحذف فقط لحسابات البريد المدرجة في الدالة isAdmin.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email.lower() in [
+          'ضعي_بريد_الإدارة_هنا@example.com'
+        ];
+    }
+
+    function validClass(code) {
+      return code in ['m1-1','m1-2','m1-3','m2-1','m2-2','m2-3','m3-1','m3-2','m3-3',
+                      's1-1','s1-2','s1-3','s1-4','s2-1','s2-2','s2-3','s2-4','s3-1','s3-2','s3-3'];
+    }
+
+    match /observations/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['classCode','classroom','stage','subject','rating','note','createdAt'])
+        && validClass(request.resource.data.classCode)
+        && request.resource.data.classroom is string && request.resource.data.classroom.size() <= 40
+        && request.resource.data.stage is string && request.resource.data.stage.size() <= 20
+        && request.resource.data.subject is string && request.resource.data.subject.size() > 0 && request.resource.data.subject.size() <= 80
+        && request.resource.data.rating in ['متميز', 'جيد', 'يحتاج متابعة']
+        && request.resource.data.note is string && request.resource.data.note.size() <= 300
+        && request.resource.data.createdAt == request.time;
+
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
