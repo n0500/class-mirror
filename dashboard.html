@@ -10,12 +10,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
+<script src="assets/fit.js"></script>
 <style>
 .masthead{padding-bottom:22px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .top-links{display:flex;gap:8px;flex-wrap:wrap}
 .top-links a,.top-links button{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:11px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);color:#fff;font-size:14px;font-weight:600;text-decoration:none}
-.page{max-width:1040px;margin:0 auto;padding:18px 14px 60px}
+.page{max-width:1040px;margin:0 auto;padding:18px 14px 24px}
+@media(min-width:1400px){.page{max-width:1200px}}
+@media(max-width:360px){.page{padding-inline:10px}.panel{padding:14px}.kpi .num{font-size:26px}}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px}
 .panel h2{margin:0 0 4px;font-size:18px}
 .panel .sub{margin:0 0 14px;color:var(--muted);font-size:13.5px}
@@ -113,6 +116,17 @@ button.row:hover{background:#f3f7f5}
 .tab{min-height:42px;border:0;border-radius:9px;background:none;color:var(--ink-2);font-size:15px;font-weight:600}
 .tab[aria-selected="true"]{background:#fff;color:var(--green-800);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .invite-note{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--gold-bg);border:1px solid var(--gold-soft);color:#6f521b;font-size:14px}
+/* نسخة الحاسب على الجوال */
+.fitted .page{max-width:none}
+.fitted .filters .grow{display:none}.fitted .filters select{flex:1 1 40%;min-width:0}.fitted .chips{width:100%}.fitted .chip{flex:1;padding:0 4px;white-space:nowrap;font-size:13.5px}
+.fitted .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+.fitted .two{grid-template-columns:1fr}
+.fitted .row{grid-template-columns:1fr auto}.fitted .row .bar{grid-column:1/-1;order:3}
+.fitted .tbl thead{display:none}
+.fitted .tbl tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 2px;border-bottom:1px solid #eef2f0}
+.fitted .tbl td{padding:0;border:0}
+.fitted .tbl td.c-cls{grid-column:1}.fitted .tbl td.c-rate{grid-column:2;grid-row:1}
+.fitted .tbl td.c-sub{grid-column:1/-1}.fitted .tbl td.c-when{grid-column:1}.fitted .tbl td.c-act{grid-column:2}
 details summary{cursor:pointer;font-weight:700;font-size:17px}
 </style>
 </head>
@@ -257,6 +271,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     </section>
   </div>
 </main>
+<footer class="site-foot">فكرة وتصميم: أ. نهى فالح المطيري © 2026</footer>
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script src="config.js"></script>

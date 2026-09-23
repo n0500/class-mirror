@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
+<script src="assets/fit.js"></script>
 <style>
 body{min-height:100vh;min-height:100dvh}
 .sheet{position:relative;margin:-40px 12px 0;background:var(--card);border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 -2px 0 rgba(0,0,0,.02),0 10px 30px rgba(13,58,46,.08);min-height:60vh}
@@ -22,7 +23,7 @@ body{min-height:100vh;min-height:100dvh}
 .step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--gold-bg);border:1px solid var(--gold-soft);color:var(--gold);font-size:15px;font-weight:700}
 .sec-note{font-size:13px;color:var(--muted)}
 .subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.subj{min-height:64px;padding:10px 10px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-size:16.5px;font-weight:600;line-height:1.35;text-align:center;overflow-wrap:anywhere;word-break:break-word;transition:border-color .15s,background .15s,box-shadow .15s}
+.subj{min-height:64px;padding:10px 10px;font-size:clamp(15px,4.3vw,17px);border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-weight:600;line-height:1.35;text-align:center;overflow-wrap:anywhere;word-break:break-word;transition:border-color .15s,background .15s,box-shadow .15s}
 .subj:active{transform:scale(.985)}
 .subj[aria-pressed="true"]{border-color:var(--green-600);background:#e9f4ef;color:var(--green-800);box-shadow:inset 0 0 0 1.5px var(--green-600)}
 .subj.other{border-style:dashed;color:var(--ink-2)}
@@ -35,6 +36,15 @@ body{min-height:100vh;min-height:100dvh}
 /* شريط التقدير الثابت */
 .dock{position:fixed;inset-inline:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--line);border-radius:20px 20px 0 0;box-shadow:0 -10px 28px rgba(13,58,46,.10);padding:14px 14px calc(12px + env(safe-area-inset-bottom))}
 .dock .wrap{max-width:640px}
+@media (max-width:360px){.sheet{margin-inline:8px}.section{padding-inline:12px}.subjects{gap:8px}.rate{min-height:76px;font-size:15px}.rates{gap:7px}.class-name{font-size:24px}}
+@media (min-width:600px){.subjects{grid-template-columns:repeat(3,minmax(0,1fr))}.dock .wrap{max-width:760px}.rate{min-height:92px;font-size:18px}}
+@media (min-width:1000px){.sheet{margin-inline:auto}}
+.fitted .subjects{grid-template-columns:repeat(2,minmax(0,1fr))}
+.fitted .dock .wrap{max-width:640px}
+.fitted .rate{min-height:84px;font-size:17px}
+.fitted .subj{font-size:16.5px}
+.fitted .sheet{margin-inline:12px;min-height:0}
+.site-foot{border-top:1px solid var(--line);margin:8px 16px 0;padding-inline:0}
 .dock .sec-title{margin:0 2px 12px}
 .hint{font-size:13.5px;font-weight:600;color:var(--muted);text-align:left}
 .hint.ok{color:var(--green-700)}
@@ -54,17 +64,19 @@ body{min-height:100vh;min-height:100dvh}
 .note-box.show{display:block}
 .note-box textarea{min-height:64px;resize:none}
 
-/* نافذة التأكيد */
-.done{position:fixed;inset:0;z-index:40;display:none;align-items:flex-end;justify-content:center;background:rgba(13,34,28,.45)}
-.done.show{display:flex}
-.done-card{width:100%;max-width:640px;background:#fff;border-radius:22px 22px 0 0;padding:26px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;animation:up .22s ease-out}
-@keyframes up{from{transform:translateY(40px);opacity:.4}}
-.done-icon{width:62px;height:62px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;color:#fff}
-.done-icon svg{width:32px;height:32px}
-.done h3{margin:0 0 4px;font-size:22px}
-.done p{margin:0;color:var(--ink-2);font-size:16px}
-.done .time{margin-top:6px;font-size:13px;color:var(--muted)}
-.done button{margin-top:18px;width:100%;min-height:54px;border:0;border-radius:14px;background:var(--green-700);color:#fff;font-size:17px;font-weight:700}
+/* صفحة الشكر بعد الحفظ */
+.done{padding:34px 22px 44px;text-align:center;animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(16px);opacity:.3}}
+.done-icon{width:68px;height:68px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.done-icon svg{width:34px;height:34px}
+.done h2{margin:0;font-size:26px}
+.done-lead{margin:4px 0 20px;color:var(--ink-2);font-size:17px}
+.done-sum{margin:0 auto;max-width:360px;border:1px solid var(--line);border-radius:14px;text-align:start}
+.done-sum div{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.done-sum div:last-child{border-bottom:0}
+.done-sum dt{color:var(--muted);font-size:14.5px}
+.done-sum dd{margin:0;font-weight:700;font-size:15.5px;text-align:end;overflow-wrap:anywhere}
+.done-foot{margin:18px 0 0;color:var(--muted);font-size:14px}
 .err{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:#fdecea;color:var(--danger);font-size:14px;font-weight:600;text-align:center}
 .err.show{display:block}
 
@@ -106,13 +118,27 @@ body{min-height:100vh;min-height:100dvh}
         </div>
         <p class="stamp">يُسجَّل التاريخ والوقت تلقائيًا عند الحفظ.</p>
       </section>
-      <div id="spacer" aria-hidden="true"></div>
+    </div>
+
+    <div id="done" class="done" hidden>
+      <div class="done-icon" id="doneIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2 id="doneTitle">شكرًا لكِ</h2>
+      <p class="done-lead">تم حفظ تقييم حصتك.</p>
+      <dl class="done-sum">
+        <div><dt>الفصل</dt><dd id="doneClass"></dd></div>
+        <div><dt>المادة</dt><dd id="doneSubject"></dd></div>
+        <div><dt>التقدير</dt><dd id="doneRating"></dd></div>
+        <div><dt>الوقت</dt><dd id="doneTime"></dd></div>
+      </dl>
+      <p class="done-foot">يمكنكِ إغلاق هذه الصفحة.</p>
     </div>
 
     <div id="invalid" class="invalid" hidden>
       <h2>لم يُحدَّد الفصل</h2>
       <p>يُرجى مسح رمز QR الملصق في الفصل، أو فتح الرابط الخاص به.</p>
     </div>
+    <footer class="site-foot">فكرة وتصميم: أ. نهى فالح المطيري © 2026</footer>
+    <div id="spacer" aria-hidden="true"></div>
   </div>
 </main>
 
@@ -142,16 +168,6 @@ body{min-height:100vh;min-height:100dvh}
       <label class="sr" for="note">ملاحظة</label>
       <textarea class="field" id="note" maxlength="300" placeholder="تُحفظ الملاحظة مع التقدير"></textarea>
     </div>
-  </div>
-</div>
-
-<div class="done" id="done" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
-  <div class="done-card">
-    <div class="done-icon" id="doneIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-    <h3 id="doneTitle">تم حفظ التقييم</h3>
-    <p id="doneText"></p>
-    <div class="time" id="doneTime"></div>
-    <button type="button" id="again">تقييم مادة أخرى</button>
   </div>
 </div>
 
@@ -233,11 +249,17 @@ body{min-height:100vh;min-height:100dvh}
       .then(function () {
         var colors = { "متميز": "var(--excellent)", "جيد": "var(--good)", "يحتاج متابعة": "var(--follow)" };
         $("doneIcon").style.background = colors[rating];
-        $("doneText").textContent = subj + " — " + rating;
+        $("doneClass").textContent = cls.name;
+        $("doneSubject").textContent = subj;
+        $("doneRating").textContent = rating;
+        $("doneRating").style.color = colors[rating];
         $("doneTime").textContent = new Date().toLocaleString("ar-SA", { weekday: "long", hour: "numeric", minute: "2-digit" });
-        $("done").classList.add("show");
-        $("again").focus();
-        reset();
+        /* انتهى التقييم: تُخفى المواد وشريط التقدير، ولا يُتاح تقييم آخر من الصفحة نفسها */
+        $("app").hidden = true;
+        $("dock").hidden = true;
+        $("done").hidden = false;
+        window.scrollTo(0, 0);
+        return;
       })
       .catch(function () {
         $("err").textContent = "تعذّر الحفظ. تحقّقي من الاتصال بالإنترنت ثم أعيدي المحاولة.";
@@ -262,10 +284,6 @@ body{min-height:100vh;min-height:100dvh}
     hint.textContent = "حدّدي المادة أولًا";
   }
 
-  $("again").addEventListener("click", function () {
-    $("done").classList.remove("show");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
 })();
 </script>
 </body>

@@ -40,3 +40,21 @@ button{cursor:pointer}
 .brand h1{margin:0;font-size:27px;font-weight:700;letter-spacing:0}
 .school{margin:8px 0 0;font-size:14px;color:#d7e3dd}
 .wrap{max-width:640px;margin:0 auto}
+
+/* سطر الحقوق */
+.site-foot{padding:16px 16px calc(14px + env(safe-area-inset-bottom));text-align:center;font-size:12px;line-height:1.6;color:var(--muted)}
+
+/* التكيّف مع أحجام الشاشات */
+@media (max-width:360px){
+  .masthead{padding-inline:14px}
+  .brand h1{font-size:23px}
+  .mark{width:42px;height:42px}
+  .school{font-size:13px}
+}
+@media (min-width:720px){
+  .wrap{max-width:760px}
+}
+
+/* عند التكبير التلقائي (نسخة الحاسب على الجوال) تُطبَّق تخطيطات الجوال */
+.fitted body{min-height:0}
+.fitted .wrap{max-width:640px}

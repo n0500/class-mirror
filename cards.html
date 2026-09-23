@@ -9,10 +9,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
+<script src="assets/fit.js"></script>
 <style>
 @page{size:A4 portrait;margin:0}
 body{background:#ebe6db}
-.toolbar{max-width:980px;margin:18px auto;padding:16px 18px;background:#fff;border-radius:18px;border:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.toolbar{max-width:980px;margin:18px 14px;margin-inline:max(14px,calc((100% - 980px)/2));padding:16px 18px;background:#fff;border-radius:18px;border:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .toolbar h1{margin:0;font-size:21px;color:var(--green-800)}
 .toolbar p{margin:4px 0 0;color:var(--muted);font-size:14px}
 .tools{display:flex;gap:8px;flex-wrap:wrap}
@@ -24,9 +25,10 @@ body{background:#ebe6db}
 .sheet svg{width:100%;max-width:420px;height:auto;display:block}
 .sheet[hidden]{display:none}
 @media(max-width:680px){.cards{grid-template-columns:1fr}}
+.fitted .cards{grid-template-columns:1fr}
 @media print{
   body{background:#fff}
-  .toolbar{display:none}
+  .toolbar,.no-print{display:none}
   .cards{display:block;padding:0;margin:0;max-width:none}
   .sheet{width:210mm;height:297mm;padding:13.5mm 15mm;border-radius:0;background:#fff;align-items:center;break-after:page;page-break-after:always}
   .sheet:last-child{break-after:auto;page-break-after:auto}
@@ -45,6 +47,7 @@ body{background:#ebe6db}
   </div>
 </div>
 <main class="cards" id="cards"></main>
+<footer class="site-foot no-print">فكرة وتصميم: أ. نهى فالح المطيري © 2026</footer>
 
 <script src="config.js"></script>
 <script src="assets/common.js"></script>
