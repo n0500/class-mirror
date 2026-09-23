@@ -36,13 +36,8 @@ body{min-height:100vh;min-height:100dvh}
 /* شريط التقدير الثابت */
 .dock{position:fixed;inset-inline:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--line);border-radius:20px 20px 0 0;box-shadow:0 -10px 28px rgba(13,58,46,.10);padding:14px 14px calc(12px + env(safe-area-inset-bottom))}
 .dock .wrap{max-width:640px}
-@media (max-width:360px){.sheet{margin-inline:8px}.section{padding-inline:12px}.subjects{gap:8px}.rate{min-height:76px;font-size:15px}.rates{gap:7px}.class-name{font-size:24px}}
-@media (min-width:600px){.subjects{grid-template-columns:repeat(3,minmax(0,1fr))}.dock .wrap{max-width:760px}.rate{min-height:92px;font-size:18px}}
 @media (min-width:1000px){.sheet{margin-inline:auto}}
-.fitted .subjects{grid-template-columns:repeat(2,minmax(0,1fr))}
 .fitted .dock .wrap{max-width:640px}
-.fitted .rate{min-height:84px;font-size:17px}
-.fitted .subj{font-size:16.5px}
 .fitted .sheet{margin-inline:12px;min-height:0}
 .site-foot{border-top:1px solid var(--line);margin:8px 16px 0;padding-inline:0}
 .dock .sec-title{margin:0 2px 12px}
@@ -85,16 +80,54 @@ body{min-height:100vh;min-height:100dvh}
 .invalid h2{margin:0 0 8px;font-size:21px}
 .invalid p{margin:0;color:var(--ink-2)}
 .demo-flag{margin:14px 16px 0;padding:8px 12px;border-radius:10px;background:var(--gold-bg);border:1px solid var(--gold-soft);font-size:13px;color:#7a5a1f;text-align:center}
+
+/* ===== تخطيط مضغوط: تظهر المواد وأزرار التقدير في شاشة واحدة ===== */
+.masthead.compact{padding:10px 16px 28px;border-top-width:4px}
+.masthead.compact h1{line-height:1.25}
+.masthead.compact .brand{gap:10px}
+.masthead.compact .mark{width:36px;height:36px;border-radius:10px}
+.masthead.compact .mark svg{width:19px;height:25px}
+.masthead.compact h1{font-size:21px}
+.masthead.compact .school{margin:1px 0 0;font-size:12px;line-height:1.4}
+.sheet{margin-top:-20px;min-height:0}
+.class-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:8px 16px}
+.eyebrow{font-size:12.5px}
+.class-name{margin:0;font-size:22px}
+.section{padding:12px 12px 4px}
+.sec-title{margin:0 2px 10px}
+.sec-title h2{font-size:16px;gap:8px}
+.step{width:24px;height:24px;border-radius:7px;font-size:13px}
+.sec-note{font-size:12px}
+.subjects{gap:8px}
+.subjects.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.subjects.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.subjects.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.subj{min-height:var(--btn-h,56px);padding:4px 6px;border-radius:12px;font-size:15px;line-height:1.3}
+.subjects.c3 .subj{font-size:14px}
+.stamp{display:none}
+.other-box{margin-top:8px}
+.field{padding:11px 12px}
+.dock{padding:10px 12px calc(8px + env(safe-area-inset-bottom))}
+.dock .sec-title{margin:0 2px 8px}
+.rates{gap:8px}
+.rate{min-height:62px;gap:3px;padding:6px 4px;border-radius:13px;font-size:15.5px}
+.rate svg{width:21px;height:21px}
+.note-toggle{display:inline;margin:0;padding:2px 0;font-size:13px}
+.sec-title .hint{font-size:12.5px;text-align:left;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note-box{margin-top:6px}
+.note-box textarea{min-height:52px}
+.site-foot{margin:6px 12px 0;padding:10px 0 6px;font-size:11.5px}
+@media (min-width:600px){.subj{font-size:16px}.subjects.c3 .subj{font-size:15px}.rate{min-height:72px;font-size:17px}.dock .wrap{max-width:760px}}
+.fitted .dock .wrap{max-width:640px}
 </style>
 </head>
 <body>
-<header class="masthead">
+<header class="masthead compact">
   <div class="wrap">
     <div class="brand">
       <div class="mark" aria-hidden="true"><svg viewBox="0 0 26 34"><ellipse cx="13" cy="17" rx="10.5" ry="15" fill="none" stroke="#d4a55a" stroke-width="2"/><path d="M10 22l6-11M13 24l4-7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
-      <h1>مرآة الصف</h1>
+      <div><h1>مرآة الصف</h1><p class="school" id="school"></p></div>
     </div>
-    <p class="school" id="school"></p>
   </div>
 </header>
 
@@ -109,7 +142,7 @@ body{min-height:100vh;min-height:100dvh}
       <section class="section" aria-labelledby="subjTitle">
         <div class="sec-title">
           <h2 id="subjTitle"><span class="step">١</span>المادة الدراسية</h2>
-          <span class="sec-note">مواد الصف</span>
+          <span class="hint" id="hint" aria-live="polite">حدّدي المادة أولًا</span>
         </div>
         <div class="subjects" id="subjects" role="group" aria-labelledby="subjTitle"></div>
         <div class="other-box" id="otherBox">
@@ -146,7 +179,7 @@ body{min-height:100vh;min-height:100dvh}
   <div class="wrap">
     <div class="sec-title">
       <h2><span class="step">٢</span>التقدير العام</h2>
-      <span class="hint" id="hint" aria-live="polite">حدّدي المادة أولًا</span>
+      <button class="note-toggle" id="noteToggle" type="button" aria-expanded="false">إضافة ملاحظة</button>
     </div>
     <div class="rates locked" id="rates">
       <button class="rate excellent" data-rating="متميز" type="button">
@@ -163,7 +196,6 @@ body{min-height:100vh;min-height:100dvh}
       </button>
     </div>
     <div class="err" id="err" role="alert"></div>
-    <button class="note-toggle" id="noteToggle" type="button" aria-expanded="false">إضافة ملاحظة (اختياري)</button>
     <div class="note-box" id="noteBox">
       <label class="sr" for="note">ملاحظة</label>
       <textarea class="field" id="note" maxlength="300" placeholder="تُحفظ الملاحظة مع التقدير"></textarea>
@@ -206,15 +238,36 @@ body{min-height:100vh;min-height:100dvh}
     subject = name;
     grid.querySelectorAll(".subj").forEach(function (e) { e.setAttribute("aria-pressed", String(e === btn)); });
     $("otherBox").classList.toggle("show", name === "أخرى");
+    fit();
     rates.classList.remove("locked");
     hint.className = "hint ok";
     hint.textContent = name === "أخرى" ? "أخرى" : name;
     $("err").classList.remove("show");
   }
 
-  /* المسافة السفلية تساوي ارتفاع شريط التقدير دائمًا، فلا يُغطّى زر «أخرى» */
+  /* المسافة السفلية تساوي ارتفاع شريط التقدير دائمًا، فلا يُغطّى زر «أخرى».
+     ويُحسب عدد الأعمدة وارتفاع أزرار المواد لتظهر كلها مع أزرار التقدير في شاشة واحدة. */
   var dock = $("dock"), spacer = $("spacer");
-  function fit() { spacer.style.height = (dock.offsetHeight + 16) + "px"; }
+  var count = grid.children.length;
+  function topOf(el) { var y = 0; while (el) { y += el.offsetTop; el = el.offsetParent; } return y; }
+  function fit() {
+    spacer.style.height = (dock.offsetHeight + 12) + "px";
+    var root = document.documentElement, z = parseFloat(root.style.zoom) || 1;
+    /* عند التكبير التلقائي تُقاس الأبعاد بعد التكبير (يختلف أسلوب المتصفحات في ذلك) */
+    var w = root.clientWidth, vh = window.innerHeight;
+    if (z !== 1) {
+      if (w / z >= 300) w = w / z;
+      if (vh / z >= 300) vh = vh / z;
+    }
+    var cols = w >= 900 ? 4 : w >= 600 ? 3 : w < 340 ? 2 : (count >= 9 ? 3 : 2);
+    grid.className = "subjects c" + cols;
+    var foot = document.querySelector(".site-foot");
+    var other = $("otherBox").classList.contains("show") ? $("otherBox").offsetHeight + 8 : 0;
+    var avail = vh - dock.offsetHeight - topOf(grid) - other - 14;
+    var rows = Math.ceil(count / cols), gap = 8;
+    var h = Math.floor((avail - (rows - 1) * gap) / rows);
+    grid.style.setProperty("--btn-h", Math.max(40, Math.min(h, 72)) + "px");
+  }
   if (window.ResizeObserver) new ResizeObserver(fit).observe(dock);
   window.addEventListener("resize", fit);
   fit();
@@ -223,7 +276,7 @@ body{min-height:100vh;min-height:100dvh}
     var open = !$("noteBox").classList.contains("show");
     $("noteBox").classList.toggle("show", open);
     this.setAttribute("aria-expanded", String(open));
-    this.textContent = open ? "إخفاء الملاحظة" : "إضافة ملاحظة (اختياري)";
+    this.textContent = open ? "إخفاء الملاحظة" : "إضافة ملاحظة";
     if (open) $("note").focus();
   });
 
@@ -277,7 +330,7 @@ body{min-height:100vh;min-height:100dvh}
     $("otherName").value = "";
     $("note").value = "";
     $("noteBox").classList.remove("show");
-    $("noteToggle").textContent = "إضافة ملاحظة (اختياري)";
+    $("noteToggle").textContent = "إضافة ملاحظة";
     $("noteToggle").setAttribute("aria-expanded", "false");
     rates.classList.add("locked");
     hint.className = "hint";
