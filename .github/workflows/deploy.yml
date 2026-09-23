@@ -1,0 +1,182 @@
+# مرآة الصف — فك الملفات المضغوطة تلقائيًا ثم نشر الموقع
+# طريقة الاستخدام: ارفعي أي ملف .zip إلى المستودع (Add file ← Upload files)،
+# وسيتولى هذا الإجراء فكّه، ووضع كل ملف في مكانه، وحذف الملف المضغوط، ثم نشر الموقع.
+name: فك الملفات ونشر الموقع
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  organize-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: جلب الملفات
+        uses: actions/checkout@v4
+
+      - name: فك الملفات المضغوطة وترتيبها
+        id: organize
+        shell: python
+        run: |
+          import os, re, shutil, zipfile, tempfile, pathlib
+
+          ROOT = pathlib.Path(".").resolve()
+          SKIP_DIRS = {".git", ".github", "__MACOSX", "node_modules"}
+          # ملفات تبقى في الجذر دائمًا
+          ROOT_FILES = {"index.html", "dashboard.html", "cards.html", "config.js",
+                        "firestore.rules", "README.md", "CNAME", ".nojekyll", "404.html"}
+          ASSET_EXT = {".js", ".css", ".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif",
+                       ".ico", ".woff", ".woff2", ".ttf", ".json"}
+          ROOT_EXT = {".html", ".md", ".rules", ".txt"}
+          # ملفات قد تحمل إعدادات حقيقية: لا تُستبدل بنسخة تحتوي القيم المؤقتة
+          PROTECTED = {"config.js", "firestore.rules"}
+          PLACEHOLDER = "ضعي_"
+
+          def target_for(rel: pathlib.PurePosixPath) -> pathlib.PurePosixPath:
+              """يحدد المكان المناسب للملف."""
+              name = rel.name
+              if len(rel.parts) > 1:          # الملف داخل مجلد: يُحافظ على بنيته
+                  return rel
+              if name in ROOT_FILES:
+                  return rel
+              ext = pathlib.PurePosixPath(name).suffix.lower()
+              if ext in ROOT_EXT:
+                  return rel
+              if ext in ASSET_EXT:
+                  return pathlib.PurePosixPath("assets") / name
+              return rel
+
+          def site_root(folder: pathlib.Path) -> pathlib.Path:
+              """أقرب مجلد يحتوي index.html (يعالج الحزم التي بداخلها مجلد رئيسي)."""
+              best = None
+              for p in folder.rglob("index.html"):
+                  if any(part in SKIP_DIRS for part in p.relative_to(folder).parts):
+                      continue
+                  if best is None or len(p.parts) < len(best.parts):
+                      best = p
+              if best is not None:
+                  return best.parent
+              # بلا index.html: إن كان في الحزمة مجلد واحد فقط فهو الجذر
+              entries = [e for e in folder.iterdir() if e.name not in SKIP_DIRS]
+              if len(entries) == 1 and entries[0].is_dir():
+                  return entries[0]
+              return folder
+
+          def is_placeholder(path: pathlib.Path) -> bool:
+              try:
+                  return PLACEHOLDER in path.read_text(encoding="utf-8")
+              except Exception:
+                  return False
+
+          moved, kept, removed = [], [], []
+
+          def place(src: pathlib.Path, rel: pathlib.PurePosixPath):
+              dest_rel = target_for(rel)
+              dest = (ROOT / dest_rel).resolve()
+              if ROOT not in dest.parents:        # حماية من المسارات الخارجة عن المستودع
+                  return
+              if dest_rel.name in PROTECTED and len(dest_rel.parts) == 1 and dest.exists():
+                  if is_placeholder(src) and not is_placeholder(dest):
+                      kept.append(str(dest_rel))
+                      return
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(src, dest)
+              moved.append(str(dest_rel))
+
+          # ١) فك جميع الملفات المضغوطة الموجودة في المستودع
+          zips = [p for p in ROOT.rglob("*.zip")
+                  if not any(part in SKIP_DIRS for part in p.relative_to(ROOT).parts)]
+          for z in zips:
+              with tempfile.TemporaryDirectory() as tmp:
+                  tmp = pathlib.Path(tmp)
+                  with zipfile.ZipFile(z) as zf:
+                      for info in zf.infolist():
+                          name = info.filename
+                          # معالجة الأسماء العربية في الحزم المنشأة بترميز قديم
+                          if not (info.flag_bits & 0x800):
+                              try:
+                                  name = name.encode("cp437").decode("utf-8")
+                              except Exception:
+                                  pass
+                          parts = [p for p in pathlib.PurePosixPath(name).parts if p not in ("", ".", "..")]
+                          if not parts or info.is_dir():
+                              continue
+                          if parts[0] in SKIP_DIRS or parts[-1] in (".DS_Store", "Thumbs.db"):
+                              continue
+                          out = tmp.joinpath(*parts)
+                          out.parent.mkdir(parents=True, exist_ok=True)
+                          with zf.open(info) as fsrc, open(out, "wb") as fdst:
+                              shutil.copyfileobj(fsrc, fdst)
+                  base = site_root(tmp)
+                  for f in base.rglob("*"):
+                      if f.is_file():
+                          rel = pathlib.PurePosixPath(f.relative_to(base).as_posix())
+                          if any(part in SKIP_DIRS for part in rel.parts):
+                              continue
+                          place(f, rel)
+              z.unlink()
+              removed.append(str(z.relative_to(ROOT)))
+
+          # ٢) نقل الملفات المرفوعة منفردة إلى الجذر بالخطأ (مثل common.js) إلى مجلد assets
+          for f in list(ROOT.iterdir()):
+              if not f.is_file() or f.name in ROOT_FILES or f.name.startswith("."):
+                  continue
+              if f.suffix.lower() in ASSET_EXT and f.suffix.lower() != ".json":
+                  dest = ROOT / "assets" / f.name
+                  dest.parent.mkdir(exist_ok=True)
+                  shutil.move(str(f), str(dest))
+                  moved.append("assets/" + f.name + "  (نُقل من الجذر)")
+
+          print("الملفات المضغوطة التي فُكّت:", removed or "لا يوجد")
+          print("الملفات التي وُضعت في مكانها:")
+          for m in moved: print("  •", m)
+          if kept:
+              print("ملفات أُبقي عليها لأنها تحتوي إعداداتك الحقيقية:", kept)
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary:
+              with open(summary, "a", encoding="utf-8") as s:
+                  s.write("## ترتيب الملفات\n")
+                  s.write("**فُكّ:** " + (", ".join(removed) or "لا يوجد") + "\n\n")
+                  for m in moved: s.write(f"- {m}\n")
+                  if kept: s.write("\n**أُبقي على الإعدادات الحالية في:** " + ", ".join(kept) + "\n")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as o:
+              o.write(f"changed={'true' if (moved or removed) else 'false'}\n")
+
+      - name: حفظ الترتيب الجديد في المستودع
+        if: steps.organize.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "فك الملفات المضغوطة وترتيبها تلقائيًا"
+          git push
+
+      - name: تجهيز ملفات الموقع
+        run: |
+          mkdir -p _site
+          rsync -a --exclude '.git' --exclude '.github' --exclude '_site' \
+                --exclude '*.zip' --exclude 'README.md' ./ _site/
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: نشر الموقع
+        id: deployment
+        uses: actions/deploy-pages@v4
