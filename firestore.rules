@@ -1,15 +1,26 @@
 rules_version = '2';
 // مرآة الصف — قواعد حماية قاعدة البيانات
-// المعلمات: يُسمح لهن بإضافة تقييم جديد فقط (دون تسجيل دخول)، ولا يمكنهن القراءة أو التعديل أو الحذف.
-// الإدارة: القراءة والحذف فقط لحسابات البريد المدرجة في الدالة isAdmin.
+// المعلمات: إضافة تقييم جديد فقط (دون تسجيل دخول)، ولا يمكنهن القراءة أو التعديل أو الحذف.
+// المالكة: كل صلاحيات الإدارة، مع إدارة رابط الدعوة وإيقاف الحسابات.
+// حسابات الإدارة: قراءة التقييمات وحذفها. تُنشئ كل واحدة حسابها بنفسها عبر رابط الدعوة،
+// ويمكن للمالكة إيقاف أي حساب أو تغيير رابط الدعوة من لوحة المتابعة.
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    function isOwner() {
+      return request.auth != null && myEmail() in [
+        'nuha_0500@hotmail.com'
+      ];
+    }
+
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email.lower() in [
-          'ضعي_بريد_الإدارة_هنا@example.com'
-        ];
+        && (isOwner() || (exists(/databases/$(database)/documents/admins/$(myEmail()))
+            && get(/databases/$(database)/documents/admins/$(myEmail())).data.get('blocked', false) == false));
     }
 
     function validClass(code) {
@@ -29,6 +40,24 @@ service cloud.firestore {
 
       allow read, delete: if isAdmin();
       allow update: if false;
+    }
+
+    // رمز رابط الدعوة: للمالكة فقط
+    match /settings/invite {
+      allow get, create, update: if isOwner();
+    }
+
+    // حسابات الإدارة: التسجيل الذاتي برمز الدعوة الصحيح، والإيقاف للمالكة فقط
+    match /admins/{email} {
+      allow get: if request.auth != null && (isOwner() || myEmail() == email);
+      allow list, update, delete: if isOwner();
+      allow create: if isOwner() || (
+        request.auth != null && myEmail() == email
+        && request.resource.data.keys().hasOnly(['name', 'invite', 'addedAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && request.resource.data.addedAt == request.time
+        && request.resource.data.invite == get(/databases/$(database)/documents/settings/invite).data.code
+      );
     }
 
     match /{document=**} {

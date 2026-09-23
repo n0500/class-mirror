@@ -85,6 +85,15 @@
   function demoRead() {
     try { return JSON.parse(localStorage.getItem(DEMO_KEY) || "[]"); } catch (e) { return []; }
   }
+  function randomCode() {
+    var chars = "abcdefghijkmnpqrstuvwxyz23456789", out = "", buf = new Uint8Array(20);
+    (window.crypto || window.msCrypto).getRandomValues(buf);
+    for (var i = 0; i < buf.length; i++) out += chars[buf[i] % chars.length];
+    return out;
+  }
+  function demoAdmins() {
+    try { return JSON.parse(localStorage.getItem(DEMO_KEY + "_admins") || "[]"); } catch (e) { return []; }
+  }
   function demoWrite(rows) {
     try { localStorage.setItem(DEMO_KEY, JSON.stringify(rows)); } catch (e) {}
   }
@@ -134,11 +143,77 @@
       return firebase().then(function (F) { return F.au.signOut(F.auth); });
     },
 
-    isAdmin: function (user) {
-      if (!user) return false;
-      if (user.demo) return true;
-      var list = (cfg.adminEmails || []).map(function (e) { return String(e).toLowerCase(); });
-      return list.indexOf(String(user.email || "").toLowerCase()) !== -1;
+    /* تحديد الدور من قاعدة البيانات: "owner" (المالكة) أو "admin" (إدارة) أو null */
+    role: function (user) {
+      if (!user) return Promise.resolve(null);
+      if (user.demo) return Promise.resolve("owner");
+      var email = String(user.email || "").toLowerCase();
+      return firebase().then(function (F) {
+        /* قراءة إعدادات الدعوة مسموحة للمالكة فقط وفق قواعد الحماية */
+        return F.fs.getDoc(F.fs.doc(F.db, "settings", "invite")).then(function () { return "owner"; }, function () {
+          return F.fs.getDoc(F.fs.doc(F.db, "admins", email)).then(function (d) {
+            return d.exists() && !d.data().blocked ? "admin" : null;
+          }, function () { return null; });
+        });
+      });
+    },
+
+    signUp: function (email, pw) {
+      return firebase().then(function (F) { return F.au.createUserWithEmailAndPassword(F.auth, email, pw); });
+    },
+
+    /* تسجيل حساب إدارة عبر رابط الدعوة */
+    joinWithInvite: function (user, name, code) {
+      var email = String(user.email || "").toLowerCase();
+      return firebase().then(function (F) {
+        return F.fs.setDoc(F.fs.doc(F.db, "admins", email), {
+          name: String(name || "").trim().slice(0, 60), invite: String(code), addedAt: F.fs.serverTimestamp()
+        });
+      });
+    },
+
+    /* رمز الدعوة: يُنشأ تلقائيًا أول مرة، ويمكن تغييره لإبطال الرابط القديم */
+    getInvite: function (renew) {
+      if (DEMO) {
+        var c = null;
+        try { c = localStorage.getItem(DEMO_KEY + "_invite"); } catch (e) {}
+        if (!c || renew) { c = randomCode(); try { localStorage.setItem(DEMO_KEY + "_invite", c); } catch (e) {} }
+        return Promise.resolve(c);
+      }
+      return firebase().then(function (F) {
+        var ref = F.fs.doc(F.db, "settings", "invite");
+        return F.fs.getDoc(ref).then(function (d) {
+          if (d.exists() && d.data().code && !renew) return d.data().code;
+          var code = randomCode();
+          return F.fs.setDoc(ref, { code: code, updatedAt: F.fs.serverTimestamp() }).then(function () { return code; });
+        });
+      });
+    },
+
+    listAdmins: function () {
+      if (DEMO) return Promise.resolve(demoAdmins());
+      return firebase().then(function (F) {
+        return F.fs.getDocs(F.fs.collection(F.db, "admins"));
+      }).then(function (snap) {
+        var out = [];
+        snap.forEach(function (d) {
+          var x = d.data(); x.email = d.id;
+          x.addedAt = x.addedAt && x.addedAt.toDate ? x.addedAt.toDate() : null;
+          out.push(x);
+        });
+        out.sort(function (a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+        return out;
+      });
+    },
+
+    /* إيقاف الحساب أو إعادة تفعيله (الإيقاف يمنع العودة حتى برابط الدعوة) */
+    setBlocked: function (email, blocked) {
+      if (DEMO) {
+        var list = demoAdmins().map(function (a) { if (a.email === email) a.blocked = blocked; return a; });
+        try { localStorage.setItem(DEMO_KEY + "_admins", JSON.stringify(list)); } catch (e) {}
+        return Promise.resolve();
+      }
+      return firebase().then(function (F) { return F.fs.updateDoc(F.fs.doc(F.db, "admins", email), { blocked: !!blocked }); });
     },
 
     /* تُرجع جميع السجلات منذ تاريخ معيّن (أو كلها) مرتبة من الأحدث */

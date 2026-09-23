@@ -95,6 +95,24 @@ button.row:hover{background:#f3f7f5}
 .links-grid div{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;font-size:14px}
 .links-grid a{color:var(--green-700);font-weight:600;text-decoration:none}
 .links-grid button{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline}
+.adm-list{display:grid;gap:6px;margin-bottom:14px}
+.adm{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:11px}
+.adm div{display:flex;flex-direction:column;min-width:0}
+.adm span{color:var(--muted);font-size:13px;overflow-wrap:anywhere;text-align:right}
+.adm.off strong{color:var(--muted)}
+.adm .state{font-style:normal;font-size:12px;font-weight:600;color:var(--follow-d);background:#fbeee6;border-radius:6px;padding:0 6px;margin-inline-start:6px}
+.adm .act{border:0;background:none;color:var(--green-700);font-size:13.5px;font-weight:600;text-decoration:underline;padding:4px;flex:none}
+.adm .act.stop{color:var(--danger)}
+.adm-h{margin:18px 0 8px;font-size:16px}
+.invite-box{padding:14px;border:1px solid var(--gold-soft);background:var(--gold-bg);border-radius:14px}
+.invite-box label{display:block;margin-bottom:6px;font-weight:600;font-size:14px}
+.invite-box .field{font-size:14px;background:#fff}
+.invite-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.invite-actions .btn{min-height:44px;font-size:15px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#eef2f0;border-radius:12px;margin-bottom:6px}
+.tab{min-height:42px;border:0;border-radius:9px;background:none;color:var(--ink-2);font-size:15px;font-weight:600}
+.tab[aria-selected="true"]{background:#fff;color:var(--green-800);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.invite-note{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--gold-bg);border:1px solid var(--gold-soft);color:#6f521b;font-size:14px}
 details summary{cursor:pointer;font-weight:700;font-size:17px}
 </style>
 </head>
@@ -120,22 +138,36 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
 <main class="page">
   <!-- الدخول -->
   <section class="panel login" id="loginView" hidden>
-    <h2>دخول الإدارة</h2>
-    <p class="sub">لوحة المتابعة خاصة بالإدارة ومالكة المبادرة.</p>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab" id="tabIn" role="tab" aria-selected="true">تسجيل الدخول</button>
+      <button type="button" class="tab" id="tabUp" role="tab" aria-selected="false">إنشاء حساب</button>
+    </div>
+    <p class="invite-note" id="inviteNote" hidden>دُعيتِ إلى لوحة متابعة «مرآة الصف». أنشئي حسابك للدخول، أو سجّلي الدخول إن كان لديكِ حساب.</p>
+
     <form id="loginForm" novalidate>
       <label for="email">البريد الإلكتروني</label>
       <input class="field" id="email" type="email" autocomplete="username" dir="ltr" required>
       <label for="pw">كلمة المرور</label>
       <input class="field" id="pw" type="password" autocomplete="current-password" dir="ltr" required>
       <button class="btn full" type="submit" id="loginBtn">دخول</button>
+      <button class="link" type="button" id="forgot">نسيت كلمة المرور</button>
     </form>
-    <button class="link" type="button" id="forgot">نسيت كلمة المرور</button>
+
+    <form id="signupForm" novalidate hidden>
+      <label for="suName">الاسم</label>
+      <input class="field" id="suName" maxlength="60" autocomplete="name" required>
+      <label for="suEmail">البريد الإلكتروني</label>
+      <input class="field" id="suEmail" type="email" autocomplete="username" dir="ltr" required>
+      <label for="suPw">كلمة المرور</label>
+      <input class="field" id="suPw" type="password" autocomplete="new-password" dir="ltr" minlength="8" placeholder="8 أحرف على الأقل" required>
+      <button class="btn full" type="submit" id="signupBtn">إنشاء الحساب</button>
+    </form>
     <div class="msg" id="loginMsg" role="status"></div>
   </section>
 
   <section class="panel login" id="deniedView" hidden>
     <h2>لا تتوفر صلاحية</h2>
-    <p class="sub">هذا الحساب غير مُدرج ضمن حسابات الإدارة.</p>
+    <p class="sub" id="deniedText">هذا الحساب غير مُدرج ضمن حسابات الإدارة. للحصول على صلاحية الاطلاع، اطلبي رابط الدعوة من مالكة المبادرة ثم افتحيه.</p>
     <button class="btn ghost" type="button" id="logout2">تسجيل الخروج</button>
   </section>
 
@@ -198,6 +230,24 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       <div style="text-align:center"><button class="link" type="button" id="more" hidden>عرض المزيد</button></div>
     </section>
 
+    <section class="panel" id="adminsPanel" hidden>
+      <h2>حسابات الإدارة</h2>
+      <p class="sub">أرسلي رابط الدعوة إلى من تريدين منحها صلاحية الاطلاع على النتائج؛ تفتحه وتنشئ حسابها بنفسها، وتظهر هنا تلقائيًا.</p>
+      <div class="invite-box">
+        <label for="inviteUrl">رابط الدعوة</label>
+        <input class="field" id="inviteUrl" dir="ltr" readonly>
+        <div class="invite-actions">
+          <button class="btn" type="button" id="shareInvite">مشاركة الرابط</button>
+          <button class="btn ghost" type="button" id="copyInvite">نسخ</button>
+          <button class="btn ghost" type="button" id="renewInvite">تغيير الرابط</button>
+        </div>
+        <p class="sub" style="margin:8px 0 0">«تغيير الرابط» يُبطل الرابط السابق فلا يمكن التسجيل به، ولا يؤثر في الحسابات المسجّلة.</p>
+      </div>
+      <h3 class="adm-h">الحسابات المسجّلة</h3>
+      <div id="adminList" class="adm-list"></div>
+      <div class="msg" id="adminMsg" role="status"></div>
+    </section>
+
     <section class="panel">
       <details>
         <summary>روابط الفصول</summary>
@@ -227,22 +277,69 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     ["loginView", "deniedView", "dash"].forEach(function (v) { $(v).hidden = v !== view; });
     $("nav").hidden = view !== "dash";
   }
+  var params = new URLSearchParams(location.search);
+  var inviteCode = params.get("invite") || "";
+  var pendingName = "";
+
+  function tab(up) {
+    $("tabIn").setAttribute("aria-selected", String(!up));
+    $("tabUp").setAttribute("aria-selected", String(up));
+    $("loginForm").hidden = up; $("signupForm").hidden = !up;
+    $("loginMsg").textContent = "";
+  }
+  $("tabIn").addEventListener("click", function () { tab(false); });
+  $("tabUp").addEventListener("click", function () { tab(true); });
+  if (inviteCode) { $("inviteNote").hidden = false; tab(true); }
+
   S.onAuth(function (user) {
     if (!user) return show("loginView");
-    if (!S.isAdmin(user)) return show("deniedView");
-    show("dash");
-    if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
-    load();
+    S.role(user).then(function (role) {
+      if (role || !inviteCode) return role;
+      /* حساب جديد أو قائم يفتح رابط الدعوة: يُسجَّل ضمن حسابات الإدارة */
+      return S.joinWithInvite(user, pendingName, inviteCode).then(function () { return S.role(user); }, function () {
+        $("deniedText").textContent = "رابط الدعوة غير صالح أو تغيّر، أو أن هذا الحساب موقوف. اطلبي رابطًا جديدًا من مالكة المبادرة.";
+        return null;
+      });
+    }).then(function (role) {
+      if (!role) return show("deniedView");
+      if (inviteCode) { inviteCode = ""; history.replaceState(null, "", location.pathname); }
+      show("dash");
+      if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
+      if (role === "owner") { $("adminsPanel").hidden = false; loadInvite(false); loadAdmins(); }
+      load();
+    });
   });
+
   $("loginForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var m = $("loginMsg");
     m.className = "msg"; m.textContent = "جارٍ التحقق…";
     $("loginBtn").disabled = true;
-    S.signIn($("email").value.trim(), $("pw").value).catch(function () {
+    S.signIn($("email").value.trim(), $("pw").value).then(function () { m.textContent = ""; }, function () {
       m.className = "msg bad"; m.textContent = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
     }).then(function () { $("loginBtn").disabled = false; });
   });
+
+  $("signupForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var m = $("loginMsg"), name = $("suName").value.trim(), em = $("suEmail").value.trim(), pw = $("suPw").value;
+    if (!name) { m.className = "msg bad"; m.textContent = "اكتبي الاسم."; return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { m.className = "msg bad"; m.textContent = "اكتبي بريدًا إلكترونيًا صحيحًا."; return; }
+    if (pw.length < 8) { m.className = "msg bad"; m.textContent = "كلمة المرور ثمانية أحرف على الأقل."; return; }
+    pendingName = name;
+    m.className = "msg"; m.textContent = "جارٍ إنشاء الحساب…";
+    $("signupBtn").disabled = true;
+    S.signUp(em, pw).then(function () { m.textContent = ""; }, function (err) {
+      var c = err && err.code;
+      m.className = "msg bad";
+      m.textContent = c === "auth/email-already-in-use" ? "لديكِ حساب بهذا البريد مسبقًا؛ استخدمي «تسجيل الدخول»."
+        : c === "auth/weak-password" ? "كلمة المرور ضعيفة؛ اختاري كلمة أطول."
+        : c === "auth/invalid-email" ? "البريد الإلكتروني غير صحيح."
+        : c === "auth/operation-not-allowed" ? "لم يُفعَّل إنشاء الحسابات بعد في إعدادات Firebase."
+        : "تعذّر إنشاء الحساب. تحقّقي من الاتصال ثم أعيدي المحاولة.";
+    }).then(function () { $("signupBtn").disabled = false; });
+  });
+
   $("forgot").addEventListener("click", function () {
     var m = $("loginMsg"), em = $("email").value.trim();
     if (!em) { m.className = "msg bad"; m.textContent = "اكتبي البريد الإلكتروني أولًا."; return; }
@@ -250,6 +347,46 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       m.className = "msg good"; m.textContent = "أُرسل رابط إعادة تعيين كلمة المرور إلى بريدك.";
     }).catch(function () { m.className = "msg bad"; m.textContent = "تعذّر إرسال الرابط. تحقّقي من البريد."; });
   });
+
+  /* ---------- حسابات الإدارة (للمالكة فقط) ---------- */
+  function inviteLink(code) { return location.href.split("?")[0].split("#")[0] + "?invite=" + code; }
+  function loadInvite(renew) {
+    return S.getInvite(renew).then(function (code) { $("inviteUrl").value = inviteLink(code); })
+      .catch(function () { $("adminMsg").className = "msg bad"; $("adminMsg").textContent = "تعذّر تحميل رابط الدعوة."; });
+  }
+  $("copyInvite").addEventListener("click", function () {
+    var b = this, u = $("inviteUrl").value;
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () {
+      b.textContent = "نُسخ"; setTimeout(function () { b.textContent = "نسخ"; }, 1500);
+    }).catch(function () { $("inviteUrl").select(); });
+  });
+  $("shareInvite").addEventListener("click", function () {
+    var u = $("inviteUrl").value;
+    var text = "رابط إنشاء حساب في لوحة متابعة «مرآة الصف»:";
+    if (navigator.share) navigator.share({ title: "مرآة الصف", text: text, url: u }).catch(function () {});
+    else location.href = "https://wa.me/?text=" + encodeURIComponent(text + "\n" + u);
+  });
+  $("renewInvite").addEventListener("click", function () {
+    if (!confirm("سيُبطَل الرابط الحالي ولن يمكن التسجيل به. هل تريدين المتابعة؟")) return;
+    loadInvite(true).then(function () { $("adminMsg").className = "msg good"; $("adminMsg").textContent = "أُنشئ رابط جديد."; });
+  });
+
+  function loadAdmins() {
+    S.listAdmins().then(function (list) {
+      $("adminList").innerHTML = list.length ? list.map(function (a) {
+        return '<div class="adm' + (a.blocked ? " off" : "") + '"><div><strong>' + esc(a.name || "—") + (a.blocked ? '<em class="state">موقوف</em>' : "") +
+          '</strong><span dir="ltr">' + esc(a.email) + '</span></div>' +
+          '<button type="button" class="act' + (a.blocked ? "" : " stop") + '" data-e="' + esc(a.email) + '" data-b="' + (a.blocked ? "0" : "1") + '">' + (a.blocked ? "إعادة التفعيل" : "إيقاف") + "</button></div>";
+      }).join("") : '<div class="empty" style="padding:10px">لم يسجّل أحد برابط الدعوة بعد.</div>';
+    }).catch(function () { $("adminList").innerHTML = '<div class="empty">تعذّر تحميل الحسابات.</div>'; });
+  }
+  $("adminList").addEventListener("click", function (e) {
+    var b = e.target.closest(".act"); if (!b) return;
+    var em = b.getAttribute("data-e"), block = b.getAttribute("data-b") === "1";
+    if (block && !confirm("إيقاف صلاحية " + em + "؟ لن تتمكن من الدخول إلى لوحة المتابعة.")) return;
+    S.setBlocked(em, block).then(loadAdmins).catch(function () { alert("تعذّر التنفيذ."); });
+  });
+
   function out() { S.signOut().then(function () { location.reload(); }); }
   $("logout").addEventListener("click", out);
   $("logout2").addEventListener("click", out);
