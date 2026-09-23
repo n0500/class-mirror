@@ -37,7 +37,7 @@ body{min-height:100vh;min-height:100dvh}
 .dock{position:fixed;inset-inline:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--line);border-radius:20px 20px 0 0;box-shadow:0 -10px 28px rgba(13,58,46,.10);padding:14px 14px calc(12px + env(safe-area-inset-bottom))}
 .dock .wrap{max-width:640px}
 @media (min-width:1000px){.sheet{margin-inline:auto}}
-.fitted .dock .wrap{max-width:640px}
+
 .fitted .sheet{margin-inline:12px;min-height:0}
 .site-foot{border-top:1px solid var(--line);margin:8px 16px 0;padding-inline:0}
 .dock .sec-title{margin:0 2px 12px}
@@ -107,7 +107,13 @@ body{min-height:100vh;min-height:100dvh}
 .stamp{display:none}
 .other-box{margin-top:8px}
 .field{padding:11px 12px}
-.dock{position:sticky;bottom:0;inset-inline:auto;max-width:none;padding:10px 12px calc(8px + env(safe-area-inset-bottom))}
+/* المواد والتقدير بطاقة واحدة متصلة */
+.sheet{border-radius:var(--radius) var(--radius) 0 0;box-shadow:none}
+.dock{position:sticky;bottom:0;inset-inline:auto;margin:0 12px;border:0;border-top:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius);box-shadow:0 -6px 16px rgba(13,58,46,.06),0 12px 26px rgba(13,58,46,.08);padding:12px 12px calc(10px + env(safe-area-inset-bottom))}
+.dock .wrap{max-width:none}
+@media (min-width:760px){.dock{max-width:736px;margin-inline:auto}}
+.fitted .dock{max-width:616px;margin-inline:auto}
+.fitted .dock .wrap{max-width:none}
 .site-foot{border-top:0;margin-top:0}
 .dock .sec-title{margin:0 2px 8px}
 .rates{gap:8px}
@@ -119,7 +125,7 @@ body{min-height:100vh;min-height:100dvh}
 .note-box textarea{min-height:52px}
 .site-foot{margin:6px 12px 0;padding:10px 0 6px;font-size:11.5px}
 @media (min-width:600px){.subj{font-size:16px}.subjects.c3 .subj{font-size:15px}.rate{min-height:72px;font-size:17px}.dock .wrap{max-width:760px}}
-.fitted .dock .wrap{max-width:640px}
+
 </style>
 </head>
 <body>
@@ -266,7 +272,7 @@ body{min-height:100vh;min-height:100dvh}
     var avail = vh - dock.offsetHeight - topOf(grid) - other - 14;
     var rows = Math.ceil(count / cols), gap = 8;
     var h = Math.floor((avail - (rows - 1) * gap) / rows);
-    grid.style.setProperty("--btn-h", Math.max(40, Math.min(h, 72)) + "px");
+    grid.style.setProperty("--btn-h", Math.max(40, Math.min(h, w < 600 ? 112 : 96)) + "px");
   }
   if (window.ResizeObserver) new ResizeObserver(fit).observe(dock);
   window.addEventListener("resize", fit);
