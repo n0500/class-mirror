@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#dfe6ee">
+<title>انعكاس الأسبوع — مرآة الصف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@500;600;700&family=Noto+Kufi+Arabic:wght@800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/fit.js"></script>
+<style>
+:root{
+  --cream:#fbf8f1; --cream-2:#f7f2e6; --line-gold:#e2cf9f; --ink-green:#0d3b2f; --gold-ink:#9a6a1c;
+  --star:#d99a1e; --up:#1f7a45; --up-bg:#e7f4ec;
+  --gold-grad:linear-gradient(135deg,#7c4a12 0%,#d49a3a 16%,#f6d68a 30%,#b87a22 46%,#eec06a 62%,#9a5f17 80%,#e2b45a 100%);
+}
+body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
+.bg{position:fixed;inset:-20px;background:url("assets/classroom-bg.jpg") center/cover no-repeat;filter:blur(2px);z-index:0}
+.stage{position:relative;z-index:1;margin:0 auto;padding:calc(30px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))}
+.frame{position:relative;padding:6px;border-radius:30px;background:var(--gold-grad);box-shadow:0 10px 28px rgba(40,30,10,.28)}
+.frame::before{content:"";position:absolute;inset:3px;border-radius:inherit;border:1.5px solid rgba(255,236,180,.7);pointer-events:none}
+.panel{position:relative;border-radius:25px;background:radial-gradient(120% 60% at 50% 0%,#fffdf8 0%,var(--cream) 55%,var(--cream-2) 100%);box-shadow:inset 0 0 0 1.5px #8f5a18;padding:40px 22px 22px}
+.crest{position:absolute;top:-22px;left:50%;width:104px;transform:translateX(-50%);z-index:2;filter:drop-shadow(0 2px 2px rgba(60,35,5,.35))}
+
+/* الرأس */
+.head{text-align:center}
+.head h1{margin:0;font-family:"Noto Kufi Arabic","IBM Plex Sans Arabic",sans-serif;font-weight:800;font-size:clamp(28px,4.5vw,46px);line-height:1.3;color:var(--ink-green)}
+.head .school{margin:0;font-size:clamp(13px,1.5vw,17px);font-weight:600;color:#1d2e28}
+.ribbon{display:inline-block;margin:12px 0 0;padding:6px 26px;border:1.5px solid #c9973f;border-radius:14px;background:#fdf9ef;font-size:clamp(16px,2vw,22px);font-weight:700;color:var(--ink-green)}
+.week{margin:8px 0 0;font-size:clamp(13px,1.4vw,16px);color:#4a5a54}
+
+/* الإجمالي */
+.total{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:22px auto 6px;text-align:center}
+.total .num{font-size:clamp(46px,7vw,84px);font-weight:700;line-height:1;color:var(--ink-green);font-variant-numeric:tabular-nums}
+.total .lbl{font-size:clamp(16px,2vw,22px);font-weight:600;color:#26352f;text-align:start}
+.total .lbl small{display:block;margin-top:4px;font-size:.8em;font-weight:600;color:var(--up)}
+.star{width:1em;height:1em;color:var(--star);vertical-align:-.12em}
+.total .star{width:clamp(40px,5vw,64px);height:clamp(40px,5vw,64px)}
+
+/* الفصول */
+.stage-title{display:flex;align-items:center;gap:12px;margin:22px 0 12px;font-size:clamp(17px,2vw,22px);font-weight:700;color:var(--ink-green)}
+.stage-title::before,.stage-title::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,#c9973f)}
+.stage-title::after{background:linear-gradient(90deg,#c9973f,transparent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cls{padding:12px 10px;border:1px solid var(--line-gold);border-radius:14px;background:#fdfbf6;text-align:center}
+.cls h3{margin:0;font-size:clamp(15px,1.6vw,18px);color:var(--ink-green)}
+.cls .n{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0 2px;font-size:clamp(28px,3.2vw,38px);font-weight:700;line-height:1.1;color:var(--ink-green);font-variant-numeric:tabular-nums}
+.cls .n .star{width:.8em;height:.8em}
+.cls .u{font-size:12.5px;color:#56645e}
+.chip-up{display:inline-block;white-space:nowrap;margin-top:6px;padding:2px 10px;border-radius:999px;background:var(--up-bg);color:var(--up);font-size:12.5px;font-weight:700}
+.chip-wait{display:inline-block;white-space:nowrap;margin-top:6px;padding:2px 10px;border-radius:999px;background:#fbf2dc;color:var(--gold-ink);font-size:12.5px;font-weight:600}
+
+.motto{margin:22px 0 0;text-align:center;font-size:clamp(15px,1.8vw,20px);font-weight:700;color:var(--ink-green)}
+.meta{margin:6px 0 0;text-align:center;font-size:12px;color:#6c6a5e}
+.rights{margin:12px auto 0;width:fit-content;padding:2px 12px;border-radius:999px;background:rgba(255,255,255,.72);font-size:11.5px;font-weight:500;color:#2f3d38}
+.empty{padding:30px 10px;text-align:center;font-size:17px;color:#2a3a34}
+
+/* فصل واحد */
+.single .stage{max-width:470px}
+.single .frame{border-radius:50% 50% 30px 30px / 170px 170px 30px 30px}
+.single .panel{border-radius:50% 50% 25px 25px / 164px 164px 25px 25px;padding-top:56px}
+.hero-num{margin:22px 0 4px;text-align:center}
+.hero-num .q{margin:0 0 14px;font-family:"Noto Kufi Arabic","IBM Plex Sans Arabic",sans-serif;font-weight:800;font-size:21px;line-height:1.6;color:var(--gold-ink)}
+.hero-num .n{display:flex;align-items:center;justify-content:center;gap:12px;font-size:96px;font-weight:700;line-height:1;color:var(--ink-green)}
+.hero-num .n .star{width:64px;height:64px}
+.hero-num .u{margin-top:8px;font-size:20px;font-weight:600;color:#26352f}
+.stars{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:16px auto 0;max-width:320px}
+.stars .star{width:26px;height:26px;animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pop{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+.cheer{text-wrap:balance}
+.cheer .said{display:block;margin-bottom:4px;font-size:13px;font-weight:700;color:var(--gold-ink)}
+.cheer{animation:rise .6s ease-out both;animation-delay:.3s}
+@keyframes rise{from{transform:translateY(8px);opacity:.001}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.stars .star,.cheer{animation:none}}
+.cheer{margin:20px auto 0;max-width:340px;padding:14px 16px;border:1px solid var(--line-gold);border-radius:14px;background:#fdfbf6;text-align:center;font-size:18px;font-weight:700;color:var(--ink-green);line-height:1.6}
+.cheer small{display:block;font-size:14px;font-weight:600;color:var(--up)}
+
+@media (min-width:1000px){ .stage{max-width:1280px;padding-inline:40px} .grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px} }
+@media (max-width:420px){ .panel{padding-inline:14px} .chip-up,.chip-wait{font-size:11.5px;padding:3px 8px;white-space:normal;line-height:1.5;border-radius:10px} .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<main class="stage">
+  <div class="frame">
+    <img class="crest" src="assets/crest.png" alt="" aria-hidden="true">
+    <div class="panel" id="panel">
+      <header class="head">
+        <h1>مرآة الصف</h1>
+        <p class="school" id="school"></p>
+        <div class="ribbon" id="ribbon">انعكاس الأسبوع</div>
+        <p class="week" id="week"></p>
+      </header>
+      <div id="content"><div class="empty">جار التحميل…</div></div>
+      <p class="motto">معا.. نصنع أثرا أجمل</p>
+      <p class="meta" id="meta"></p>
+    </div>
+  </div>
+  <p class="rights">فكرة وتصميم: أ. نهى فالح المطيري © 2026</p>
+</main>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="st" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.6l2.85 5.8 6.4.93-4.63 4.5 1.1 6.37L12 17.2l-5.72 3 1.1-6.37-4.63-4.5 6.4-.93z"/></symbol>
+</svg>
+
+<script src="config.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  var M = window.Miraat, S = M.Store;
+  var $ = function (id) { return document.getElementById(id); };
+  var num = new Intl.NumberFormat("ar-SA-u-nu-latn");
+  var STAR = '<svg class="star" aria-hidden="true"><use href="#st"/></svg>';
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  $("school").textContent = M.SCHOOL;
+
+  var one = M.findClass(new URLSearchParams(location.search).get("c"));
+  if (one) { document.documentElement.classList.add("single"); document.title = "انعكاس الأسبوع — " + one.name; }
+
+  function hdate(iso, withYear) {
+    var d = new Date(iso + "T12:00:00");
+    var o = { weekday: "long", day: "numeric", month: "long" }; if (withYear) o.year = "numeric";
+    return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", o).format(d);
+  }
+  function hessa(n) { return n === 0 ? "حصص متميزة" : n === 1 ? "حصة متميزة" : n === 2 ? "حصتان متميزتان" : n >= 3 && n <= 10 ? "حصص متميزة" : "حصة متميزة"; }
+
+  /* يعرض الإيجابي فقط: عدد الحصص المتميزة، والتقدم إن وجد */
+  function card(c, x) {
+    var n = x.n || 0, p = x.p || 0, extra = "";
+    if (n > p && p >= 0 && n > 0) extra = '<span class="chip-up">↑ بزيادة ' + num.format(n - p) + " عن الأسبوع الماضي</span>";
+    else if (n === 0) extra = '<span class="chip-wait">البداية قريبة</span>';
+    return '<div class="cls"><h3>' + esc(c.name) + '</h3><div class="n">' + STAR + num.format(n) + '</div><div class="u">' + hessa(n) + "</div>" + extra + "</div>";
+  }
+
+  function renderSchool(b) {
+    var up = b.total > b.totalPrev ? "<small>↑ بزيادة " + num.format(b.total - b.totalPrev) + " عن الأسبوع الماضي</small>" : "";
+    var html = '<div class="total">' + STAR + '<span class="num">' + num.format(b.total || 0) + '</span><span class="lbl">' + hessa(b.total || 0) + " في رصيد المدرسة هذا الأسبوع" + up + "</span></div>";
+    [["المرحلة المتوسطة", "m"], ["المرحلة الثانوية", "s"]].forEach(function (g) {
+      html += '<h2 class="stage-title">' + g[0] + '</h2><div class="grid">' +
+        M.CLASSES.filter(function (c) { return c.code[0] === g[1]; }).map(function (c) { return card(c, (b.classes || {})[c.code] || {}); }).join("") + "</div>";
+    });
+    $("content").innerHTML = html;
+  }
+
+  function renderOne(b) {
+    $("ribbon").textContent = one.name;
+    var x = (b.classes || {})[one.code] || {}, n = x.n || 0, p = x.p || 0;
+    var stars = ""; for (var i = 0; i < Math.min(n, 20); i++) stars += STAR.replace('class="star"', 'class="star" style="animation-delay:' + (0.25 + i * 0.12).toFixed(2) + 's"');
+    var cheer;
+    if (n === 0) cheer = "البدايات الجميلة تبدأ بحصة";
+    else if (n > p) cheer = "التقدم عادة.. وأنتم أهلها<small>بزيادة " + (n - p === 1 ? "حصة واحدة" : n - p === 2 ? "حصتين" : num.format(n - p) + (n - p <= 10 ? " حصص" : " حصة")) + " عن الأسبوع الماضي</small>";
+    else if (n === p) cheer = "على العهد.. وموعدنا القمة";
+    else cheer = "لكل أسبوع بداية.. ولكم موعد مع التميز";
+    $("content").innerHTML = '<div class="hero-num"><div class="q">رصيدكم هذا الأسبوع</div><div class="n">' + STAR + '<span id="cnt">' + num.format(n) + '</span></div><div class="u">' + hessa(n) + "</div></div>" +
+      (stars ? '<div class="stars">' + stars + "</div>" : "") + '<div class="cheer">' + cheer + "</div>";
+    if (n > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      var el = $("cnt"), t0 = performance.now(), dur = Math.min(1400, 300 + n * 90);
+      (function step(t) { var k = Math.min(1, (t - t0) / dur); el.textContent = num.format(Math.round(n * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); })(t0);
+    }
+  }
+
+  function load() {
+    S.getBoard().then(function (b) {
+      if (!b || !b.classes) { $("content").innerHTML = '<div class="empty">لم تنشر إنجازات هذا الأسبوع بعد.</div>'; return; }
+      $("week").textContent = "من " + hdate(b.weekStart) + " إلى " + hdate(b.weekEnd, true);
+      if (one) renderOne(b); else renderSchool(b);
+      if (b.updatedAt) $("meta").textContent = "آخر تحديث: " + new Date(b.updatedAt).toLocaleString("ar-SA", { weekday: "long", hour: "numeric", minute: "2-digit" });
+    }).catch(function () { $("content").innerHTML = '<div class="empty">تعذر تحميل الإنجازات. يرجى التحقق من الاتصال بالإنترنت.</div>'; });
+  }
+  load();
+  setInterval(load, 10 * 60 * 1000);   /* تحديث تلقائي لشاشة المدرسة كل ١٠ دقائق */
+})();
+</script>
+</body>
+</html>

@@ -60,6 +60,15 @@ service cloud.firestore {
       );
     }
 
+    // لوحة إنجازات الأسبوع للطالبات: أرقام إيجابية فقط (عدد الحصص المتميزة)، يقرؤها الجميع وتكتبها الإدارة
+    match /public/weekly {
+      allow get: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['weekStart', 'weekEnd', 'prevStart', 'classes', 'total', 'totalPrev', 'updatedAt'])
+        && request.resource.data.classes is map
+        && request.resource.data.updatedAt == request.time;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

@@ -106,6 +106,12 @@ button.row:hover{background:#f3f7f5}
 .adm .state{font-style:normal;font-size:12px;font-weight:600;color:var(--follow-d);background:#fbeee6;border-radius:6px;padding:0 6px;margin-inline-start:6px}
 .adm .act{border:0;background:none;color:var(--green-700);font-size:13.5px;font-weight:600;text-decoration:underline;padding:4px;flex:none}
 .adm .act.stop{color:var(--danger)}
+.cert-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:11px}
+.cert-row .rk{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--gold-bg);border:1px solid var(--gold-soft);color:var(--gold);font-weight:700;font-size:13px}
+.cert-row .info{flex:1;min-width:0}
+.cert-row .info strong{display:block}
+.cert-row .info span{font-size:13px;color:var(--muted)}
+.cert-row a{flex:none;font-size:14px;font-weight:600;color:var(--green-700)}
 .adm-h{margin:18px 0 8px;font-size:16px}
 .invite-box{padding:14px;border:1px solid var(--gold-soft);background:var(--gold-bg);border-radius:14px}
 .invite-box label{display:block;margin-bottom:6px;font-weight:600;font-size:14px}
@@ -244,6 +250,34 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       <div style="text-align:center"><button class="link" type="button" id="more" hidden>عرض المزيد</button></div>
     </section>
 
+    <section class="panel" id="boardPanel" hidden>
+      <h2>لوحة «انعكاس الأسبوع» للطالبات</h2>
+      <p class="sub">صفحة عامة تُعرض على شاشة المدرسة أو تُرسل للفصل، وتُظهر عدد الحصص المتميزة والتقدّم عن الأسبوع الماضي فقط، دون «يحتاج متابعة» ودون ترتيب للفصول. تُحدَّث تلقائيًا كلما فُتحت لوحة المتابعة.</p>
+      <div class="invite-box">
+        <label for="boardUrl">رابط لوحة المدرسة</label>
+        <input class="field" id="boardUrl" dir="ltr" readonly>
+        <div class="invite-actions">
+          <a class="btn" id="openBoard" target="_blank" rel="noopener">فتح اللوحة</a>
+          <button class="btn ghost" type="button" id="copyBoard">نسخ</button>
+          <button class="btn ghost" type="button" id="refreshBoard">تحديث الأرقام الآن</button>
+        </div>
+        <label for="boardClass" style="margin-top:14px">رابط إنجازات فصل واحد (للإرسال إلى الفصل)</label>
+        <div class="invite-actions" style="margin-top:0">
+          <select id="boardClass" class="field" style="flex:1;min-width:150px"></select>
+          <button class="btn ghost" type="button" id="shareClassBoard">مشاركة</button>
+        </div>
+        <p class="sub" id="boardStatus" style="margin:10px 0 0"></p>
+      </div>
+
+      <h3 class="adm-h">شهادة «الفصل الأكثر تقدّمًا»</h3>
+      <p class="sub" style="margin-top:0">تُحسب بمقارنة نسبة الحصص المتميزة لكل فصل في الشهر الهجري بالشهر الذي قبله (بحد أدنى ٤ تقييمات في كل شهر). هذه القائمة للإدارة فقط.</p>
+      <div class="chips" role="group" aria-label="الشهر" id="certMonth">
+        <button class="chip" data-m="-1" aria-pressed="true" type="button">الشهر الماضي</button>
+        <button class="chip" data-m="0" aria-pressed="false" type="button">الشهر الحالي حتى الآن</button>
+      </div>
+      <div id="certList" class="adm-list" style="margin-top:12px"></div>
+    </section>
+
     <section class="panel" id="adminsPanel" hidden>
       <h2>حسابات الإدارة</h2>
       <p class="sub">أرسلي رابط الدعوة إلى من تريدين منحها صلاحية الاطلاع على النتائج؛ تفتحه وتنشئ حسابها بنفسها، وتظهر هنا تلقائيًا.</p>
@@ -321,6 +355,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       show("dash");
       if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
       if (role === "owner") { $("adminsPanel").hidden = false; loadInvite(false); loadAdmins(); }
+      $("boardPanel").hidden = false; initBoard(); publishBoard(true); loadCert(-1);
       load();
     });
   });
@@ -400,6 +435,90 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     var em = b.getAttribute("data-e"), block = b.getAttribute("data-b") === "1";
     if (block && !confirm("إيقاف صلاحية " + em + "؟ لن تتمكن من الدخول إلى لوحة المتابعة.")) return;
     S.setBlocked(em, block).then(loadAdmins).catch(function () { alert("تعذّر التنفيذ."); });
+  });
+
+
+  /* ---------- لوحة إنجازات الأسبوع ---------- */
+  var baseUrl = location.href.split("?")[0].split("#")[0].replace(/[^\/]*$/, "");
+  function isoDay(d) { return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+  function initBoard() {
+    $("boardUrl").value = baseUrl + "board.html";
+    $("openBoard").href = baseUrl + "board.html";
+    $("boardClass").innerHTML = M.CLASSES.map(function (c) { return '<option value="' + c.code + '">' + esc(c.name) + "</option>"; }).join("");
+  }
+  function publishBoard(silent) {
+    var thisStart = M.startOfWeek(new Date());
+    var prevStart = new Date(thisStart); prevStart.setDate(prevStart.getDate() - 7);
+    var weekEnd = new Date(thisStart); weekEnd.setDate(weekEnd.getDate() + 4);
+    if (!silent) { $("boardStatus").textContent = "جارٍ تحديث الأرقام…"; }
+    return S.list(prevStart).then(function (rows) {
+      var classes = {}, total = 0, totalPrev = 0;
+      M.CLASSES.forEach(function (c) { classes[c.code] = { n: 0, p: 0 }; });
+      rows.forEach(function (r) {
+        if (M.normRating(r.rating) !== "متميز") return;
+        var code = r.classCode || ((M.findClass(r.classroom) || {}).code);
+        if (!classes[code]) return;
+        if (r.createdAt >= thisStart) { classes[code].n++; total++; } else { classes[code].p++; totalPrev++; }
+      });
+      return S.publishBoard({ weekStart: isoDay(thisStart), weekEnd: isoDay(weekEnd), prevStart: isoDay(prevStart), classes: classes, total: total, totalPrev: totalPrev });
+    }).then(function () {
+      $("boardStatus").textContent = "حُدِّثت أرقام اللوحة " + new Date().toLocaleTimeString("ar-SA", { hour: "numeric", minute: "2-digit" }) + ".";
+    }).catch(function () {
+      $("boardStatus").textContent = "تعذّر تحديث لوحة الطالبات. تحقّقي من نشر قواعد الحماية المحدّثة في Firebase.";
+    });
+  }
+  $("refreshBoard").addEventListener("click", function () { publishBoard(false); });
+  $("copyBoard").addEventListener("click", function () {
+    var b = this;
+    (navigator.clipboard ? navigator.clipboard.writeText($("boardUrl").value) : Promise.reject()).then(function () {
+      b.textContent = "نُسخ"; setTimeout(function () { b.textContent = "نسخ"; }, 1500);
+    }).catch(function () { $("boardUrl").select(); });
+  });
+  $("shareClassBoard").addEventListener("click", function () {
+    var c = M.findClass($("boardClass").value), u = baseUrl + "board.html?c=" + c.code;
+    var text = "انعكاس الأسبوع لفصل " + c.name + ":";
+    if (navigator.share) navigator.share({ title: "مرآة الصف", text: text, url: u }).catch(function () {});
+    else location.href = "https://wa.me/?text=" + encodeURIComponent(text + "\n" + u);
+  });
+
+  /* ---------- شهادة الفصل الأكثر تقدّمًا ---------- */
+  var pct = function (x) { return Math.round(x * 100); };
+  function loadCert(offset) {
+    var cur = M.hijriMonthRange(offset), prev = M.hijriMonthRange(offset - 1);
+    var label = M.hijriMonthLabel(cur.start);
+    $("certList").innerHTML = '<div class="empty" style="padding:10px">جارٍ الحساب…</div>';
+    S.list(prev.start).then(function (rows) {
+      var st = {};
+      M.CLASSES.forEach(function (c) { st[c.code] = { c: c, t: 0, e: 0, pt: 0, pe: 0 }; });
+      rows.forEach(function (r) {
+        var code = r.classCode || ((M.findClass(r.classroom) || {}).code), x = st[code]; if (!x) return;
+        var ex = M.normRating(r.rating) === "متميز";
+        if (r.createdAt >= cur.start && r.createdAt < cur.end) { x.t++; if (ex) x.e++; }
+        else if (r.createdAt >= prev.start && r.createdAt < prev.end) { x.pt++; if (ex) x.pe++; }
+      });
+      var list = Object.keys(st).map(function (k) { return st[k]; }).filter(function (x) { return x.t >= 4; });
+      list.forEach(function (x) { x.now = x.e / x.t; x.before = x.pt ? x.pe / x.pt : 0; x.delta = x.now - x.before; });
+      var withPrev = list.filter(function (x) { return x.pt >= 4 && x.delta > 0; });
+      var mode = withPrev.length ? "progress" : "excellence";
+      var ranked = (mode === "progress" ? withPrev : list).sort(function (a, b) { return mode === "progress" ? (b.delta - a.delta) || (b.now - a.now) : (b.now - a.now) || (b.t - a.t); });
+      if (!ranked.length) {
+        $("certList").innerHTML = '<div class="empty" style="padding:10px">لا توجد تقييمات كافية في ' + esc(label) + " لحساب الشهادة (يلزم ٤ تقييمات على الأقل للفصل).</div>";
+        return;
+      }
+      var note = mode === "progress" ? "" : '<div class="sub" style="margin:0 0 4px">لا يتوفر تقدّم قابل للمقارنة مع الشهر السابق، لذا رُتّبت الفصول بنسبة الحصص المتميزة في ' + esc(label) + ".</div>";
+      $("certList").innerHTML = note + ranked.slice(0, 3).map(function (x, i) {
+        var detail = mode === "progress"
+          ? "الحصص المتميزة: " + pct(x.before) + "٪ ← " + pct(x.now) + "٪"
+          : "الحصص المتميزة: " + pct(x.now) + "٪ من " + x.t + " تقييمات";
+        var q = "?c=" + x.c.code + "&m=" + encodeURIComponent(label) + "&mode=" + mode + "&from=" + pct(x.before) + "&to=" + pct(x.now);
+        return '<div class="cert-row"><span class="rk">' + (i + 1) + '</span><div class="info"><strong>' + esc(x.c.name) + "</strong><span>" + detail + '</span></div><a href="certificate.html' + q + '" target="_blank" rel="noopener">الشهادة</a></div>';
+      }).join("");
+    }).catch(function () { $("certList").innerHTML = '<div class="empty">تعذّر الحساب.</div>'; });
+  }
+  $("certMonth").addEventListener("click", function (e) {
+    var b = e.target.closest(".chip"); if (!b) return;
+    this.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    loadCert(parseInt(b.getAttribute("data-m"), 10));
   });
 
   function out() { S.signOut().then(function () { location.reload(); }); }

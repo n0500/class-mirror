@@ -72,6 +72,29 @@
   /* عرض أرقام المقررات (مثل 2-1) بترتيبها الصحيح داخل النص العربي، دون تغيير الاسم المحفوظ */
   function disp(name) { return String(name == null ? "" : name).replace(/(\d+(?:-\d+)+)/g, "\u2066$1\u2069"); }
 
+  /* ---------------- التواريخ ---------------- */
+  function startOfWeek(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - x.getDay()); return x; }  /* الأحد */
+  var HDAY = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", { day: "numeric" });
+  function hijriDay(d) { return parseInt(HDAY.format(d), 10); }
+  /* بداية الشهر الهجري الذي يقع فيه التاريخ */
+  function hijriMonthStart(d) {
+    var x = new Date(d); x.setHours(12, 0, 0, 0);
+    for (var i = 0; i < 31 && hijriDay(x) !== 1; i++) x.setDate(x.getDate() - 1);
+    x.setHours(0, 0, 0, 0); return x;
+  }
+  function hijriMonthRange(offset) {         /* 0 = الشهر الحالي، -1 = الشهر الماضي */
+    var start = hijriMonthStart(new Date());
+    for (var k = 0; k > offset; k--) { var p = new Date(start); p.setDate(p.getDate() - 1); start = hijriMonthStart(p); }
+    var end = new Date(start); end.setDate(end.getDate() + 25);
+    while (hijriDay(end) !== 1) end.setDate(end.getDate() + 1);
+    end.setHours(0, 0, 0, 0);
+    return { start: start, end: end };
+  }
+  function hijriMonthLabel(d) {
+    var x = new Date(d); x.setDate(x.getDate() + 3);
+    return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", { month: "long", year: "numeric" }).format(x);
+  }
+
   /* ---------------- طبقة الحفظ ---------------- */
   var cfg = window.MIRAAT_CONFIG || {};
   var fb = cfg.firebaseConfig || {};
@@ -228,6 +251,27 @@
       return firebase().then(function (F) { return F.fs.updateDoc(F.fs.doc(F.db, "admins", email), { blocked: !!blocked }); });
     },
 
+    /* ===== لوحة إنجازات الأسبوع (بيانات إيجابية فقط، قابلة للقراءة العامة) ===== */
+    publishBoard: function (data) {
+      if (DEMO) { try { localStorage.setItem(DEMO_KEY + "_board", JSON.stringify(data)); } catch (e) {} return Promise.resolve(); }
+      return firebase().then(function (F) {
+        var d = JSON.parse(JSON.stringify(data));
+        d.updatedAt = F.fs.serverTimestamp();
+        return F.fs.setDoc(F.fs.doc(F.db, "public", "weekly"), d);
+      });
+    },
+    getBoard: function () {
+      if (DEMO) { try { return Promise.resolve(JSON.parse(localStorage.getItem(DEMO_KEY + "_board") || "null")); } catch (e) { return Promise.resolve(null); } }
+      return firebase().then(function (F) {
+        return F.fs.getDoc(F.fs.doc(F.db, "public", "weekly"));
+      }).then(function (d) {
+        if (!d.exists()) return null;
+        var x = d.data();
+        x.updatedAt = x.updatedAt && x.updatedAt.toDate ? x.updatedAt.toDate().toISOString() : null;
+        return x;
+      });
+    },
+
     /* تُرجع جميع السجلات منذ تاريخ معيّن (أو كلها) مرتبة من الأحدث */
     list: function (since) {
       if (DEMO) {
@@ -283,6 +327,6 @@
 
   window.Miraat = {
     SCHOOL: SCHOOL, CLASSES: CLASSES, SUBJECTS: SUBJECTS, RATINGS: RATINGS,
-    findClass: findClass, subjectsFor: subjectsFor, disp: disp, normRating: normRating, Store: Store
+    findClass: findClass, subjectsFor: subjectsFor, disp: disp, startOfWeek: startOfWeek, hijriMonthRange: hijriMonthRange, hijriMonthLabel: hijriMonthLabel, normRating: normRating, Store: Store
   };
 })();
