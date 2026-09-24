@@ -376,7 +376,9 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       if (inviteCode) { inviteCode = ""; history.replaceState(null, "", location.pathname); }
       show("dash");
       if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
+      canDelete = role === "owner";
       if (role === "owner") { $("adminsPanel").hidden = false; loadInvite(false); loadAdmins(); }
+      if (state.rows) render();
       $("boardPanel").hidden = false; initBoard(); publishBoard(true); loadCert(-1);
       showTab((location.hash || "").slice(1));
       load();
@@ -570,6 +572,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     return null;
   }
 
+  var canDelete = false;   /* الحذف للمالكة فقط */
   /* ---------- التبويبات ---------- */
   function showTab(name) {
     if (["follow", "board", "settings"].indexOf(name) < 0) name = "follow";
@@ -666,7 +669,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       var rr = R.filter(function (x) { return x.key === r.rating; })[0] || { cls: "" };
       return "<tr><td class=\"c-cls\"><strong>" + esc(r.classroom || "غير محدد") + '</strong></td><td class="c-sub">' + esc(M.disp(r.subject)) + (r.note ? '<div class="note">' + esc(r.note) + "</div>" : "") +
         '</td><td class="c-rate"><span class="tag"><i class="c-' + rr.cls + '"></i>' + esc(r.rating) + '</span></td><td class="c-when when">' + r.createdAt.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) +
-        '</td><td class="c-act"><button class="del" type="button" data-id="' + esc(r.id) + '">حذف</button></td></tr>';
+        '</td><td class="c-act">' + (canDelete ? '<button class="del" type="button" data-id="' + esc(r.id) + '">حذف</button>' : '') + '</td></tr>';
     }).join("") : '<tr><td colspan="5" class="empty">لا توجد تقييمات في هذه الفترة.</td></tr>';
     $("more").hidden = rows.length <= state.shown;
     state.current = rows;

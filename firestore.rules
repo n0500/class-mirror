@@ -2,7 +2,7 @@ rules_version = '2';
 // مرآة الصف — قواعد حماية قاعدة البيانات
 // المعلمات: إضافة تقييم جديد فقط (دون تسجيل دخول)، ولا يمكنهن القراءة أو التعديل أو الحذف.
 // المالكة: كل صلاحيات الإدارة، مع إدارة رابط الدعوة وإيقاف الحسابات.
-// حسابات الإدارة: قراءة التقييمات وحذفها. تُنشئ كل واحدة حسابها بنفسها عبر رابط الدعوة،
+// حسابات الإدارة: قراءة التقييمات فقط (الحذف للمالكة). تُنشئ كل واحدة حسابها بنفسها عبر رابط الدعوة،
 // ويمكن للمالكة إيقاف أي حساب أو تغيير رابط الدعوة من لوحة المتابعة.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -38,7 +38,8 @@ service cloud.firestore {
         && request.resource.data.note is string && request.resource.data.note.size() <= 300
         && request.resource.data.createdAt == request.time;
 
-      allow read, delete: if isAdmin();
+      allow read: if isAdmin();
+      allow delete: if isOwner();   // الحذف للمالكة فقط
       allow update: if false;
     }
 
