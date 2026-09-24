@@ -245,7 +245,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     b.type = "button";
     b.className = "subj";
     b.innerHTML = '<span></span>' + CHECK;
-    b.firstChild.textContent = name;
+    b.firstChild.textContent = M.disp(name);
     b.setAttribute("aria-pressed", "false");
     b.addEventListener("click", function () { pick(name, b); });
     grid.appendChild(b);
@@ -340,7 +340,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
         var colors = { "متميز": "var(--r-excellent)", "جيد": "var(--r-good)", "يحتاج متابعة": "var(--r-follow)" };
         $("doneIcon").style.background = colors[rating];
         $("doneClass").textContent = cls.name;
-        $("doneSubject").textContent = subj;
+        $("doneSubject").textContent = M.disp(subj);
         $("doneRating").textContent = rating;
         $("doneRating").style.color = colors[rating];
         $("doneTime").textContent = new Date().toLocaleString("ar-SA", { weekday: "long", hour: "numeric", minute: "2-digit" });

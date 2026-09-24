@@ -463,7 +463,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     var subs = {};
     byCls.forEach(function (r) { subs[r.subject] = 1; });
     var sel = $("fSubject"), cur = state.subject;
-    sel.innerHTML = '<option value="">جميع المواد</option>' + Object.keys(subs).sort().map(function (s) { return '<option' + (s === cur ? " selected" : "") + ">" + esc(s) + "</option>"; }).join("");
+    sel.innerHTML = '<option value="">جميع المواد</option>' + Object.keys(subs).sort().map(function (s) { return '<option value="' + esc(s) + '"' + (s === cur ? " selected" : "") + ">" + esc(M.disp(s)) + "</option>"; }).join("");
     var rows = state.subject ? byCls.filter(function (r) { return r.subject === state.subject; }) : byCls;
     var c = count(rows);
 
@@ -502,7 +502,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     $("subjMore").hidden = full <= 12;
     $("subjMore").textContent = state.allSubj ? "عرض أقل" : "عرض جميع المواد (" + fmt.format(full) + ")";
     $("bySubject").innerHTML = list.length ? list.map(function (s) {
-      return '<div class="row"><span class="name">' + esc(s.k) + "</span>" + bar(s.c) + '<span class="counts">' + counts(s.c) + "</span></div>";
+      return '<div class="row"><span class="name">' + esc(M.disp(s.k)) + "</span>" + bar(s.c) + '<span class="counts">' + counts(s.c) + "</span></div>";
     }).join("") : '<div class="empty">لا توجد تقييمات.</div>';
 
     /* السجل */
@@ -510,7 +510,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     $("logSub").textContent = fmt.format(rows.length) + " تقييم — " + scopeLabel();
     $("log").innerHTML = shown.length ? shown.map(function (r) {
       var rr = R.filter(function (x) { return x.key === r.rating; })[0] || { cls: "" };
-      return "<tr><td class=\"c-cls\"><strong>" + esc(r.classroom || "غير محدد") + '</strong></td><td class="c-sub">' + esc(r.subject) + (r.note ? '<div class="note">' + esc(r.note) + "</div>" : "") +
+      return "<tr><td class=\"c-cls\"><strong>" + esc(r.classroom || "غير محدد") + '</strong></td><td class="c-sub">' + esc(M.disp(r.subject)) + (r.note ? '<div class="note">' + esc(r.note) + "</div>" : "") +
         '</td><td class="c-rate"><span class="tag"><i class="c-' + rr.cls + '"></i>' + esc(r.rating) + '</span></td><td class="c-when when">' + r.createdAt.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) +
         '</td><td class="c-act"><button class="del" type="button" data-id="' + esc(r.id) + '">حذف</button></td></tr>';
     }).join("") : '<tr><td colspan="5" class="empty">لا توجد تقييمات في هذه الفترة.</td></tr>';
@@ -524,7 +524,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   function scopeLabel() {
     var p = [periodLabel()];
     if (state.cls) p.push(M.findClass(state.cls).name);
-    if (state.subject) p.push(state.subject);
+    if (state.subject) p.push(M.disp(state.subject));
     return p.join(" · ");
   }
 
