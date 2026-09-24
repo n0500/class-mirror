@@ -39,6 +39,12 @@
 
 /* المرشحات */
 .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dtabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:4px;margin:0 0 14px;padding:4px;border-radius:14px;background:#e6ece9;box-shadow:0 2px 8px rgba(13,58,46,.08)}
+.dtabs button{flex:1;min-height:44px;border:0;border-radius:10px;background:transparent;color:var(--ink-2);font-size:15px;font-weight:700;white-space:nowrap}
+.dtabs button[aria-selected="true"]{background:#fff;color:var(--green-800);box-shadow:0 1px 3px rgba(13,58,46,.18)}
+.dtabs button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+@media(max-width:380px){.dtabs button{font-size:13.5px}}
+.pane>.panel:first-child{margin-top:0}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink-2);font-size:14.5px;font-weight:600}
 .chip[aria-pressed="true"]{background:var(--green-700);border-color:var(--green-700);color:#fff}
@@ -73,6 +79,7 @@ button.row:hover{background:#f3f7f5}
 .row .counts em{font-style:normal;color:var(--muted)}
 .flagtxt{display:table;margin-top:3px;padding:0 7px;border-radius:6px;background:#fbeee6;color:var(--follow-d);font-size:11.5px;font-weight:600}
 @media(max-width:560px){.row{grid-template-columns:1fr auto}.row .bar{grid-column:1/-1;order:3}}
+@media(max-width:560px){#byClass .row{grid-template-columns:86px minmax(0,1fr) auto;gap:8px;padding:7px 4px}#byClass .row .bar{grid-column:auto;order:0}#byClass .row .name{font-size:14px}}
 .empty{padding:22px 8px;text-align:center;color:var(--muted)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:860px){.two{grid-template-columns:1fr}}
@@ -128,6 +135,7 @@ button.row:hover{background:#f3f7f5}
 .fitted .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
 .fitted .two{grid-template-columns:1fr}
 .fitted .row{grid-template-columns:1fr auto}.fitted .row .bar{grid-column:1/-1;order:3}
+.fitted #byClass .row{grid-template-columns:86px minmax(0,1fr) auto;gap:8px;padding:7px 4px}.fitted #byClass .row .bar{grid-column:auto;order:0}
 .fitted .tbl thead{display:none}
 .fitted .tbl tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 2px;border-bottom:1px solid #eef2f0}
 .fitted .tbl td{padding:0;border:0}
@@ -198,6 +206,13 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       <span style="display:flex;gap:6px"><button type="button" id="seed">إضافة بيانات تجريبية</button><button type="button" id="clear">مسح البيانات</button></span>
     </div>
 
+    <nav class="dtabs" role="tablist" aria-label="أقسام اللوحة">
+      <button type="button" role="tab" data-tab="follow" aria-selected="true">المتابعة</button>
+      <button type="button" role="tab" data-tab="board" aria-selected="false">انعكاس الأسبوع</button>
+      <button type="button" role="tab" data-tab="settings" aria-selected="false">الإعدادات</button>
+    </nav>
+
+    <div class="pane" data-pane="follow">
     <section class="panel">
       <div class="filters">
         <div class="chips" role="group" aria-label="الفترة" id="period">
@@ -249,6 +264,9 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       </table>
       <div style="text-align:center"><button class="link" type="button" id="more" hidden>عرض المزيد</button></div>
     </section>
+    </div>
+
+    <div class="pane" data-pane="board" hidden>
 
     <section class="panel" id="boardPanel" hidden>
       <h2>لوحة «انعكاس الأسبوع» للطالبات</h2>
@@ -261,7 +279,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
           <button class="btn ghost" type="button" id="copyBoard">نسخ</button>
           <button class="btn ghost" type="button" id="refreshBoard">تحديث الأرقام الآن</button>
         </div>
-        <label for="boardClass" style="margin-top:14px">رابط إنجازات فصل واحد (للإرسال إلى الفصل)</label>
+        <label for="boardClass" style="margin-top:14px">رابط فصل واحد (للإرسال إلى الفصل)</label>
         <div class="invite-actions" style="margin-top:0">
           <select id="boardClass" class="field" style="flex:1;min-width:150px"></select>
           <button class="btn ghost" type="button" id="shareClassBoard">مشاركة</button>
@@ -278,6 +296,9 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       <div id="certList" class="adm-list" style="margin-top:12px"></div>
     </section>
 
+    </div>
+
+    <div class="pane" data-pane="settings" hidden>
     <section class="panel" id="adminsPanel" hidden>
       <h2>حسابات الإدارة</h2>
       <p class="sub">أرسلي رابط الدعوة إلى من تريدين منحها صلاحية الاطلاع على النتائج؛ تفتحه وتنشئ حسابها بنفسها، وتظهر هنا تلقائيًا.</p>
@@ -297,12 +318,13 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     </section>
 
     <section class="panel">
-      <details>
+      <details open>
         <summary>روابط الفصول</summary>
         <p class="sub" style="margin-top:8px">رابط مستقل لكل فصل، وهو نفسه المضمَّن في رمز QR.</p>
         <div class="links-grid" id="links"></div>
       </details>
     </section>
+    </div>
   </div>
 </main>
 <footer class="site-foot">فكرة وتصميم: أ. نهى فالح المطيري © 2026</footer>
@@ -356,6 +378,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
       if (role === "owner") { $("adminsPanel").hidden = false; loadInvite(false); loadAdmins(); }
       $("boardPanel").hidden = false; initBoard(); publishBoard(true); loadCert(-1);
+      showTab((location.hash || "").slice(1));
       load();
     });
   });
@@ -547,11 +570,23 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     return null;
   }
 
+  /* ---------- التبويبات ---------- */
+  function showTab(name) {
+    if (["follow", "board", "settings"].indexOf(name) < 0) name = "follow";
+    document.querySelectorAll(".dtabs [data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"); });
+    document.querySelectorAll(".pane").forEach(function (p) { p.hidden = p.dataset.pane !== name; });
+    try { history.replaceState(null, "", name === "follow" ? location.pathname + location.search : "#" + name); } catch (e) {}
+  }
+  document.querySelector(".dtabs").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-tab]"); if (!b) return;
+    showTab(b.dataset.tab); window.scrollTo({ top: 0 });
+  });
+
   function load() {
     $("log").innerHTML = '<tr><td colspan="5" class="empty">جارٍ التحميل…</td></tr>';
     S.list(since(state.period)).then(function (rows) {
       rows.forEach(function (r) { r.rating = M.normRating(r.rating); if (!r.classCode) { var c = M.findClass(r.classroom); r.classCode = c ? c.code : ""; } });
-      state.rows = rows; state.shown = 25; render();
+      state.rows = rows; state.shown = 10; render();
     }).catch(function (e) {
       $("log").innerHTML = '<tr><td colspan="5" class="empty">تعذّر تحميل البيانات. ' + (e && e.code === "permission-denied" ? "تحقّقي من إضافة بريد الإدارة في قواعد الحماية." : "") + "</td></tr>";
     });
@@ -617,7 +652,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     var list = Object.keys(sm).map(function (k) { return { k: k, c: count(sm[k]) }; }).sort(function (a, b) { return b.c.total - a.c.total; });
     $("bySubjectSub").textContent = state.cls ? "ضمن " + M.findClass(state.cls).name + "." : "ضمن جميع الفصول.";
     var full = list.length;
-    if (!state.allSubj) list = list.slice(0, 12);
+    if (!state.allSubj) list = list.slice(0, 8);
     $("subjMore").hidden = full <= 12;
     $("subjMore").textContent = state.allSubj ? "عرض أقل" : "عرض جميع المواد (" + fmt.format(full) + ")";
     $("bySubject").innerHTML = list.length ? list.map(function (s) {
