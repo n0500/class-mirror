@@ -29,13 +29,18 @@ service cloud.firestore {
     }
 
     match /observations/{id} {
-      allow create: if request.resource.data.keys().hasOnly(['classCode','classroom','stage','subject','rating','note','createdAt'])
+      allow create: if request.resource.data.keys().hasOnly(['classCode','classroom','stage','subject','rating','note','teacher','createdAt'])
         && validClass(request.resource.data.classCode)
         && request.resource.data.classroom is string && request.resource.data.classroom.size() <= 40
         && request.resource.data.stage is string && request.resource.data.stage.size() <= 20
         && request.resource.data.subject is string && request.resource.data.subject.size() > 0 && request.resource.data.subject.size() <= 80
         && request.resource.data.rating in ['متميز', 'جيد', 'يحتاج متابعة']
         && request.resource.data.note is string && request.resource.data.note.size() <= 300
+        // «يحتاج متابعة» تتطلب ملاحظة
+        && (request.resource.data.rating != 'يحتاج متابعة' || request.resource.data.note.size() >= 3)
+        // «أخرى» تتطلب اسم المعلمة
+        && (!('teacher' in request.resource.data) || (request.resource.data.teacher is string && request.resource.data.teacher.size() <= 60))
+        && (!request.resource.data.subject.matches('^أخرى.*') || ('teacher' in request.resource.data && request.resource.data.teacher.size() >= 2))
         && request.resource.data.createdAt == request.time;
 
       allow read: if isAdmin();

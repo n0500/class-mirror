@@ -70,7 +70,7 @@
   function normRating(r) { return LEGACY[r] || r; }
 
   /* عرض أرقام المقررات (مثل 2-1) بترتيبها الصحيح داخل النص العربي، دون تغيير الاسم المحفوظ */
-  function disp(name) { return String(name == null ? "" : name).replace(/(\d+(?:-\d+)+)/g, "\u2066$1\u2069"); }
+  function disp(name) { return String(name == null ? "" : name).replace(/(\d+(?:-\d+)+)/g, function (m) { return "\u2066" + m.replace(/-/g, "\u2060-\u2060") + "\u2069"; }); }
 
   /* ---------------- التواريخ ---------------- */
   function startOfWeek(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - x.getDay()); return x; }  /* الأحد */
@@ -145,6 +145,7 @@
         rating: rec.rating,
         note: String(rec.note || "").slice(0, 300)
       };
+      if (rec.teacher) clean.teacher = String(rec.teacher).slice(0, 60);   /* اسم المعلمة: عند اختيار «أخرى» فقط */
       if (DEMO) {
         var rows = demoRead();
         clean.id = "d" + Date.now() + Math.random().toString(36).slice(2, 6);

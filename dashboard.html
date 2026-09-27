@@ -170,7 +170,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       <button type="button" class="tab" id="tabIn" role="tab" aria-selected="true">تسجيل الدخول</button>
       <button type="button" class="tab" id="tabUp" role="tab" aria-selected="false">إنشاء حساب</button>
     </div>
-    <p class="invite-note" id="inviteNote" hidden>دُعيتِ إلى لوحة متابعة «مرآة الصف». أنشئي حسابك للدخول، أو سجّلي الدخول إن كان لديكِ حساب.</p>
+    <p class="invite-note" id="inviteNote" hidden>دعوة للانضمام إلى لوحة متابعة «مرآة الصف». يُرجى إنشاء حساب للدخول، أو تسجيل الدخول لمن لديها حساب.</p>
 
     <form id="loginForm" novalidate>
       <label for="email">البريد الإلكتروني</label>
@@ -193,9 +193,18 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     <div class="msg" id="loginMsg" role="status"></div>
   </section>
 
+  <section class="panel login" id="waitView">
+    <h2>جارٍ فتح لوحة المتابعة…</h2>
+    <p class="sub" id="waitText">يتم التحقق من الحساب والاتصال بقاعدة البيانات.</p>
+    <div class="invite-actions" id="waitActions" hidden>
+      <button class="btn" type="button" id="retry">إعادة المحاولة</button>
+      <button class="btn ghost" type="button" id="logout3">تسجيل الخروج</button>
+    </div>
+  </section>
+
   <section class="panel login" id="deniedView" hidden>
     <h2>لا تتوفر صلاحية</h2>
-    <p class="sub" id="deniedText">هذا الحساب غير مُدرج ضمن حسابات الإدارة. للحصول على صلاحية الاطلاع، اطلبي رابط الدعوة من مالكة المبادرة ثم افتحيه.</p>
+    <p class="sub" id="deniedText">هذا الحساب غير مُدرج ضمن حسابات الإدارة. للحصول على صلاحية الاطلاع، يُرجى طلب رابط الدعوة من مالكة المبادرة ثم فتحه.</p>
     <button class="btn ghost" type="button" id="logout2">تسجيل الخروج</button>
   </section>
 
@@ -242,7 +251,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     <div class="two">
       <section class="panel">
         <h2>حسب الفصل</h2>
-        <p class="sub">اضغطي على الفصل لعرض تفاصيله.</p>
+        <p class="sub">يُعرض تفصيل الفصل عند الضغط عليه.</p>
         <div class="rows" id="byClass"></div>
       </section>
       <section class="panel">
@@ -301,7 +310,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     <div class="pane" data-pane="settings" hidden>
     <section class="panel" id="adminsPanel" hidden>
       <h2>حسابات الإدارة</h2>
-      <p class="sub">أرسلي رابط الدعوة إلى من تريدين منحها صلاحية الاطلاع على النتائج؛ تفتحه وتنشئ حسابها بنفسها، وتظهر هنا تلقائيًا.</p>
+      <p class="sub">يُرسَل رابط الدعوة إلى من تُمنح صلاحية الاطلاع على النتائج؛ فتفتحه وتنشئ حسابها بنفسها، ويظهر حسابها هنا تلقائيًا.</p>
       <div class="invite-box">
         <label for="inviteUrl">رابط الدعوة</label>
         <input class="field" id="inviteUrl" dir="ltr" readonly>
@@ -344,8 +353,17 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   var state = { period: "week", cls: "", subject: "", rows: [], shown: 25 };
 
   /* ---------- الدخول ---------- */
+  /* إن تأخر الفتح أو حدث خطأ: رسالة واضحة مع إعادة المحاولة وتسجيل الخروج بدل صفحة فارغة */
+  function stuck(msg) {
+    $("waitView").hidden = false; $("dash").hidden = true; $("loginView").hidden = true; $("deniedView").hidden = true;
+    $("waitText").textContent = msg; $("waitActions").hidden = false;
+  }
+  var waitTimer = setTimeout(function () {
+    stuck("يستغرق فتح اللوحة وقتًا أطول من المعتاد. يُرجى التحقق من الاتصال بالإنترنت وإعادة المحاولة، أو تسجيل الخروج والدخول من جديد.");
+  }, 15000);
   function show(view) {
-    ["loginView", "deniedView", "dash"].forEach(function (v) { $(v).hidden = v !== view; });
+    clearTimeout(waitTimer);
+    ["waitView", "loginView", "deniedView", "dash"].forEach(function (v) { $(v).hidden = v !== view; });
     $("nav").hidden = view !== "dash";
   }
   var params = new URLSearchParams(location.search);
@@ -368,7 +386,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       if (role || !inviteCode) return role;
       /* حساب جديد أو قائم يفتح رابط الدعوة: يُسجَّل ضمن حسابات الإدارة */
       return S.joinWithInvite(user, pendingName, inviteCode).then(function () { return S.role(user); }, function () {
-        $("deniedText").textContent = "رابط الدعوة غير صالح أو تغيّر، أو أن هذا الحساب موقوف. اطلبي رابطًا جديدًا من مالكة المبادرة.";
+        $("deniedText").textContent = "رابط الدعوة غير صالح أو تغيّر، أو أن هذا الحساب موقوف. يُرجى طلب رابط جديد من مالكة المبادرة.";
         return null;
       });
     }).then(function (role) {
@@ -382,6 +400,11 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       $("boardPanel").hidden = false; initBoard(); publishBoard(true); loadCert(-1);
       showTab((location.hash || "").slice(1));
       load();
+    }).catch(function (err) {
+      if (window.console) console.error(err);
+      if (!$("dash").hidden) return;
+      var why = err ? String(err.code || err.message || err).slice(0, 90) : "";
+      stuck("تعذّر فتح اللوحة" + (why ? " (" + why + ")" : "") + ". يُرجى إعادة المحاولة، أو تسجيل الخروج والدخول من جديد.");
     });
   });
 
@@ -398,8 +421,8 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   $("signupForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var m = $("loginMsg"), name = $("suName").value.trim(), em = $("suEmail").value.trim(), pw = $("suPw").value;
-    if (!name) { m.className = "msg bad"; m.textContent = "اكتبي الاسم."; return; }
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { m.className = "msg bad"; m.textContent = "اكتبي بريدًا إلكترونيًا صحيحًا."; return; }
+    if (!name) { m.className = "msg bad"; m.textContent = "يُرجى كتابة الاسم."; return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { m.className = "msg bad"; m.textContent = "يُرجى كتابة بريد إلكتروني صحيح."; return; }
     if (pw.length < 8) { m.className = "msg bad"; m.textContent = "كلمة المرور ثمانية أحرف على الأقل."; return; }
     pendingName = name;
     m.className = "msg"; m.textContent = "جارٍ إنشاء الحساب…";
@@ -407,20 +430,20 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     S.signUp(em, pw).then(function () { m.textContent = ""; }, function (err) {
       var c = err && err.code;
       m.className = "msg bad";
-      m.textContent = c === "auth/email-already-in-use" ? "لديكِ حساب بهذا البريد مسبقًا؛ استخدمي «تسجيل الدخول»."
-        : c === "auth/weak-password" ? "كلمة المرور ضعيفة؛ اختاري كلمة أطول."
+      m.textContent = c === "auth/email-already-in-use" ? "يوجد حساب بهذا البريد مسبقًا؛ يُرجى استخدام «تسجيل الدخول»."
+        : c === "auth/weak-password" ? "كلمة المرور ضعيفة؛ يُرجى اختيار كلمة أطول."
         : c === "auth/invalid-email" ? "البريد الإلكتروني غير صحيح."
         : c === "auth/operation-not-allowed" ? "لم يُفعَّل إنشاء الحسابات بعد في إعدادات Firebase."
-        : "تعذّر إنشاء الحساب. تحقّقي من الاتصال ثم أعيدي المحاولة.";
+        : "تعذّر إنشاء الحساب. يُرجى التحقق من الاتصال وإعادة المحاولة.";
     }).then(function () { $("signupBtn").disabled = false; });
   });
 
   $("forgot").addEventListener("click", function () {
     var m = $("loginMsg"), em = $("email").value.trim();
-    if (!em) { m.className = "msg bad"; m.textContent = "اكتبي البريد الإلكتروني أولًا."; return; }
+    if (!em) { m.className = "msg bad"; m.textContent = "يُرجى كتابة البريد الإلكتروني أولًا."; return; }
     S.resetPassword(em).then(function () {
       m.className = "msg good"; m.textContent = "أُرسل رابط إعادة تعيين كلمة المرور إلى بريدك.";
-    }).catch(function () { m.className = "msg bad"; m.textContent = "تعذّر إرسال الرابط. تحقّقي من البريد."; });
+    }).catch(function () { m.className = "msg bad"; m.textContent = "تعذّر إرسال الرابط. يُرجى التحقق من البريد."; });
   });
 
   /* ---------- حسابات الإدارة (للمالكة فقط) ---------- */
@@ -442,7 +465,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     else location.href = "https://wa.me/?text=" + encodeURIComponent(text + "\n" + u);
   });
   $("renewInvite").addEventListener("click", function () {
-    if (!confirm("سيُبطَل الرابط الحالي ولن يمكن التسجيل به. هل تريدين المتابعة؟")) return;
+    if (!confirm("سيُبطَل الرابط الحالي ولن يمكن التسجيل به. تأكيد المتابعة؟")) return;
     loadInvite(true).then(function () { $("adminMsg").className = "msg good"; $("adminMsg").textContent = "أُنشئ رابط جديد."; });
   });
 
@@ -489,7 +512,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     }).then(function () {
       $("boardStatus").textContent = "حُدِّثت أرقام اللوحة " + new Date().toLocaleTimeString("ar-SA", { hour: "numeric", minute: "2-digit" }) + ".";
     }).catch(function () {
-      $("boardStatus").textContent = "تعذّر تحديث لوحة الطالبات. تحقّقي من نشر قواعد الحماية المحدّثة في Firebase.";
+      $("boardStatus").textContent = "تعذّر تحديث لوحة الطالبات. يُرجى التحقق من نشر قواعد الحماية المحدّثة في Firebase.";
     });
   }
   $("refreshBoard").addEventListener("click", function () { publishBoard(false); });
@@ -546,9 +569,15 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     loadCert(parseInt(b.getAttribute("data-m"), 10));
   });
 
-  function out() { S.signOut().then(function () { location.reload(); }); }
+  function out() {
+    var done = function () { location.replace(location.pathname); };
+    S.signOut().then(done, done);
+    setTimeout(done, 4000);
+  }
   $("logout").addEventListener("click", out);
   $("logout2").addEventListener("click", out);
+  $("logout3").addEventListener("click", out);
+  $("retry").addEventListener("click", function () { location.reload(); });
 
   /* ---------- المرشحات ---------- */
   M.CLASSES.forEach(function (c) {
@@ -591,7 +620,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       rows.forEach(function (r) { r.rating = M.normRating(r.rating); if (!r.classCode) { var c = M.findClass(r.classroom); r.classCode = c ? c.code : ""; } });
       state.rows = rows; state.shown = 10; render();
     }).catch(function (e) {
-      $("log").innerHTML = '<tr><td colspan="5" class="empty">تعذّر تحميل البيانات. ' + (e && e.code === "permission-denied" ? "تحقّقي من إضافة بريد الإدارة في قواعد الحماية." : "") + "</td></tr>";
+      $("log").innerHTML = '<tr><td colspan="5" class="empty">تعذّر تحميل البيانات. ' + (e && e.code === "permission-denied" ? "يُرجى التحقق من إضافة بريد الإدارة في قواعد الحماية." : "") + "</td></tr>";
     });
   }
 
@@ -667,7 +696,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     $("logSub").textContent = fmt.format(rows.length) + " تقييم — " + scopeLabel();
     $("log").innerHTML = shown.length ? shown.map(function (r) {
       var rr = R.filter(function (x) { return x.key === r.rating; })[0] || { cls: "" };
-      return "<tr><td class=\"c-cls\"><strong>" + esc(r.classroom || "غير محدد") + '</strong></td><td class="c-sub">' + esc(M.disp(r.subject)) + (r.note ? '<div class="note">' + esc(r.note) + "</div>" : "") +
+      return "<tr><td class=\"c-cls\"><strong>" + esc(r.classroom || "غير محدد") + '</strong></td><td class="c-sub">' + esc(M.disp(r.subject)) + (r.teacher ? '<div class="note">المعلمة: ' + esc(r.teacher) + "</div>" : "") + (r.note ? '<div class="note">' + esc(r.note) + "</div>" : "") +
         '</td><td class="c-rate"><span class="tag"><i class="c-' + rr.cls + '"></i>' + esc(r.rating) + '</span></td><td class="c-when when">' + r.createdAt.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) +
         '</td><td class="c-act">' + (canDelete ? '<button class="del" type="button" data-id="' + esc(r.id) + '">حذف</button>' : '') + '</td></tr>';
     }).join("") : '<tr><td colspan="5" class="empty">لا توجد تقييمات في هذه الفترة.</td></tr>';
@@ -695,7 +724,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   $("more").addEventListener("click", function () { state.shown += 50; render(); });
   $("log").addEventListener("click", function (e) {
     var b = e.target.closest(".del"); if (!b) return;
-    if (!confirm("هل تريدين حذف هذا التقييم نهائيًا؟")) return;
+    if (!confirm("تأكيد حذف هذا التقييم نهائيًا؟")) return;
     S.remove(b.getAttribute("data-id")).then(load).catch(function () { alert("تعذّر الحذف."); });
   });
 
@@ -714,9 +743,9 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   $("csv").addEventListener("click", function () {
     var rows = state.current || [];
     var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-    var lines = [["الفصل", "المادة", "التقدير", "الملاحظة", "التاريخ", "الوقت"].map(q).join(",")];
+    var lines = [["الفصل", "المادة", "المعلمة", "التقدير", "الملاحظة", "التاريخ", "الوقت"].map(q).join(",")];
     rows.forEach(function (r) {
-      lines.push([r.classroom, r.subject, r.rating, r.note, r.createdAt.toLocaleDateString("en-CA"), r.createdAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })].map(q).join(","));
+      lines.push([r.classroom, r.subject, r.teacher || "", r.rating, r.note, r.createdAt.toLocaleDateString("en-CA"), r.createdAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })].map(q).join(","));
     });
     var blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
     var a = document.createElement("a");
@@ -736,7 +765,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     var u = b.getAttribute("data-u");
     (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () {
       b.textContent = "نُسخ"; setTimeout(function () { b.textContent = "نسخ الرابط"; }, 1500);
-    }).catch(function () { prompt("انسخي الرابط:", u); });
+    }).catch(function () { prompt("نسخ الرابط:", u); });
   });
 
   /* أدوات وضع التجربة */

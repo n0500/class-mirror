@@ -47,7 +47,8 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 .other-btn{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 16px;border:1.5px solid #c79a45;border-radius:11px;background:var(--cream);color:var(--ink-green);font-size:16px;font-weight:600}
 .other-btn svg{width:15px;height:15px}
 .other-btn[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:#fff}
-.other-box{margin:0 0 12px}
+.other-box{margin:0 0 12px;display:flex;flex-direction:column;gap:8px}
+.other-box input.need,.note-box textarea.need{border-color:var(--r-follow);background:#fff8f1;box-shadow:0 0 0 3px rgba(210,100,15,.15)}
 .other-box input{width:100%;padding:12px 14px;border:1.5px solid var(--line-gold);border-radius:12px;background:#fff;font-size:16px;color:var(--ink-green)}
 .other-box input:focus{outline:none;border-color:var(--sel)}
 .subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px}
@@ -162,7 +163,9 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
         </div>
         <div class="other-box" id="otherBox" hidden>
           <label class="sr" for="otherName">اسم المادة</label>
-          <input id="otherName" maxlength="60" placeholder="اكتبي اسم المادة (اختياري)" autocomplete="off">
+          <input id="otherName" maxlength="60" placeholder="اسم المادة أو النشاط (اختياري)" autocomplete="off">
+          <label class="sr" for="teacherName">اسم المعلمة</label>
+          <input id="teacherName" maxlength="60" placeholder="اسم المعلمة (مطلوب)" autocomplete="name" required>
         </div>
         <div class="subjects" id="subjects" role="group" aria-labelledby="subjTitle"></div>
 
@@ -174,7 +177,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
         </div>
         <div class="note-box" id="noteBox" hidden>
           <label class="sr" for="note">ملاحظة</label>
-          <textarea id="note" maxlength="300" rows="1" placeholder="ملاحظة اختيارية تُحفظ مع التقييم"></textarea>
+          <textarea id="note" maxlength="300" rows="1" placeholder="الملاحظة"></textarea>
         </div>
         <div class="rates" id="rates">
           <button class="rate excellent" data-rating="متميز" type="button">
@@ -195,15 +198,16 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 
       <section class="done" id="done" hidden>
         <div class="done-icon" id="doneIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-        <h2>شكرًا لكِ</h2>
-        <p class="done-lead">تم حفظ تقييمكِ لأداء طالبات الفصل.</p>
+        <h2>شكرًا لتعاونكم</h2>
+        <p class="done-lead">تم حفظ التقييم لأداء طالبات الفصل.</p>
         <dl class="done-sum">
           <div><dt>الفصل</dt><dd id="doneClass"></dd></div>
           <div><dt>المادة</dt><dd id="doneSubject"></dd></div>
+          <div id="doneTeacherRow" hidden><dt>المعلمة</dt><dd id="doneTeacher"></dd></div>
           <div><dt>أداء الطالبات</dt><dd id="doneRating"></dd></div>
           <div><dt>الوقت</dt><dd id="doneTime"></dd></div>
         </dl>
-        <p class="done-foot">يمكنكِ إغلاق هذه الصفحة.</p>
+        <p class="done-foot">يمكن إغلاق هذه الصفحة الآن.</p>
       </section>
 
       <section class="invalid" id="invalid" hidden>
@@ -250,7 +254,17 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     b.addEventListener("click", function () { pick(name, b); });
     grid.appendChild(b);
   });
-  otherBtn.addEventListener("click", function () { pick("أخرى", otherBtn); $("otherName").focus(); });
+  otherBtn.addEventListener("click", function () { pick("أخرى", otherBtn); $("teacherName").focus(); });
+  ["teacherName", "note"].forEach(function (id) { $(id).addEventListener("input", function () { this.classList.remove("need"); }); });
+  function openNote() {
+    if ($("noteBox").hidden) {
+      $("noteBox").hidden = false;
+      $("noteBtn").setAttribute("aria-expanded", "true");
+      $("noteBtn").querySelector("span").textContent = "إخفاء الملاحظة";
+      keep2 = !grid.classList.contains("c3");
+      fit();
+    }
+  }
   $("noteBtn").addEventListener("click", function () {
     var open = $("noteBox").hidden;
     $("noteBox").hidden = !open;
@@ -329,18 +343,33 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 
   function rate(rating) {
     if (busy) return;
-    if (!subject) { setStatus("warn", "حدّدي المادة أولًا", true); return; }
+    if (!subject) { setStatus("warn", "يُرجى تحديد المادة أولًا", true); return; }
     var other = $("otherName").value.trim();
     var subj = subject === "أخرى" ? (other ? "أخرى: " + other : "أخرى") : subject;
+    var teacher = subject === "أخرى" ? $("teacherName").value.trim() : "";
+    var note = $("note").value.trim();
+    /* «أخرى»: اسم المعلمة مطلوب */
+    if (subject === "أخرى" && teacher.length < 2) {
+      $("teacherName").classList.add("need"); $("teacherName").focus();
+      setStatus("warn", "يُرجى كتابة اسم المعلمة قبل اختيار التقييم");
+      return;
+    }
+    /* «يحتاج متابعة»: الملاحظة مطلوبة */
+    if (rating === "يحتاج متابعة" && note.length < 3) {
+      openNote(); $("note").classList.add("need"); $("note").focus();
+      setStatus("warn", "الملاحظة مطلوبة مع «يحتاج متابعة»؛ يُرجى كتابتها ثم الضغط على الزر مرة أخرى");
+      return;
+    }
     busy = true;
     rates.classList.add("busy");
     setStatus("", "جارٍ الحفظ…");
-    S.save({ classCode: cls.code, classroom: cls.name, stage: cls.stage, subject: subj, rating: rating, note: $("note").value.trim() })
+    S.save({ classCode: cls.code, classroom: cls.name, stage: cls.stage, subject: subj, rating: rating, note: note, teacher: teacher })
       .then(function () {
         var colors = { "متميز": "var(--r-excellent)", "جيد": "var(--r-good)", "يحتاج متابعة": "var(--r-follow)" };
         $("doneIcon").style.background = colors[rating];
         $("doneClass").textContent = cls.name;
         $("doneSubject").textContent = M.disp(subj);
+        $("doneTeacherRow").hidden = !teacher; $("doneTeacher").textContent = teacher;
         $("doneRating").textContent = rating;
         $("doneRating").style.color = colors[rating];
         $("doneTime").textContent = new Date().toLocaleString("ar-SA", { weekday: "long", hour: "numeric", minute: "2-digit" });
@@ -351,7 +380,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
         window.scrollTo(0, 0);
       })
       .catch(function () {
-        setStatus("bad", "تعذّر الحفظ. تحقّقي من الاتصال ثم أعيدي المحاولة.");
+        setStatus("bad", "تعذّر الحفظ. يُرجى التحقق من الاتصال وإعادة المحاولة.");
       })
       .then(function () { busy = false; rates.classList.remove("busy"); });
   }
