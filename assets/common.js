@@ -343,6 +343,35 @@
       });
     },
 
+    /* حذف مجموعة تقييمات دفعة واحدة، مع توثيق كل تقييم في سجل الحذف (على دفعات صغيرة تناسب قواعد الحماية) */
+    removeMany: function (recs, reason, onProgress) {
+      var self = this, done = 0;
+      if (DEMO) {
+        return recs.reduce(function (p, r) { return p.then(function () { return self.remove(r, reason).then(function () { done++; if (onProgress) onProgress(done, recs.length); }); }); }, Promise.resolve());
+      }
+      return firebase().then(function (F) {
+        var me = String(F.auth.currentUser.email || "").toLowerCase(), chunks = [];
+        for (var i = 0; i < recs.length; i += 4) chunks.push(recs.slice(i, i + 4));
+        return chunks.reduce(function (p, chunk) {
+          return p.then(function () {
+            return Promise.all(chunk.map(function (r) { return F.fs.getDoc(F.fs.doc(F.db, "observations", r.id)); })).then(function (snaps) {
+              var b = F.fs.writeBatch(F.db), n = 0;
+              snaps.forEach(function (snap) {
+                if (!snap.exists()) return;
+                var d = snap.data(); n++;
+                b.set(F.fs.doc(F.db, "deletions", snap.id), {
+                  by: me, at: F.fs.serverTimestamp(), reason: String(reason).slice(0, 200),
+                  record: { classCode: d.classCode || "", classroom: d.classroom || "", subject: d.subject || "", rating: d.rating || "", note: d.note || "", teacher: d.teacher || "", createdAt: d.createdAt }
+                });
+                b.delete(snap.ref);
+              });
+              return (n ? b.commit() : Promise.resolve()).then(function () { done += chunk.length; if (onProgress) onProgress(done, recs.length); });
+            });
+          });
+        }, Promise.resolve());
+      });
+    },
+
     /* سجل الحذف */
     listDeletions: function () {
       if (DEMO) {

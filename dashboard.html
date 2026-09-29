@@ -119,6 +119,10 @@ button.row:hover{background:#f3f7f5}
 .adm .act.stop{color:var(--danger)}
 .adm-acts{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:4px 10px;justify-content:flex-end;flex:none}
 .adm .state.del-ok{color:var(--excellent-d);background:#e7f4ec}
+.danger-zone{border-color:#f0d3cf;background:#fffafa}
+.btn.danger{background:#b3261e}
+.btn.danger:disabled{opacity:.6}
+.del-row.bulk{background:#fbf7f0;border-color:var(--gold-soft)}
 .del-row{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#fff}
 .del-row strong{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14.5px}
 .del-row p{margin:4px 0 0;font-size:13.5px;color:var(--ink-2)}
@@ -403,6 +407,13 @@ a.btn{text-decoration:none}
       <div class="msg" id="adminMsg" role="status"></div>
     </section>
 
+    <section class="panel danger-zone" id="resetPanel" hidden>
+      <h2>حذف جميع التقييمات</h2>
+      <p class="sub">لحذف بيانات التجربة قبل بدء التطبيق الفعلي. تُحذف جميع التقييمات نهائيًا، ويُسجَّل الحذف في «سجل الحذف» سطرًا واحدًا مجمّعًا. لا تتأثر حسابات الإدارة ولا رابط الدعوة.</p>
+      <button type="button" class="btn danger" id="resetBtn">حذف جميع التقييمات</button>
+      <p class="msg" id="resetMsg" role="status"></p>
+    </section>
+
     <section class="panel" id="delPanel">
       <h2>سجل الحذف</h2>
       <p class="sub">كل تقييم يُحذف يُوثَّق هنا مع من حذفه ووقت الحذف وسببه، ولا يمكن تعديل هذا السجل أو حذفه.</p>
@@ -478,7 +489,7 @@ a.btn{text-decoration:none}
       show("dash");
       if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
       canDelete = role === "owner" || role === "admin-del";
-      if (role === "owner") { $("adminsPanel").hidden = false; loadInvite(false); loadAdmins(); }
+      if (role === "owner") { $("adminsPanel").hidden = false; $("resetPanel").hidden = false; loadInvite(false); loadAdmins(); }
       if (state.rows) render();
       $("boardPanel").hidden = false; initBoard(); publishBoard(true); loadCert(-1);
       showTab((location.hash || "").slice(1));
@@ -693,9 +704,39 @@ a.btn{text-decoration:none}
   }
 
   var canDelete = false;   /* الحذف للمالكة ومن تمنحها الصلاحية */
+  var BULK = "حذف جميع التقييمات (بيانات تجريبية)";
+  $("resetBtn").addEventListener("click", function () {
+    var btn = this, msg = $("resetMsg");
+    var ans = prompt("سيُحذف جميع التقييمات المسجّلة نهائيًا، ولا يمكن التراجع عن ذلك.\n\nللتأكيد اكتبي كلمة: حذف", "");
+    if (ans === null) return;
+    if (ans.trim() !== "حذف") { alert("لم يُحذف شيء: كلمة التأكيد غير صحيحة."); return; }
+    btn.disabled = true; msg.className = "msg"; msg.textContent = "جارٍ تحميل التقييمات…";
+    S.list(null).then(function (rows) {
+      if (!rows.length) { msg.textContent = "لا توجد تقييمات لحذفها."; btn.disabled = false; return; }
+      return S.removeMany(rows, BULK, function (d, t) { msg.textContent = "جارٍ الحذف… " + fmt.format(d) + " من " + fmt.format(t); }).then(function () {
+        msg.className = "msg good"; msg.textContent = "تم حذف " + fmt.format(rows.length) + " تقييم.";
+        btn.disabled = false; load(); loadHist(); loadDeletions(); publishBoard(true);
+      });
+    }).catch(function () {
+      msg.className = "msg bad"; msg.textContent = "توقف الحذف قبل اكتماله. يُرجى إعادة المحاولة؛ فالتقييمات المحذوفة لن تتكرر.";
+      btn.disabled = false; load(); loadDeletions();
+    });
+  });
+
   function loadDeletions() {
     S.listDeletions().then(function (list) {
-      $("delLog").innerHTML = list.length ? list.map(function (x) {
+      /* الحذف الجماعي يُعرض سطرًا واحدًا */
+      var bulk = {}, rest = [];
+      list.forEach(function (x) {
+        if (x.reason === BULK) { var k = x.by + "|" + x.at.toDateString(); (bulk[k] = bulk[k] || { by: x.by, at: x.at, n: 0 }).n++; }
+        else rest.push(x);
+      });
+      var bulkHtml = Object.keys(bulk).map(function (k) {
+        var g = bulk[k];
+        return '<div class="del-row bulk"><div><strong>حذف جماعي: ' + fmt.format(g.n) + ' تقييم</strong><small class="who">حذفته: <b dir="ltr">' + esc(g.by) + "</b> · " + g.at.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) + '</small><small class="why">السبب: ' + esc(BULK) + "</small></div></div>";
+      }).join("");
+      list = rest;
+      $("delLog").innerHTML = (list.length || bulkHtml) ? bulkHtml + list.map(function (x) {
         var r = x.record || {};
         return '<div class="del-row"><div><strong>' + esc(r.classroom || "—") + " — " + esc(M.disp(r.subject || "")) + ' <span class="tag"><i class="c-' + ({ "متميز": "excellent", "جيد": "good", "يحتاج متابعة": "follow" }[r.rating] || "") + '"></i>' + esc(r.rating || "") + "</span></strong>" +
           (r.note ? "<p>" + esc(r.note) + "</p>" : "") +
