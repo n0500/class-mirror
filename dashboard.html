@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#12473a">
 <meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="مرآة الصف">
 <title>لوحة المتابعة — مرآة الصف</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,6 +117,16 @@ button.row:hover{background:#f3f7f5}
 .adm .state{font-style:normal;font-size:12px;font-weight:600;color:var(--follow-d);background:#fbeee6;border-radius:6px;padding:0 6px;margin-inline-start:6px}
 .adm .act{border:0;background:none;color:var(--green-700);font-size:13.5px;font-weight:600;text-decoration:underline;padding:4px;flex:none}
 .adm .act.stop{color:var(--danger)}
+.adm-acts{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:4px 10px;justify-content:flex-end;flex:none}
+.adm .state.del-ok{color:var(--excellent-d);background:#e7f4ec}
+.del-row{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#fff}
+.del-row strong{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14.5px}
+.del-row p{margin:4px 0 0;font-size:13.5px;color:var(--ink-2)}
+.del-row small{display:block;margin-top:3px;font-size:12.5px;color:var(--muted)}
+.del-row small.who{color:var(--ink-2)}
+.del-row small.why{color:var(--follow-d);font-weight:600}
+.adm{flex-wrap:wrap}.adm>div:first-child{flex:1 1 200px}.adm .state{white-space:nowrap;display:inline-block}
+@media(max-width:520px){.adm-acts{width:100%;justify-content:flex-start!important;border-top:1px solid #eef2f0;padding-top:6px}}
 .cert-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:11px}
 .cert-row .rk{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--gold-bg);border:1px solid var(--gold-soft);color:var(--gold);font-weight:700;font-size:13px}
 .cert-row .info{flex:1;min-width:0}
@@ -142,6 +156,46 @@ button.row:hover{background:#f3f7f5}
 .fitted .tbl td.c-cls{grid-column:1}.fitted .tbl td.c-rate{grid-column:2;grid-row:1}
 .fitted .tbl td.c-sub{grid-column:1/-1}.fitted .tbl td.c-when{grid-column:1}.fitted .tbl td.c-act{grid-column:2}
 details summary{cursor:pointer;font-weight:700;font-size:17px}
+/* التنبيهات */
+.alerts{border-color:#ecd9c9;background:linear-gradient(180deg,#fffaf5,#fff 60%)}
+.alerts-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.al-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.al-grid{grid-template-columns:1fr}}
+.fitted .al-grid{grid-template-columns:1fr}
+.al-box h3{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:7px}
+.al-box h3 i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.al-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:#fff;margin-bottom:6px;width:100%;font:inherit;color:inherit;text-align:start}
+button.al-item:hover{background:#fbf4ee}
+.al-item strong{font-size:14.5px;white-space:nowrap}
+.al-item span{font-size:13px;color:var(--ink-2);text-align:end}
+.al-item .up{white-space:nowrap}
+a.btn{text-decoration:none}
+.al-item .up{color:var(--follow-d);font-weight:700}
+.al-chips{display:flex;flex-wrap:wrap;gap:6px}
+.al-chips span{padding:4px 10px;border-radius:999px;background:#f1f4f2;border:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.al-ok{padding:10px 12px;border-radius:11px;background:#eef7f1;color:var(--excellent-d);font-size:14px;font-weight:600}
+/* التطور الأسبوعي */
+.trend svg{display:block;width:100%;height:auto;overflow:visible}
+.trend .ax{font-size:11px;fill:var(--muted)}
+.trend .grid{stroke:#e8edea;stroke-width:1}
+.trend .base{stroke:#cfd8d3;stroke-width:1}
+.trend .lbl{font-size:12px;font-weight:700;fill:var(--ink)}
+.trend .hit{fill:transparent}
+.trend .hit:hover{fill:rgba(13,58,46,.05)}
+.trend-table{margin-top:10px}
+.trend-table summary{font-size:14px;font-weight:600;color:var(--green-700)}
+.trend-table table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+.trend-table th,.trend-table td{padding:6px;border-bottom:1px solid #eef2f0;text-align:start;font-variant-numeric:tabular-nums}
+.trend-table th{color:var(--muted);font-weight:600}
+/* الملاحظات */
+.notes{display:grid;gap:8px}
+.notes details{border:1px solid var(--line);border-radius:12px;padding:0 12px;background:#fff}
+.notes summary{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:46px;font-size:15px;list-style:none}
+.notes summary::-webkit-details-marker{display:none}
+.notes summary b{font-size:12.5px;font-weight:700;color:var(--follow-d);background:#fbeee6;border-radius:999px;padding:1px 9px}
+.notes ul{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
+.notes li{padding:8px 10px;border-radius:10px;background:#faf7f3;font-size:14px;line-height:1.7}
+.notes li small{display:block;color:var(--muted);font-size:12.5px}
 </style>
 </head>
 <body>
@@ -222,6 +276,14 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     </nav>
 
     <div class="pane" data-pane="follow">
+    <section class="panel alerts" id="alertsPanel">
+      <div class="alerts-head">
+        <div><h2>يحتاج انتباهًا هذا الأسبوع</h2><p class="sub" id="alertsSub" style="margin:0"></p></div>
+        <a class="btn ghost" id="reportLink" href="report.html" target="_blank" rel="noopener" style="min-height:42px;font-size:15px">التقرير الأسبوعي</a>
+      </div>
+      <div id="alerts"><div class="empty" style="padding:10px">جارٍ التحليل…</div></div>
+    </section>
+
     <section class="panel">
       <div class="filters">
         <div class="chips" role="group" aria-label="الفترة" id="period">
@@ -261,6 +323,20 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
         <div style="text-align:center"><button class="link" type="button" id="subjMore" hidden></button></div>
       </section>
     </div>
+
+    <section class="panel">
+      <h2>التطور الأسبوعي</h2>
+      <p class="sub" id="trendSub">نسبة الحصص المتميزة والحصص التي تحتاج متابعة في آخر ثمانية أسابيع.</p>
+      <div class="legend" id="trendLegend"></div>
+      <div id="trend" class="trend"></div>
+      <details class="trend-table"><summary>عرض الأرقام في جدول</summary><div id="trendTable"></div></details>
+    </section>
+
+    <section class="panel">
+      <h2>ملاحظات «يحتاج متابعة»</h2>
+      <p class="sub" id="notesSub"></p>
+      <div id="notes" class="notes"></div>
+    </section>
 
     <section class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
@@ -322,8 +398,15 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
         <p class="sub" style="margin:8px 0 0">«تغيير الرابط» يُبطل الرابط السابق فلا يمكن التسجيل به، ولا يؤثر في الحسابات المسجّلة.</p>
       </div>
       <h3 class="adm-h">الحسابات المسجّلة</h3>
+      <p class="sub" style="margin-top:-4px">يمكن منح صلاحية حذف التقييمات لأي حساب مسجّل، مثل حساب مديرة المدرسة، وسحبها في أي وقت.</p>
       <div id="adminList" class="adm-list"></div>
       <div class="msg" id="adminMsg" role="status"></div>
+    </section>
+
+    <section class="panel" id="delPanel">
+      <h2>سجل الحذف</h2>
+      <p class="sub">كل تقييم يُحذف يُوثَّق هنا مع من حذفه ووقت الحذف وسببه، ولا يمكن تعديل هذا السجل أو حذفه.</p>
+      <div id="delLog" class="adm-list"><div class="empty" style="padding:10px">جارٍ التحميل…</div></div>
     </section>
 
     <section class="panel">
@@ -394,12 +477,12 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
       if (inviteCode) { inviteCode = ""; history.replaceState(null, "", location.pathname); }
       show("dash");
       if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
-      canDelete = role === "owner";
+      canDelete = role === "owner" || role === "admin-del";
       if (role === "owner") { $("adminsPanel").hidden = false; loadInvite(false); loadAdmins(); }
       if (state.rows) render();
       $("boardPanel").hidden = false; initBoard(); publishBoard(true); loadCert(-1);
       showTab((location.hash || "").slice(1));
-      load();
+      load(); loadHist(); loadDeletions();
     }).catch(function (err) {
       if (window.console) console.error(err);
       if (!$("dash").hidden) return;
@@ -472,15 +555,23 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   function loadAdmins() {
     S.listAdmins().then(function (list) {
       $("adminList").innerHTML = list.length ? list.map(function (a) {
-        return '<div class="adm' + (a.blocked ? " off" : "") + '"><div><strong>' + esc(a.name || "—") + (a.blocked ? '<em class="state">موقوف</em>' : "") +
-          '</strong><span dir="ltr">' + esc(a.email) + '</span></div>' +
-          '<button type="button" class="act' + (a.blocked ? "" : " stop") + '" data-e="' + esc(a.email) + '" data-b="' + (a.blocked ? "0" : "1") + '">' + (a.blocked ? "إعادة التفعيل" : "إيقاف") + "</button></div>";
+        return '<div class="adm' + (a.blocked ? " off" : "") + '"><div><strong>' + esc(a.name || "—") + (a.blocked ? '<em class="state">موقوف</em>' : "") + (a.canDelete && !a.blocked ? '<em class="state del-ok">صلاحية الحذف</em>' : "") +
+          '</strong><span dir="ltr">' + esc(a.email) + '</span></div><div class="adm-acts">' +
+          (a.blocked ? "" : '<button type="button" class="act perm" data-e="' + esc(a.email) + '" data-d="' + (a.canDelete ? "0" : "1") + '">' + (a.canDelete ? "سحب صلاحية الحذف" : "منح صلاحية الحذف") + "</button>") +
+          '<button type="button" class="act' + (a.blocked ? "" : " stop") + '" data-e="' + esc(a.email) + '" data-b="' + (a.blocked ? "0" : "1") + '">' + (a.blocked ? "إعادة التفعيل" : "إيقاف") + "</button></div></div>";
       }).join("") : '<div class="empty" style="padding:10px">لم يسجّل أحد برابط الدعوة بعد.</div>';
     }).catch(function () { $("adminList").innerHTML = '<div class="empty">تعذّر تحميل الحسابات.</div>'; });
   }
   $("adminList").addEventListener("click", function (e) {
     var b = e.target.closest(".act"); if (!b) return;
-    var em = b.getAttribute("data-e"), block = b.getAttribute("data-b") === "1";
+    var em = b.getAttribute("data-e");
+    if (b.classList.contains("perm")) {
+      var give = b.getAttribute("data-d") === "1";
+      if (give && !confirm("منح " + em + " صلاحية حذف التقييمات؟")) return;
+      S.setCanDelete(em, give).then(loadAdmins).catch(function () { alert("تعذّر التنفيذ. يُرجى التحقق من نشر قواعد الحماية المحدّثة."); });
+      return;
+    }
+    var block = b.getAttribute("data-b") === "1";
     if (block && !confirm("إيقاف صلاحية " + em + "؟ لن تتمكن من الدخول إلى لوحة المتابعة.")) return;
     S.setBlocked(em, block).then(loadAdmins).catch(function () { alert("تعذّر التنفيذ."); });
   });
@@ -591,7 +682,7 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   });
   $("fClass").addEventListener("change", function () { state.cls = this.value; state.subject = ""; render(); });
   $("fSubject").addEventListener("change", function () { state.subject = this.value; render(); });
-  $("refresh").addEventListener("click", load);
+  $("refresh").addEventListener("click", function () { load(); loadHist(); });
 
   function since(p) {
     var d = new Date(); d.setHours(0, 0, 0, 0);
@@ -601,7 +692,19 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     return null;
   }
 
-  var canDelete = false;   /* الحذف للمالكة فقط */
+  var canDelete = false;   /* الحذف للمالكة ومن تمنحها الصلاحية */
+  function loadDeletions() {
+    S.listDeletions().then(function (list) {
+      $("delLog").innerHTML = list.length ? list.map(function (x) {
+        var r = x.record || {};
+        return '<div class="del-row"><div><strong>' + esc(r.classroom || "—") + " — " + esc(M.disp(r.subject || "")) + ' <span class="tag"><i class="c-' + ({ "متميز": "excellent", "جيد": "good", "يحتاج متابعة": "follow" }[r.rating] || "") + '"></i>' + esc(r.rating || "") + "</span></strong>" +
+          (r.note ? "<p>" + esc(r.note) + "</p>" : "") +
+          "<small>تاريخ التقييم: " + (r.createdAt ? r.createdAt.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "—") + (r.teacher ? " · المعلمة: " + esc(r.teacher) : "") + "</small>" +
+          '<small class="who">حذفته: <b dir="ltr">' + esc(x.by) + "</b> · " + x.at.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) + "</small>" +
+          '<small class="why">السبب: ' + esc(x.reason || "—") + "</small></div></div>";
+      }).join("") : '<div class="empty" style="padding:10px">لم يُحذف أي تقييم.</div>';
+    }).catch(function () { $("delLog").innerHTML = '<div class="empty">تعذّر تحميل سجل الحذف. يُرجى التحقق من نشر قواعد الحماية المحدّثة.</div>'; });
+  }
   /* ---------- التبويبات ---------- */
   function showTab(name) {
     if (["follow", "board", "settings"].indexOf(name) < 0) name = "follow";
@@ -702,6 +805,118 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
     }).join("") : '<tr><td colspan="5" class="empty">لا توجد تقييمات في هذه الفترة.</td></tr>';
     $("more").hidden = rows.length <= state.shown;
     state.current = rows;
+    renderNotes(rows);
+    renderTrend();
+  }
+
+  /* ---------- التنبيهات والتطور الأسبوعي (آخر ثمانية أسابيع، مستقلة عن مرشح الفترة) ---------- */
+  var FOLLOW = "يحتاج متابعة", EXC = "متميز";
+  var hFmt = new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", { day: "numeric", month: "short" });
+  function weekStarts(n) {
+    var w0 = M.startOfWeek(new Date()), out = [];
+    for (var i = n - 1; i >= 0; i--) { var d = new Date(w0); d.setDate(d.getDate() - 7 * i); out.push(d); }
+    return out;
+  }
+  function loadHist() {
+    var ws = weekStarts(8);
+    S.list(ws[0]).then(function (rows) {
+      rows.forEach(function (r) { r.rating = M.normRating(r.rating); if (!r.classCode) { var c = M.findClass(r.classroom); r.classCode = c ? c.code : ""; } });
+      state.hist = rows; state.weeks = ws;
+      renderAlerts(); renderTrend();
+    }).catch(function () { $("alerts").innerHTML = '<div class="empty">تعذّر تحليل البيانات.</div>'; });
+  }
+  function hessas(k) { return k === 1 ? "حصة واحدة" : k === 2 ? "حصتان" : fmt.format(k) + (k <= 10 ? " حصص" : " حصة"); }
+  function weekIdx(d) {
+    var ws = state.weeks; for (var i = ws.length - 1; i >= 0; i--) if (d >= ws[i]) return i; return -1;
+  }
+  function renderAlerts() {
+    if (!state.hist) return;
+    var last = state.weeks.length - 1, st = {};
+    M.CLASSES.forEach(function (c) { st[c.code] = { c: c, n: 0, f: 0, pn: 0, pf: 0 }; });
+    state.hist.forEach(function (r) {
+      var x = st[r.classCode]; if (!x) return; var i = weekIdx(r.createdAt);
+      if (i === last) { x.n++; if (r.rating === FOLLOW) x.f++; }
+      else if (i === last - 1) { x.pn++; if (r.rating === FOLLOW) x.pf++; }
+    });
+    var list = Object.keys(st).map(function (k) { return st[k]; });
+    var rising = list.filter(function (x) { return x.f >= 2 && x.f > x.pf; }).sort(function (a, b) { return (b.f - b.pf) - (a.f - a.pf) || b.f - a.f; });
+    var silent = list.filter(function (x) { return x.n === 0; });
+    var wk = state.weeks[last];
+    $("alertsSub").textContent = "منذ " + new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", { weekday: "long", day: "numeric", month: "long" }).format(wk) + "، مقارنة بالأسبوع الماضي.";
+    var h = '<div class="al-grid"><div class="al-box"><h3><i style="background:var(--follow)"></i>ارتفاع «يحتاج متابعة»</h3>';
+    h += rising.length ? rising.slice(0, 6).map(function (x) {
+      return '<button type="button" class="al-item" data-c="' + x.c.code + '"><strong>' + esc(x.c.name) + '</strong><span><span class="up">' + hessas(x.f) + "</span>" + (x.pf ? " مقابل " + hessas(x.pf) + " الأسبوع الماضي" : " (لا شيء الأسبوع الماضي)") + "</span></button>";
+    }).join("") : '<div class="al-ok">لا يوجد فصل ارتفعت فيه الحصص التي تحتاج متابعة.</div>';
+    h += '</div><div class="al-box"><h3><i style="background:#9aa7a1"></i>فصول لم تُسجَّل لها تقييمات هذا الأسبوع</h3>';
+    h += silent.length ? '<div class="al-chips">' + silent.map(function (x) { return "<span>" + esc(x.c.name) + "</span>"; }).join("") + "</div>" : '<div class="al-ok">سُجّلت تقييمات لجميع الفصول.</div>';
+    $("alerts").innerHTML = h + "</div></div>";
+  }
+  var rT; window.addEventListener("resize", function () { clearTimeout(rT); rT = setTimeout(renderTrend, 200); });
+  $("alerts").addEventListener("click", function (e) {
+    var b = e.target.closest(".al-item"); if (!b) return;
+    state.cls = b.getAttribute("data-c"); state.subject = ""; $("fClass").value = state.cls;
+    render(); var t = $("notes"); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function renderTrend() {
+    if (!state.hist) return;
+    var ws = state.weeks, n = ws.length;
+    var rows = state.cls ? state.hist.filter(function (r) { return r.classCode === state.cls; }) : state.hist;
+    var wk = ws.map(function () { return { t: 0, e: 0, f: 0 }; });
+    rows.forEach(function (r) { var i = weekIdx(r.createdAt); if (i < 0) return; wk[i].t++; if (r.rating === EXC) wk[i].e++; if (r.rating === FOLLOW) wk[i].f++; });
+    $("trendSub").textContent = "نسبة الحصص المتميزة والحصص التي تحتاج متابعة في آخر ثمانية أسابيع — " + (state.cls ? M.findClass(state.cls).name : "جميع الفصول") + ".";
+    var S1 = { k: "e", name: "متميز", color: "#1f6b3e", dash: "" }, S2 = { k: "f", name: "يحتاج متابعة", color: "#e0822e", dash: "6 4" };
+    $("trendLegend").innerHTML = [S1, S2].map(function (s) { return '<span><i style="background:' + s.color + '"></i>' + s.name + (s.dash ? " (خط متقطع)" : "") + "</span>"; }).join("");
+    if (!wk.some(function (w) { return w.t; })) { $("trend").innerHTML = '<div class="empty">لا توجد تقييمات كافية لرسم التطور.</div>'; $("trendTable").innerHTML = ""; return; }
+    var W = Math.max(320, Math.min(640, ($("trend").clientWidth || 640))), H = W < 480 ? 210 : 230, L = 58, Rr = 42, T = 16, B = 34, pw = W - L - Rr, ph = H - T - B;
+    /* الاتجاه من اليمين إلى اليسار: الأسبوع الأقدم يمينًا */
+    var X = function (i) { return L + pw - (n === 1 ? pw / 2 : i * pw / (n - 1)); };
+    var Y = function (v) { return T + ph - v * ph; };
+    var g = "";
+    [0, .25, .5, .75, 1].forEach(function (v) {
+      g += '<line class="' + (v ? "grid" : "base") + '" x1="' + L + '" x2="' + (L + pw) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/>';
+      g += '<text class="ax" x="' + (L + pw + 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + pctFmt.format(v) + "</text>";
+    });
+    ws.forEach(function (d, i) { if (W >= 480 || (n - 1 - i) % 2 === 0) g += '<text class="ax" x="' + X(i) + '" y="' + (H - 10) + '" text-anchor="middle">' + hFmt.format(d) + "</text>"; });
+    [S1, S2].forEach(function (s) {
+      var path = "", pen = false, lastPt = null;
+      wk.forEach(function (w, i) {
+        if (!w.t) { pen = false; return; }
+        var v = w[s.k] / w.t; path += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); pen = true; lastPt = { i: i, v: v };
+      });
+      g += '<path d="' + path + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : "") + "/>";
+      wk.forEach(function (w, i) {
+        if (!w.t) return; var v = w[s.k] / w.t, x = X(i), y = Y(v);
+        g += s.k === "e" ? '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="' + s.color + '" stroke="#fff" stroke-width="2"/>'
+                         : '<rect x="' + (x - 4.5) + '" y="' + (y - 4.5) + '" width="9" height="9" rx="1.5" fill="' + s.color + '" stroke="#fff" stroke-width="2"/>';
+      });
+      if (lastPt) g += '<text class="lbl" x="' + (X(lastPt.i) - 10) + '" y="' + (Y(lastPt.v) + (s.k === "e" ? -8 : 16)) + '" text-anchor="start">' + pctFmt.format(lastPt.v) + "</text>";
+    });
+    /* مناطق التمرير لكل أسبوع */
+    var colW = n > 1 ? pw / (n - 1) : pw;
+    wk.forEach(function (w, i) {
+      var tipTxt = "أسبوع " + hFmt.format(ws[i]) + (i === n - 1 ? " (الحالي)" : "") + ": " + (w.t ? "متميز " + pctFmt.format(w.e / w.t) + " · يحتاج متابعة " + pctFmt.format(w.f / w.t) + " · " + fmt.format(w.t) + " تقييم" : "لا توجد تقييمات");
+      g += '<rect class="hit" x="' + (X(i) - colW / 2) + '" y="' + T + '" width="' + colW + '" height="' + ph + '" data-tip="' + esc(tipTxt) + '"/>';
+    });
+    $("trend").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="التطور الأسبوعي لنسب التقييم">' + g + "</svg>";
+    $("trendTable").innerHTML = "<table><tr><th>الأسبوع</th><th>التقييمات</th><th>متميز</th><th>يحتاج متابعة</th></tr>" + wk.map(function (w, i) {
+      return "<tr><td>" + hFmt.format(ws[i]) + (i === n - 1 ? " (الحالي)" : "") + "</td><td>" + fmt.format(w.t) + "</td><td>" + (w.t ? pctFmt.format(w.e / w.t) : "—") + "</td><td>" + (w.t ? pctFmt.format(w.f / w.t) : "—") + "</td></tr>";
+    }).reverse().join("") + "</table>";
+  }
+
+  /* ---------- ملاحظات «يحتاج متابعة» مجمّعة حسب الفصل (تتبع المرشحات) ---------- */
+  function renderNotes(rows) {
+    var withNotes = rows.filter(function (r) { return r.rating === FOLLOW && r.note; });
+    $("notesSub").textContent = withNotes.length ? fmt.format(withNotes.length) + " ملاحظة — " + scopeLabel() : "لا توجد ملاحظات «يحتاج متابعة» — " + scopeLabel() + ".";
+    var g = {};
+    withNotes.forEach(function (r) { (g[r.classCode] = g[r.classCode] || []).push(r); });
+    var keys = M.CLASSES.map(function (c) { return c.code; }).filter(function (k) { return g[k]; });
+    $("notes").innerHTML = keys.map(function (k, idx) {
+      var list = g[k];
+      return "<details" + (keys.length <= 2 || state.cls ? " open" : "") + "><summary><strong>" + esc(M.findClass(k).name) + "</strong><b>" + fmt.format(list.length) + "</b></summary><ul>" + list.map(function (r) {
+        return "<li>" + esc(r.note) + "<small>" + esc(M.disp(r.subject)) + (r.teacher ? " · " + esc(r.teacher) : "") + " · " + r.createdAt.toLocaleString("ar-SA", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) + "</small></li>";
+      }).join("") + "</ul></details>";
+    }).join("");
   }
 
   function periodLabel() {
@@ -724,8 +939,12 @@ details summary{cursor:pointer;font-weight:700;font-size:17px}
   $("more").addEventListener("click", function () { state.shown += 50; render(); });
   $("log").addEventListener("click", function (e) {
     var b = e.target.closest(".del"); if (!b) return;
-    if (!confirm("تأكيد حذف هذا التقييم نهائيًا؟")) return;
-    S.remove(b.getAttribute("data-id")).then(load).catch(function () { alert("تعذّر الحذف."); });
+    var rec = (state.rows || []).filter(function (r) { return r.id === b.getAttribute("data-id"); })[0]; if (!rec) return;
+    var reason = prompt("حذف تقييم " + rec.classroom + " — " + rec.subject + " (" + rec.rating + ").\nيُوثَّق الحذف في «سجل الحذف».\n\nسبب الحذف (مطلوب):", "");
+    if (reason === null) return;
+    reason = reason.trim();
+    if (reason.length < 3) { alert("لم يُحذف التقييم: سبب الحذف مطلوب."); return; }
+    S.remove(rec, reason).then(function () { load(); loadHist(); loadDeletions(); }).catch(function () { alert("تعذّر الحذف. يُرجى التحقق من الصلاحية ونشر قواعد الحماية المحدّثة."); });
   });
 
   /* تلميح المرور على الأشرطة */

@@ -188,7 +188,7 @@
         /* قراءة إعدادات الدعوة مسموحة للمالكة فقط وفق قواعد الحماية */
         return F.fs.getDoc(F.fs.doc(F.db, "settings", "invite")).then(function () { return "owner"; }, function () {
           return F.fs.getDoc(F.fs.doc(F.db, "admins", email)).then(function (d) {
-            return d.exists() && !d.data().blocked ? "admin" : null;
+            return d.exists() && !d.data().blocked ? (d.data().canDelete ? "admin-del" : "admin") : null;
           }, function () { return null; });
         });
       });
@@ -252,6 +252,16 @@
       return firebase().then(function (F) { return F.fs.updateDoc(F.fs.doc(F.db, "admins", email), { blocked: !!blocked }); });
     },
 
+    /* صلاحية حذف التقييمات لحساب إدارة (تمنحها المالكة) */
+    setCanDelete: function (email, v) {
+      if (DEMO) {
+        var list = demoAdmins().map(function (a) { if (a.email === email) a.canDelete = !!v; return a; });
+        try { localStorage.setItem(DEMO_KEY + "_admins", JSON.stringify(list)); } catch (e) {}
+        return Promise.resolve();
+      }
+      return firebase().then(function (F) { return F.fs.updateDoc(F.fs.doc(F.db, "admins", email), { canDelete: !!v }); });
+    },
+
     /* ===== لوحة إنجازات الأسبوع (بيانات إيجابية فقط، قابلة للقراءة العامة) ===== */
     publishBoard: function (data) {
       if (DEMO) { try { localStorage.setItem(DEMO_KEY + "_board", JSON.stringify(data)); } catch (e) {} return Promise.resolve(); }
@@ -297,12 +307,62 @@
       });
     },
 
-    remove: function (id) {
+    /* حذف موثَّق: يُسجَّل التقييم المحذوف ومن حذفه ووقت الحذف وسببه في «سجل الحذف» ضمن العملية نفسها */
+    remove: function (rec, reason) {
+      var copy = {
+        classCode: rec.classCode || "", classroom: rec.classroom || "", subject: rec.subject || "",
+        rating: rec.rating || "", note: rec.note || "", teacher: rec.teacher || ""
+      };
       if (DEMO) {
-        demoWrite(demoRead().filter(function (r) { return r.id !== id; }));
+        demoWrite(demoRead().filter(function (r) { return r.id !== rec.id; }));
+        var log = [];
+        try { log = JSON.parse(localStorage.getItem(DEMO_KEY + "_deletions") || "[]"); } catch (e) {}
+        copy.createdAt = new Date(rec.createdAt).toISOString();
+        log.unshift({ id: rec.id, by: "وضع التجربة", at: new Date().toISOString(), reason: reason, record: copy });
+        try { localStorage.setItem(DEMO_KEY + "_deletions", JSON.stringify(log)); } catch (e) {}
         return Promise.resolve();
       }
-      return firebase().then(function (F) { return F.fs.deleteDoc(F.fs.doc(F.db, "observations", id)); });
+      return firebase().then(function (F) {
+        var obsRef = F.fs.doc(F.db, "observations", rec.id);
+        return F.fs.getDoc(obsRef).then(function (snap) {
+          if (!snap.exists()) throw new Error("not-found");
+          var d = snap.data();
+          var b = F.fs.writeBatch(F.db);
+          b.set(F.fs.doc(F.db, "deletions", rec.id), {
+            by: String(F.auth.currentUser.email || "").toLowerCase(),
+            at: F.fs.serverTimestamp(),
+            reason: String(reason || "").slice(0, 200),
+            record: {
+              classCode: d.classCode || "", classroom: d.classroom || "", subject: d.subject || "",
+              rating: d.rating || "", note: d.note || "", teacher: d.teacher || "", createdAt: d.createdAt
+            }
+          });
+          b.delete(obsRef);
+          return b.commit();
+        });
+      });
+    },
+
+    /* سجل الحذف */
+    listDeletions: function () {
+      if (DEMO) {
+        var log = [];
+        try { log = JSON.parse(localStorage.getItem(DEMO_KEY + "_deletions") || "[]"); } catch (e) {}
+        return Promise.resolve(log.map(function (x) { x.at = new Date(x.at); x.record.createdAt = new Date(x.record.createdAt); return x; }));
+      }
+      return firebase().then(function (F) {
+        return F.fs.getDocs(F.fs.query(F.fs.collection(F.db, "deletions"), F.fs.orderBy("at", "desc")));
+      }).then(function (snap) {
+        var out = [];
+        snap.forEach(function (d) {
+          var x = d.data(); x.id = d.id;
+          x.at = x.at && x.at.toDate ? x.at.toDate() : new Date();
+          x.record = x.record || {};
+          x.record.createdAt = x.record.createdAt && x.record.createdAt.toDate ? x.record.createdAt.toDate() : null;
+          out.push(x);
+        });
+        return out;
+      });
     },
 
     /* بيانات تجريبية لمعاينة لوحة المتابعة في وضع التجربة فقط */

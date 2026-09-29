@@ -2,7 +2,7 @@ rules_version = '2';
 // مرآة الصف — قواعد حماية قاعدة البيانات
 // المعلمات: إضافة تقييم جديد فقط (دون تسجيل دخول)، ولا يمكنهن القراءة أو التعديل أو الحذف.
 // المالكة: كل صلاحيات الإدارة، مع إدارة رابط الدعوة وإيقاف الحسابات.
-// حسابات الإدارة: قراءة التقييمات فقط (الحذف للمالكة). تُنشئ كل واحدة حسابها بنفسها عبر رابط الدعوة،
+// حسابات الإدارة: قراءة التقييمات؛ والحذف للمالكة ومن تمنحها الصلاحية، مع توثيق كل حذف. تُنشئ كل واحدة حسابها بنفسها عبر رابط الدعوة،
 // ويمكن للمالكة إيقاف أي حساب أو تغيير رابط الدعوة من لوحة المتابعة.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -21,6 +21,14 @@ service cloud.firestore {
       return request.auth != null
         && (isOwner() || (exists(/databases/$(database)/documents/admins/$(myEmail()))
             && get(/databases/$(database)/documents/admins/$(myEmail())).data.get('blocked', false) == false));
+    }
+
+    // حساب إدارة منحته المالكة صلاحية حذف التقييمات
+    function canDeleteRatings() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(myEmail()))
+        && get(/databases/$(database)/documents/admins/$(myEmail())).data.get('blocked', false) == false
+        && get(/databases/$(database)/documents/admins/$(myEmail())).data.get('canDelete', false) == true;
     }
 
     function validClass(code) {
@@ -44,8 +52,29 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
 
       allow read: if isAdmin();
-      allow delete: if isOwner();   // الحذف للمالكة فقط
+      // الحذف للمالكة ومن تمنحها الصلاحية، ولا يتم إلا مع توثيقه في سجل الحذف ضمن العملية نفسها
+      allow delete: if (isOwner() || canDeleteRatings())
+        && existsAfter(/databases/$(database)/documents/deletions/$(id));
       allow update: if false;
+    }
+
+    // سجل الحذف: يُنشأ مع الحذف فقط، ويطابق التقييم المحذوف، ولا يُعدَّل ولا يُحذف
+    match /deletions/{id} {
+      allow read: if isAdmin();
+      allow create: if (isOwner() || canDeleteRatings())
+        && !exists(/databases/$(database)/documents/deletions/$(id))
+        && exists(/databases/$(database)/documents/observations/$(id))
+        && !existsAfter(/databases/$(database)/documents/observations/$(id))
+        && request.resource.data.keys().hasOnly(['by', 'at', 'reason', 'record'])
+        && request.resource.data.by == myEmail()
+        && request.resource.data.at == request.time
+        && request.resource.data.reason is string && request.resource.data.reason.size() >= 3 && request.resource.data.reason.size() <= 200
+        && request.resource.data.record.classCode == get(/databases/$(database)/documents/observations/$(id)).data.get('classCode', '')
+        && request.resource.data.record.subject == get(/databases/$(database)/documents/observations/$(id)).data.get('subject', '')
+        && request.resource.data.record.rating == get(/databases/$(database)/documents/observations/$(id)).data.get('rating', '')
+        && request.resource.data.record.note == get(/databases/$(database)/documents/observations/$(id)).data.get('note', '')
+        && request.resource.data.record.createdAt == get(/databases/$(database)/documents/observations/$(id)).data.get('createdAt', null);
+      allow update, delete: if false;
     }
 
     // رمز رابط الدعوة: للمالكة فقط
