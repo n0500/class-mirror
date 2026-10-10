@@ -120,8 +120,12 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   $("school").textContent = M.SCHOOL;
 
-  var one = M.findClass(new URLSearchParams(location.search).get("c"));
+  var params = new URLSearchParams(location.search);
+  var one = M.findClass(params.get("c"));
+  var groups = [["المرحلة المتوسطة", "m", "middle"], ["المرحلة الثانوية", "s", "secondary"]];
+  var stage = groups.filter(function (g) { return g[2] === params.get("stage"); })[0];
   if (one) { document.documentElement.classList.add("single"); document.title = "انعكاس الأسبوع — " + one.name; }
+  else if (stage) { $("ribbon").textContent = "انعكاس الأسبوع — " + stage[0]; document.title = "انعكاس الأسبوع — " + stage[0]; }
 
   function hdate(iso, withYear) {
     var d = new Date(iso + "T12:00:00");
@@ -139,9 +143,17 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
   }
 
   function renderSchool(b) {
-    var up = b.total > b.totalPrev ? "<small>↑ بزيادة " + num.format(b.total - b.totalPrev) + " عن الأسبوع الماضي</small>" : "";
-    var html = '<div class="total">' + STAR + '<span class="num">' + num.format(b.total || 0) + '</span><span class="lbl">' + hessa(b.total || 0) + " في رصيد المدرسة هذا الأسبوع" + up + "</span></div>";
-    [["المرحلة المتوسطة", "m"], ["المرحلة الثانوية", "s"]].forEach(function (g) {
+    var total = b.total, totalPrev = b.totalPrev;
+    if (stage) {
+      total = 0; totalPrev = 0;
+      M.CLASSES.filter(function (c) { return c.code[0] === stage[1]; }).forEach(function (c) {
+        var x = (b.classes || {})[c.code] || {};
+        total += Number(x.n) || 0; totalPrev += Number(x.p) || 0;
+      });
+    }
+    var up = total > totalPrev ? "<small>↑ بزيادة " + num.format(total - totalPrev) + " عن الأسبوع الماضي</small>" : "";
+    var html = '<div class="total">' + STAR + '<span class="num">' + num.format(total || 0) + '</span><span class="lbl">' + hessa(total || 0) + " في رصيد " + (stage ? stage[0] : "المدرسة") + " هذا الأسبوع" + up + "</span></div>";
+    (stage ? [stage] : groups).forEach(function (g) {
       html += '<h2 class="stage-title">' + g[0] + '</h2><div class="grid">' +
         M.CLASSES.filter(function (c) { return c.code[0] === g[1]; }).map(function (c) { return card(c, (b.classes || {})[c.code] || {}); }).join("") + "</div>";
     });

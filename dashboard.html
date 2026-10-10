@@ -359,8 +359,26 @@ a.btn{text-decoration:none}
 
     <section class="panel" id="boardPanel" hidden>
       <h2>لوحة «انعكاس الأسبوع» للطالبات</h2>
-      <p class="sub">صفحة عامة تُعرض على شاشة المدرسة أو تُرسل للفصل، وتُظهر عدد الحصص المتميزة والتقدّم عن الأسبوع الماضي فقط، دون «يحتاج متابعة» ودون ترتيب للفصول. تُحدَّث تلقائيًا كلما فُتحت لوحة المتابعة.</p>
-      <div class="invite-box">
+      <p class="sub">افتحي رابط كل مرحلة على شاشتها لعرض فصولها وإجمالي حصصها المتميزة والتقدم عن الأسبوع الماضي. تعرض اللوحة النتائج الإيجابية فقط دون ترتيب للفصول، وتحدث الأرقام كلما فتحت لوحة المتابعة.</p>
+      <div class="two">
+        <div class="invite-box">
+          <label for="boardMiddleUrl">شاشة المرحلة المتوسطة</label>
+          <input class="field" id="boardMiddleUrl" dir="ltr" readonly>
+          <div class="invite-actions">
+            <a class="btn" id="openMiddleBoard" target="_blank" rel="noopener">فتح شاشة المتوسط</a>
+            <button class="btn ghost" type="button" id="copyMiddleBoard">نسخ الرابط</button>
+          </div>
+        </div>
+        <div class="invite-box">
+          <label for="boardSecondaryUrl">شاشة المرحلة الثانوية</label>
+          <input class="field" id="boardSecondaryUrl" dir="ltr" readonly>
+          <div class="invite-actions">
+            <a class="btn" id="openSecondaryBoard" target="_blank" rel="noopener">فتح شاشة الثانوي</a>
+            <button class="btn ghost" type="button" id="copySecondaryBoard">نسخ الرابط</button>
+          </div>
+        </div>
+      </div>
+      <div class="invite-box" style="margin-top:14px">
         <label for="boardUrl">رابط لوحة المدرسة</label>
         <input class="field" id="boardUrl" dir="ltr" readonly>
         <div class="invite-actions">
@@ -594,6 +612,10 @@ a.btn{text-decoration:none}
   function initBoard() {
     $("boardUrl").value = baseUrl + "board.html";
     $("openBoard").href = baseUrl + "board.html";
+    $("boardMiddleUrl").value = baseUrl + "board.html?stage=middle";
+    $("openMiddleBoard").href = $("boardMiddleUrl").value;
+    $("boardSecondaryUrl").value = baseUrl + "board.html?stage=secondary";
+    $("openSecondaryBoard").href = $("boardSecondaryUrl").value;
     $("boardClass").innerHTML = M.CLASSES.map(function (c) { return '<option value="' + c.code + '">' + esc(c.name) + "</option>"; }).join("");
   }
   function publishBoard(silent) {
@@ -623,6 +645,14 @@ a.btn{text-decoration:none}
     (navigator.clipboard ? navigator.clipboard.writeText($("boardUrl").value) : Promise.reject()).then(function () {
       b.textContent = "نُسخ"; setTimeout(function () { b.textContent = "نسخ"; }, 1500);
     }).catch(function () { $("boardUrl").select(); });
+  });
+  [["copyMiddleBoard", "boardMiddleUrl"], ["copySecondaryBoard", "boardSecondaryUrl"]].forEach(function (pair) {
+    $(pair[0]).addEventListener("click", function () {
+      var b = this;
+      (navigator.clipboard ? navigator.clipboard.writeText($(pair[1]).value) : Promise.reject()).then(function () {
+        b.textContent = "تم نسخ الرابط"; setTimeout(function () { b.textContent = "نسخ الرابط"; }, 1500);
+      }).catch(function () { $(pair[1]).select(); });
+    });
   });
   $("shareClassBoard").addEventListener("click", function () {
     var c = M.findClass($("boardClass").value), u = baseUrl + "board.html?c=" + c.code;
