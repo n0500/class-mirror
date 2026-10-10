@@ -143,6 +143,12 @@ button.row:hover{background:#f3f7f5}
 .invite-box .field{font-size:14px;background:#fff}
 .invite-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .invite-actions .btn{min-height:44px;font-size:15px}
+.weekly-award-list{display:grid;gap:8px;margin-top:14px}
+.weekly-award-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;border:1px solid var(--gold-soft);border-radius:12px;background:#fff}
+.weekly-award-row strong{display:block;font-size:17px;color:var(--green-800)}
+.weekly-award-row small{display:block;margin-top:3px;font-size:14px;color:var(--muted)}
+.weekly-award-row a{font-size:14px;min-height:44px}
+.weekly-award-note{margin:0;font-size:13px;color:var(--muted);line-height:1.7}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#eef2f0;border-radius:12px;margin-bottom:6px}
 .tab{min-height:42px;border:0;border-radius:9px;background:none;color:var(--ink-2);font-size:15px;font-weight:600}
 .tab[aria-selected="true"]{background:#fff;color:var(--green-800);box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -394,6 +400,33 @@ a.btn{text-decoration:none}
         <p class="sub" id="boardStatus" style="margin:10px 0 0"></p>
       </div>
 
+      <h3 class="adm-h">تكريم الفصل الأكثر تميزا هذا الأسبوع</h3>
+      <p class="sub" style="margin-top:0">شاشتان إضافيتان لتكريم أعلى رصيد من الحصص المتميزة في كل مرحلة، عن الأسبوع نفسه المعروض في المرآة. عند التعادل يكرم كل فصل متعادل وتصدر له شهادة مستقلة.</p>
+      <p class="sub" id="weeklyAwardPeriod" role="status">جار تجهيز تكريم الأسبوع…</p>
+      <div class="two">
+        <div class="invite-box">
+          <label for="boardMiddleAwardUrl">شاشة أكثر فصل تميزا — المتوسط</label>
+          <input class="field" id="boardMiddleAwardUrl" dir="ltr" readonly>
+          <div class="invite-actions">
+            <a class="btn" id="openMiddleAward" target="_blank" rel="noopener">فتح شاشة التكريم</a>
+            <button class="btn ghost" type="button" id="copyMiddleAward">نسخ الرابط</button>
+          </div>
+          <div class="weekly-award-list" id="weeklyMiddleAward"><p class="weekly-award-note">جار حساب الفصل الفائز…</p></div>
+        </div>
+        <div class="invite-box">
+          <label for="boardSecondaryAwardUrl">شاشة أكثر فصل تميزا — الثانوي</label>
+          <input class="field" id="boardSecondaryAwardUrl" dir="ltr" readonly>
+          <div class="invite-actions">
+            <a class="btn" id="openSecondaryAward" target="_blank" rel="noopener">فتح شاشة التكريم</a>
+            <button class="btn ghost" type="button" id="copySecondaryAward">نسخ الرابط</button>
+          </div>
+          <div class="weekly-award-list" id="weeklySecondaryAward"><p class="weekly-award-note">جار حساب الفصل الفائز…</p></div>
+        </div>
+      </div>
+      <div class="invite-actions">
+        <a class="btn" id="weeklyAwardCertificates" target="_blank" rel="noopener" hidden>إصدار شهادات الفائزين</a>
+      </div>
+
       <h3 class="adm-h">شهادة «الفصل الأكثر تقدّمًا»</h3>
       <p class="sub" style="margin-top:0">تُحسب بمقارنة نسبة الحصص المتميزة لكل فصل في الشهر الهجري بالشهر الذي قبله (بحد أدنى ٤ تقييمات في كل شهر). هذه القائمة للإدارة فقط.</p>
       <div class="chips" role="group" aria-label="الشهر" id="certMonth">
@@ -453,9 +486,11 @@ a.btn{text-decoration:none}
 
 <script src="config.js"></script>
 <script src="assets/common.js"></script>
+<script src="assets/weekly-awards.js"></script>
 <script>
 (function () {
   var M = window.Miraat, S = M.Store;
+  var A = M.WeeklyAwards;
   var $ = function (id) { return document.getElementById(id); };
   var R = M.RATINGS;
   var fmt = new Intl.NumberFormat("ar-SA");
@@ -633,10 +668,27 @@ a.btn{text-decoration:none}
     $("openMiddleBoard").href = $("boardMiddleUrl").value;
     $("boardSecondaryUrl").value = baseUrl + "board.html?stage=secondary";
     $("openSecondaryBoard").href = $("boardSecondaryUrl").value;
+    $("boardMiddleAwardUrl").value = baseUrl + "board.html?stage=middle&view=winner";
+    $("openMiddleAward").href = $("boardMiddleAwardUrl").value;
+    $("boardSecondaryAwardUrl").value = baseUrl + "board.html?stage=secondary&view=winner";
+    $("openSecondaryAward").href = $("boardSecondaryAwardUrl").value;
     $("boardClass").innerHTML = M.CLASSES.map(function (c) { return '<option value="' + c.code + '">' + esc(c.name) + "</option>"; }).join("");
+  }
+  function renderWeeklyAwards(b) {
+    $("weeklyAwardPeriod").textContent = A.periodLabel(b);
+    [["middle", "weeklyMiddleAward"], ["secondary", "weeklySecondaryAward"]].forEach(function (pair) {
+      var list = A.winners(b, pair[0]);
+      $(pair[1]).innerHTML = list.length ? (list.length > 1 ? '<p class="weekly-award-note">فصول متعادلة في أعلى رصيد، ولكل منها شهادة.</p>' : "") + list.map(function (x) {
+        return '<div class="weekly-award-row"><div><strong>' + esc(x.c.name) + '</strong><small>' + esc(A.countLabel(x.n)) + '</small></div><a class="btn ghost" href="' + esc(A.certificateUrl(b, x.c)) + '" target="_blank" rel="noopener">إصدار الشهادة</a></div>';
+      }).join("") : '<p class="weekly-award-note">لا توجد حصص متميزة في هذه المرحلة للأسبوع المعروض، لذلك لا تصدر شهادة بعد.</p>';
+    });
+    var link = $("weeklyAwardCertificates");
+    link.hidden = !A.allWinners(b).length;
+    if (!link.hidden) link.href = A.certificateUrl(b);
   }
   function publishBoard(silent) {
     var period = boardPeriod(new Date());
+    $("weeklyAwardCertificates").hidden = true;
     if (!silent) { $("boardStatus").textContent = "جارٍ تحديث الأرقام…"; }
     return S.list(period.prevStart).then(function (rows) {
       var classes = {}, total = 0, totalPrev = 0;
@@ -648,11 +700,15 @@ a.btn{text-decoration:none}
         if (r.createdAt >= period.start && r.createdAt < period.end) { classes[code].n++; total++; }
         else if (r.createdAt >= period.prevStart && r.createdAt < period.prevEnd) { classes[code].p++; totalPrev++; }
       });
-      return S.publishBoard({ weekStart: period.weekStart, weekEnd: period.weekEnd, prevStart: period.prevStartDay, classes: classes, total: total, totalPrev: totalPrev });
+      var b = { weekStart: period.weekStart, weekEnd: period.weekEnd, prevStart: period.prevStartDay, classes: classes, total: total, totalPrev: totalPrev };
+      return S.publishBoard(b).then(function () { renderWeeklyAwards(b); });
     }).then(function () {
       $("boardStatus").textContent = "حُدِّثت أرقام اللوحة " + new Date().toLocaleTimeString("ar-SA", { hour: "numeric", minute: "2-digit" }) + ".";
     }).catch(function () {
       $("boardStatus").textContent = "تعذّر تحديث لوحة الطالبات. يُرجى التحقق من نشر قواعد الحماية المحدّثة في Firebase.";
+      $("weeklyAwardPeriod").textContent = "تعذر تجهيز التكريم. اضغطي «تحديث الأرقام الآن» للمحاولة مرة أخرى.";
+      ["weeklyMiddleAward", "weeklySecondaryAward"].forEach(function (id) { $(id).innerHTML = '<p class="weekly-award-note">تعذر تحميل نتيجة الأسبوع.</p>'; });
+      $("weeklyAwardCertificates").hidden = true;
     });
   }
   $("refreshBoard").addEventListener("click", function () { publishBoard(false); });
@@ -662,7 +718,7 @@ a.btn{text-decoration:none}
       b.textContent = "نُسخ"; setTimeout(function () { b.textContent = "نسخ"; }, 1500);
     }).catch(function () { $("boardUrl").select(); });
   });
-  [["copyMiddleBoard", "boardMiddleUrl"], ["copySecondaryBoard", "boardSecondaryUrl"]].forEach(function (pair) {
+  [["copyMiddleBoard", "boardMiddleUrl"], ["copySecondaryBoard", "boardSecondaryUrl"], ["copyMiddleAward", "boardMiddleAwardUrl"], ["copySecondaryAward", "boardSecondaryAwardUrl"]].forEach(function (pair) {
     $(pair[0]).addEventListener("click", function () {
       var b = this;
       (navigator.clipboard ? navigator.clipboard.writeText($(pair[1]).value) : Promise.reject()).then(function () {
@@ -1081,3 +1137,4 @@ a.btn{text-decoration:none}
 </script>
 </body>
 </html>
+

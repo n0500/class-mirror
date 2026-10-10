@@ -14,10 +14,12 @@
 <style>
 @page{size:A4 landscape;margin:0}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0}
 body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;color:#1d2e28;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:14px 16px}
 .bar button{min-height:44px;padding:8px 22px;border:0;border-radius:12px;background:#0d3b2f;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.bar button:disabled{opacity:.5;cursor:wait}
 .bar .hint{align-self:center;font-size:13px;color:#4a5a54}
 .viewport{padding:0 16px 24px;overflow:hidden}
 .scaler{transform-origin:top right;width:297mm;margin-inline:auto}
@@ -49,35 +51,59 @@ body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;col
 .rights{font-family:"IBM Plex Sans Arabic",sans-serif;position:absolute;bottom:2.4mm;left:0;right:0;text-align:center;font-size:2.6mm;color:#7a6a4a}
 .err{max-width:520px;margin:40px auto;padding:20px;border-radius:14px;background:#fff;text-align:center}
 
+/* شهادة أسبوعية مستقلة لكل فصل فائز، مع بيانات الأسبوع والمرحلة. */
+.weekly .sheet+.sheet{margin-top:24px}
+.weekly .inner{padding:7mm 18mm 7mm}
+.weekly .crest{width:24mm}
+.education{margin:1mm 0 0;font-size:3.5mm;line-height:1.5;font-weight:600;color:#4a5a54}
+.weekly .school{font-size:4.4mm;line-height:1.5;margin:1mm 0 0}
+.weekly .title{font-size:12mm;line-height:1.35;margin:1mm 0;color:#9a6a1c;background:none}
+.weekly .sub{font-size:6mm;line-height:1.5;padding:1mm 8mm;margin:0}
+.award-stage{font-size:4.2mm;font-weight:700;color:#0d3b2f;margin:1mm 0 0;line-height:1.5}
+.weekly .body{font-size:4.7mm;line-height:1.55;max-width:235mm;margin:2mm 0 0}
+.weekly .cls{font-size:10mm;line-height:1.4;margin:1mm 0}
+.weekly .stat{font-size:4.8mm;margin:2mm 0 0;padding:1.5mm 6mm}
+.award-period{max-width:235mm;font-size:3.9mm;line-height:1.6;color:#4a5a54;margin:2mm 0 0}
+.weekly .sigs{padding:0 5mm}
+.weekly .sig{font-size:4.5mm}
+.weekly .sig .ln{height:7mm}
+.weekly .seal{width:20mm;height:20mm;margin-bottom:1mm;font-size:3.8mm}
+
 @media print{
   body{background:none}
   .bar{display:none}
   .viewport{padding:0;overflow:visible}
   .scaler{transform:none!important;width:auto;height:auto!important}
   .sheet{box-shadow:none}
+  .weekly .sheet{break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid;margin:0!important}
+  .weekly .sheet:last-child{break-after:auto;page-break-after:auto}
 }
 </style>
 </head>
 <body>
-<div class="bar"><button id="print">طباعة الشهادة</button><span class="hint">يرجى اختيار الاتجاه الأفقي وتفعيل «رسومات الخلفية» في نافذة الطباعة.</span></div>
+<div class="bar"><button id="print">طباعة الشهادة</button><span class="hint" id="printHint">يرجى اختيار الاتجاه الأفقي وتفعيل «رسومات الخلفية» في نافذة الطباعة.</span></div>
+<div class="err" id="certificateStatus" role="status" hidden></div>
 <div class="viewport"><div class="scaler" id="scaler">
 <div class="sheet" id="sheet">
   <div class="inner">
     <span class="corner tr"></span><span class="corner tl"></span><span class="corner br"></span><span class="corner bl"></span>
     <div class="arch" aria-hidden="true"></div>
     <img class="crest" src="assets/crest.png" alt="">
-    <p class="school" id="school"></p>
+    <p class="education" data-field="education" hidden>وزارة التعليم | إدارة التعليم بمنطقة القصيم</p>
+    <p class="school" id="school" data-field="school"></p>
     <div class="title">شهادة تميز</div>
-    <div class="sub" id="kind">الفصل الأكثر تقدما</div>
+    <div class="sub" id="kind" data-field="kind">الفصل الأكثر تقدما</div>
+    <p class="award-stage" data-field="stage" hidden></p>
     <div class="body">
-      تتقدم إدارة <span id="school2"></span><br>بخالص الشكر والتقدير إلى طالبات فصل<br>
-      <span class="cls" id="cls"></span><br>
-      <span id="reason"></span>
+      تتقدم إدارة <span id="school2" data-field="school2"></span><br>بخالص الشكر والتقدير إلى طالبات فصل<br>
+      <span class="cls" id="cls" data-field="cls"></span><br>
+      <span id="reason" data-field="reason"></span>
     </div>
-    <div class="stat" id="stat" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.6l2.85 5.8 6.4.93-4.63 4.5 1.1 6.37L12 17.2l-5.72 3 1.1-6.37-4.63-4.5 6.4-.93z"/></svg><span id="statTxt"></span></div>
+    <div class="stat" id="stat" data-field="stat" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.6l2.85 5.8 6.4.93-4.63 4.5 1.1 6.37L12 17.2l-5.72 3 1.1-6.37-4.63-4.5 6.4-.93z"/></svg><span id="statTxt" data-field="statTxt"></span></div>
+    <p class="award-period" data-field="period" hidden></p>
     <div class="sigs">
       <div class="sig"><div class="ln"></div>منسقة المبادرة</div>
-      <div class="seal"><div>مرآة الصف<span id="sealMonth"></span></div></div>
+      <div class="seal"><div>مرآة الصف<span id="sealMonth" data-field="sealMonth"></span></div></div>
       <div class="sig"><div class="ln"></div>مديرة المدرسة</div>
     </div>
     <div class="rights">فكرة وتصميم: أ. نهى فالح المطيري © 2026</div>
@@ -87,11 +113,13 @@ body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;col
 
 <script src="config.js"></script>
 <script src="assets/common.js"></script>
+<script src="assets/weekly-awards.js"></script>
 <script>
 (function () {
   var M = window.Miraat, q = new URLSearchParams(location.search);
   var $ = function (id) { return document.getElementById(id); };
   var num = new Intl.NumberFormat("ar-SA-u-nu-latn");
+  if (q.get("mode") === "weekly") { loadWeekly(); return; }
   var c = M.findClass(q.get("c"));
   if (!c) { document.body.innerHTML = '<div class="err">رابط الشهادة غير مكتمل. يرجى فتح الشهادة من لوحة المتابعة ← «شهادة الفصل الأكثر تقدما».</div>'; return; }
   var month = q.get("m") || M.hijriMonthLabel(M.hijriMonthRange(-1).start);
@@ -122,11 +150,94 @@ body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;col
     if (k < 1) s.style.marginInline = "0";
   }
   addEventListener("resize", scale); scale();
-  $("print").addEventListener("click", function () {
-    var imgs = Array.prototype.slice.call(document.images).map(function (i) { return i.complete ? 0 : new Promise(function (r) { i.onload = i.onerror = r; }); });
-    Promise.all(imgs.concat(document.fonts ? [document.fonts.ready] : [])).then(function () { window.print(); });
-  });
+  bindPrint();
+
+  function bindPrint() {
+    $("print").addEventListener("click", function () {
+      if (this.disabled) return;
+      var imgs = Array.prototype.slice.call(document.images).map(function (i) { return i.complete ? 0 : new Promise(function (r) { i.onload = i.onerror = r; }); });
+      Promise.all(imgs.concat(document.fonts ? [document.fonts.ready] : [])).then(function () { window.print(); });
+    });
+  }
+
+  function weeklyError(message) {
+    $("scaler").hidden = true;
+    $("print").hidden = true;
+    $("printHint").hidden = true;
+    $("certificateStatus").hidden = false;
+    $("certificateStatus").textContent = message;
+    document.title = "شهادات تكريم الأسبوع — مرآة الصف";
+  }
+  function fillWeekly(sheet, x, b) {
+    var A = M.WeeklyAwards;
+    var field = function (name) { return sheet.querySelector('[data-field="' + name + '"]'); };
+    field("education").hidden = false;
+    field("school").textContent = field("school2").textContent = M.SCHOOL;
+    field("kind").textContent = "الفصل الأكثر تميزا هذا الأسبوع";
+    field("stage").textContent = "على مستوى " + x.stage.name;
+    field("stage").hidden = false;
+    field("cls").textContent = x.c.name;
+    var tied = A.winners(b, x.stage.id).length > 1;
+    field("reason").textContent = "تقديرا لجهودكن وحصول الفصل على " + (tied ? "أعلى رصيد مشترك" : "أعلى رصيد") + " من الحصص المتميزة على مستوى " + x.stage.name + " ضمن مبادرة مرآة الصف. مع أطيب التمنيات بدوام التميز والتوفيق.";
+    field("statTxt").textContent = "رصيد الفصل: " + A.countLabel(x.n);
+    field("stat").hidden = false;
+    field("period").textContent = "الأسبوع: " + A.periodLabel(b);
+    field("period").hidden = false;
+    field("sealMonth").textContent = "تميز الأسبوع";
+  }
+  function scaleWeekly() {
+    var s = $("scaler"); if (s.hidden) return;
+    var sheets = Array.prototype.slice.call(s.querySelectorAll(".sheet"));
+    var k = Math.min(1, s.parentNode.clientWidth / sheets[0].offsetWidth);
+    var h = sheets.reduce(function (sum, sheet) { return sum + sheet.offsetHeight; }, 0) + Math.max(0, sheets.length - 1) * 24;
+    s.style.transform = "scale(" + k + ")";
+    s.style.transformOrigin = "top " + (k < 1 ? "right" : "center");
+    s.style.height = h * k + "px";
+    s.style.marginInline = k < 1 ? "0" : "auto";
+  }
+  function loadWeekly() {
+    var A = M.WeeklyAwards;
+    document.body.classList.add("weekly");
+    document.title = "شهادات تكريم الأسبوع — مرآة الصف";
+    $("scaler").hidden = true;
+    $("print").disabled = true;
+    $("print").textContent = "طباعة / حفظ PDF";
+    $("printHint").textContent = "شهادة لكل فصل على A4 أفقي. اختاري «حفظ بصيغة PDF» أو الطابعة، وفعلي رسومات الخلفية.";
+    $("certificateStatus").hidden = false;
+    $("certificateStatus").textContent = "جار تجهيز الشهادات من نتائج الأسبوع المنشورة…";
+    bindPrint();
+    M.Store.getBoard().then(function (b) {
+      if (!A.validBoard(b)) { weeklyError("لم تنشر نتائج أسبوع مكتمل بعد. افتحي لوحة المتابعة وحدثي أرقام انعكاس الأسبوع."); return; }
+      var requestedWeek = q.get("week");
+      if ((requestedWeek && requestedWeek !== b.weekStart) || (!requestedWeek && q.get("scope") !== "all")) { weeklyError("رابط الشهادة يخص أسبوعا مختلفا عن المعروض الآن. أعيدي إصدار الشهادة من تبويب انعكاس الأسبوع في لوحة المتابعة."); return; }
+      var list = A.allWinners(b), code = q.get("c");
+      if (code) {
+        var c = M.findClass(code);
+        list = c ? list.filter(function (x) { return x.c.code === c.code; }) : [];
+      } else if (q.get("scope") !== "all") {
+        weeklyError("رابط الشهادة غير مكتمل. افتحي الشهادة من تبويب انعكاس الأسبوع في لوحة المتابعة."); return;
+      }
+      if (!list.length) { weeklyError("لا توجد شهادة لهذا الفصل أو الأسبوع، لأن التكريم يعتمد على أعلى رصيد موجب من الحصص المتميزة في كل مرحلة."); return; }
+      var first = $("sheet"), template = first.cloneNode(true), scaler = $("scaler");
+      list.forEach(function (x, i) {
+        var sheet = i === 0 ? first : template.cloneNode(true);
+        if (i > 0) {
+          sheet.removeAttribute("id");
+          sheet.querySelectorAll("[id]").forEach(function (el) { el.removeAttribute("id"); });
+          scaler.appendChild(sheet);
+        }
+        fillWeekly(sheet, x, b);
+      });
+      $("certificateStatus").hidden = true;
+      scaler.hidden = false;
+      $("print").disabled = false;
+      document.title = (list.length === 1 ? "شهادة الفصل الأكثر تميزا — " + list[0].c.name : "شهادات الفصول الأكثر تميزا") + " — " + b.weekStart;
+      addEventListener("resize", scaleWeekly); scaleWeekly();
+      if (document.fonts) document.fonts.ready.then(scaleWeekly);
+    }).catch(function () { weeklyError("تعذر تحميل نتائج الأسبوع. تحققي من الاتصال بالإنترنت وأعيدي فتح الشهادة."); });
+  }
 })();
 </script>
 </body>
 </html>
+

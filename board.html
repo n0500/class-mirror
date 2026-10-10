@@ -81,6 +81,22 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 .cheer{margin:20px auto 0;max-width:340px;padding:14px 16px;border:1px solid var(--line-gold);border-radius:14px;background:#fdfbf6;text-align:center;font-size:18px;font-weight:700;color:var(--ink-green);line-height:1.6}
 .cheer small{display:block;font-size:14px;font-weight:600;color:var(--up)}
 
+/* شاشة تكريم مستقلة لكل مرحلة */
+.award-view .stage{max-width:1180px}
+.award-intro{text-align:center;margin:22px auto 14px;color:var(--ink-green)}
+.award-cup{width:clamp(64px,9vw,100px);height:clamp(64px,9vw,100px);color:#b87a22;filter:drop-shadow(0 3px 4px rgba(124,74,18,.15))}
+.award-intro h2{margin:8px 0;font-size:clamp(23px,3vw,36px);line-height:1.6}
+.award-intro p{margin:0;font-size:clamp(15px,1.8vw,21px);color:#56645e}
+.award-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;margin:18px auto 0}
+.award-card{padding:26px 16px;border:1.5px solid #c9973f;border-radius:22px;background:linear-gradient(145deg,#fffefa,#f8efdc);text-align:center;box-shadow:0 6px 18px rgba(124,74,18,.07)}
+.award-card h3{margin:0 0 16px;font-family:"Noto Kufi Arabic","IBM Plex Sans Arabic",sans-serif;font-size:clamp(29px,4.5vw,54px);line-height:1.6;color:var(--ink-green);overflow-wrap:anywhere}
+.award-card .n{display:flex;justify-content:center;align-items:center;gap:12px;font-size:clamp(46px,6vw,76px);font-weight:700;color:var(--ink-green);line-height:1.2}
+.award-card .star{width:.65em;height:.65em}
+.award-card .u{margin:6px 0 0;font-size:clamp(18px,2vw,25px);font-weight:600;color:#4a5a54}
+.award-grid:has(.award-card:only-child){max-width:780px}
+.award-cheer{margin:24px 0 8px;text-align:center;font-size:clamp(18px,2vw,25px);font-weight:700;color:var(--ink-green);line-height:1.7}
+.award-rule{margin:8px 0 0;text-align:center;font-size:clamp(13px,1.4vw,16px);color:#56645e;line-height:1.7}
+
 @media (min-width:1000px){ .stage{max-width:1280px;padding-inline:40px} .grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px} }
 @media (max-width:420px){ .panel{padding-inline:14px} .chip-up,.chip-wait{font-size:11.5px;padding:3px 8px;white-space:normal;line-height:1.5;border-radius:10px} .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
 </style>
@@ -111,9 +127,11 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 
 <script src="config.js"></script>
 <script src="assets/common.js"></script>
+<script src="assets/weekly-awards.js"></script>
 <script>
 (function () {
   var M = window.Miraat, S = M.Store;
+  var A = M.WeeklyAwards;
   var $ = function (id) { return document.getElementById(id); };
   var num = new Intl.NumberFormat("ar-SA-u-nu-latn");
   var STAR = '<svg class="star" aria-hidden="true"><use href="#st"/></svg>';
@@ -124,8 +142,15 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
   var one = M.findClass(params.get("c"));
   var groups = [["المرحلة المتوسطة", "m", "middle"], ["المرحلة الثانوية", "s", "secondary"]];
   var stage = groups.filter(function (g) { return g[2] === params.get("stage"); })[0];
+  var awardView = !one && params.get("view") === "winner";
   if (one) { document.documentElement.classList.add("single"); document.title = "انعكاس الأسبوع — " + one.name; }
   else if (stage) { $("ribbon").textContent = "انعكاس الأسبوع — " + stage[0]; document.title = "انعكاس الأسبوع — " + stage[0]; }
+  if (awardView) {
+    document.documentElement.classList.add("award-view");
+    $("ribbon").textContent = "تكريم الأسبوع" + (stage ? " — " + stage[0] : "");
+    document.title = "الفصل الأكثر تميزا — " + (stage ? stage[0] : "مرآة الصف");
+    if (!stage) { $("content").innerHTML = '<div class="empty">اختاري المرحلة من رابط شاشة التكريم في لوحة المتابعة.</div>'; return; }
+  }
 
   function hdate(iso, withYear) {
     var d = new Date(iso + "T12:00:00");
@@ -177,11 +202,24 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     }
   }
 
+  function renderAward(b) {
+    var list = A.winners(b, stage[2]);
+    if (!list.length) {
+      $("content").innerHTML = '<div class="empty">لم تسجل حصص متميزة في ' + stage[0] + ' لهذا الأسبوع بعد. ننتظر بداية جميلة منكن.</div>';
+      return;
+    }
+    var cup = '<svg class="award-cup" viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M28 10h44v26c0 15-8 27-19 30v12h17v10H30V78h17V66C36 63 28 51 28 36V10Zm-9 8h-9v16c0 17 9 27 23 29l-5-12c-8-3-10-9-10-17V26h1V18Zm62 0h9v16c0 17-9 27-23 29l5-12c8-3 10-9 10-17V26h-1V18Z"/><path fill="#fff7e5" d="m50 23 4.2 8.5 9.4 1.4-6.8 6.6 1.6 9.3-8.4-4.4-8.4 4.4 1.6-9.3-6.8-6.6 9.4-1.4Z"/></svg>';
+    $("content").innerHTML = '<div class="award-intro">' + cup + '<h2>' + (list.length > 1 ? "الفصول الأكثر تميزا هذا الأسبوع" : "الفصل الأكثر تميزا هذا الأسبوع") + '</h2><p>' + stage[0] + '</p></div><div class="award-grid">' + list.map(function (x) {
+      return '<article class="award-card"><h3>' + esc(x.c.name) + '</h3><div class="n">' + STAR + '<span>' + num.format(x.n) + '</span></div><p class="u">' + hessa(x.n) + '</p></article>';
+    }).join("") + '</div><p class="award-cheer">نحتفي بجهودكن.. تميزكن يلهم الجميع</p><p class="award-rule">الأعلى في عدد الحصص المتميزة خلال الأسبوع المعروض.' + (list.length > 1 ? " تتقاسم هذه الفصول التكريم لتساوي رصيدها." : "") + '</p>';
+  }
+
   function load() {
     S.getBoard().then(function (b) {
       if (!b || !b.classes) { $("content").innerHTML = '<div class="empty">لم تنشر إنجازات هذا الأسبوع بعد.</div>'; return; }
+      if (awardView && !A.validBoard(b)) { $("content").innerHTML = '<div class="empty">يرجى تحديث أرقام الأسبوع من لوحة المتابعة لتجهيز شاشة التكريم.</div>'; return; }
       $("week").textContent = "من " + hdate(b.weekStart) + " إلى " + hdate(b.weekEnd, true);
-      if (one) renderOne(b); else renderSchool(b);
+      if (one) renderOne(b); else if (awardView) renderAward(b); else renderSchool(b);
       if (b.updatedAt) $("meta").textContent = "آخر تحديث: " + new Date(b.updatedAt).toLocaleString("ar-SA", { weekday: "long", hour: "numeric", minute: "2-digit" });
     }).catch(function () { $("content").innerHTML = '<div class="empty">تعذر تحميل الإنجازات. يرجى التحقق من الاتصال بالإنترنت.</div>'; });
   }
@@ -191,3 +229,4 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 </script>
 </body>
 </html>
+
