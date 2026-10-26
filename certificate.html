@@ -220,7 +220,14 @@ body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;col
       } else if (q.get("scope") !== "all") {
         weeklyError("رابط الشهادة غير مكتمل. افتحي الشهادة من تبويب انعكاس الأسبوع في لوحة المتابعة."); return;
       }
-      if (!list.length) { weeklyError("لا توجد شهادة لهذا الفصل أو الأسبوع ضمن نتائج التكريم المنشورة لهذه المرحلة."); return; }
+      if (!list.length) {
+        var requestedClass = code ? M.findClass(code) : null;
+        var stageId = requestedClass ? (requestedClass.code[0] === "m" ? "middle" : "secondary") : null;
+        var pending = A.twoRule(b) && (stageId ? !A.stageReady(b, stageId) : !A.stageReady(b, "middle") || !A.stageReady(b, "secondary"));
+        weeklyError(pending ? "تنتظر شهادة هذه المرحلة اكتمال التقييمين لكل مادة في جميع فصولها." :
+          "لا توجد شهادة لهذا الفصل أو الأسبوع ضمن نتائج التكريم المنشورة لهذه المرحلة.");
+        return;
+      }
       var first = $("sheet"), template = first.cloneNode(true), scaler = $("scaler");
       list.forEach(function (x, i) {
         var sheet = i === 0 ? first : template.cloneNode(true);
