@@ -203,15 +203,15 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
   }
 
   function renderAward(b) {
-    var list = A.winners(b, stage[2]);
+    var list = A.winners(b, stage[2]), modern = A.newRule(b);
     if (!list.length) {
-      $("content").innerHTML = '<div class="empty">لم تسجل حصص متميزة في ' + stage[0] + ' لهذا الأسبوع بعد. ننتظر بداية جميلة منكن.</div>';
+      $("content").innerHTML = '<div class="empty">' + (modern ? "لا تتوفر نتيجة تميز مؤهلة لهذا الأسبوع بعد. يرجى تحديث النتائج من لوحة الإدارة." : "لم تسجل حصص متميزة في " + stage[0] + " لهذا الأسبوع بعد. ننتظر بداية جميلة منكن.") + '</div>';
       return;
     }
     var cup = '<svg class="award-cup" viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M28 10h44v26c0 15-8 27-19 30v12h17v10H30V78h17V66C36 63 28 51 28 36V10Zm-9 8h-9v16c0 17 9 27 23 29l-5-12c-8-3-10-9-10-17V26h1V18Zm62 0h9v16c0 17-9 27-23 29l5-12c8-3 10-9 10-17V26h-1V18Z"/><path fill="#fff7e5" d="m50 23 4.2 8.5 9.4 1.4-6.8 6.6 1.6 9.3-8.4-4.4-8.4 4.4 1.6-9.3-6.8-6.6 9.4-1.4Z"/></svg>';
     $("content").innerHTML = '<div class="award-intro">' + cup + '<h2>' + (list.length > 1 ? "الفصول الأكثر تميزا هذا الأسبوع" : "الفصل الأكثر تميزا هذا الأسبوع") + '</h2><p>' + stage[0] + '</p></div><div class="award-grid">' + list.map(function (x) {
-      return '<article class="award-card"><h3>' + esc(x.c.name) + '</h3><div class="n">' + STAR + '<span>' + num.format(x.n) + '</span></div><p class="u">' + hessa(x.n) + '</p></article>';
-    }).join("") + '</div><p class="award-cheer">نحتفي بجهودكن.. تميزكن يلهم الجميع</p><p class="award-rule">الأعلى في عدد الحصص المتميزة خلال الأسبوع المعروض.' + (list.length > 1 ? " تتقاسم هذه الفصول التكريم لتساوي رصيدها." : "") + '</p>';
+      return '<article class="award-card"><h3>' + esc(x.c.name) + '</h3><div class="n">' + STAR + '<span>' + (modern ? A.scoreLabel(x.score) : num.format(x.n)) + '</span></div><p class="u">' + (modern ? "مؤشر التميز النهائي" : hessa(x.n)) + '</p></article>';
+    }).join("") + '</div><p class="award-cheer">نحتفي بجهودكن.. تميزكن يلهم الجميع</p><p class="award-rule">' + (modern ? "الأعلى في نسبة التميز النهائية من تقييمات المواد، مع مراعاة الانضباط العام." : "الأعلى في عدد الحصص المتميزة خلال الأسبوع المعروض.") + (list.length > 1 ? " تتقاسم هذه الفصول التكريم لتساوي نتيجتها." : "") + '</p>';
   }
 
   function load() {

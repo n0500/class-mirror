@@ -178,8 +178,11 @@ body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;col
     field("stage").hidden = false;
     field("cls").textContent = x.c.name;
     var tied = A.winners(b, x.stage.id).length > 1;
-    field("reason").textContent = "تقديرا لجهودكن وحصول الفصل على " + (tied ? "أعلى رصيد مشترك" : "أعلى رصيد") + " من الحصص المتميزة على مستوى " + x.stage.name + " ضمن مبادرة مرآة الصف. مع أطيب التمنيات بدوام التميز والتوفيق.";
-    field("statTxt").textContent = "رصيد الفصل: " + A.countLabel(x.n);
+    var modern = A.newRule(b);
+    field("reason").textContent = modern
+      ? "تقديرا لجهودكن وتحقيق الفصل " + (tied ? "أعلى مؤشر تميز مشترك" : "أعلى مؤشر تميز") + " على مستوى " + x.stage.name + " ضمن مبادرة مرآة الصف. مع أطيب التمنيات بدوام التميز والتوفيق."
+      : "تقديرا لجهودكن وحصول الفصل على " + (tied ? "أعلى رصيد مشترك" : "أعلى رصيد") + " من الحصص المتميزة على مستوى " + x.stage.name + " ضمن مبادرة مرآة الصف. مع أطيب التمنيات بدوام التميز والتوفيق.";
+    field("statTxt").textContent = modern ? "نتيجة التميز: " + A.scoreLabel(x.score) : "رصيد الفصل: " + A.countLabel(x.n);
     field("stat").hidden = false;
     field("period").textContent = "الأسبوع: " + A.periodLabel(b);
     field("period").hidden = false;
@@ -217,7 +220,7 @@ body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;col
       } else if (q.get("scope") !== "all") {
         weeklyError("رابط الشهادة غير مكتمل. افتحي الشهادة من تبويب انعكاس الأسبوع في لوحة المتابعة."); return;
       }
-      if (!list.length) { weeklyError("لا توجد شهادة لهذا الفصل أو الأسبوع، لأن التكريم يعتمد على أعلى رصيد موجب من الحصص المتميزة في كل مرحلة."); return; }
+      if (!list.length) { weeklyError("لا توجد شهادة لهذا الفصل أو الأسبوع ضمن نتائج التكريم المنشورة لهذه المرحلة."); return; }
       var first = $("sheet"), template = first.cloneNode(true), scaler = $("scaler");
       list.forEach(function (x, i) {
         var sheet = i === 0 ? first : template.cloneNode(true);
