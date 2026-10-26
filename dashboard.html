@@ -401,7 +401,7 @@ a.btn{text-decoration:none}
       </div>
 
       <h3 class="adm-h">تكريم الفصل الأكثر تميزا هذا الأسبوع</h3>
-      <p class="sub" style="margin-top:0">شاشتان لتكريم الفصل الأكثر تميزا في كل مرحلة. بدءا من أسبوع 25 أكتوبر 2026، لا تزيد تقييمات «أخرى» الإيجابية النتيجة، ويؤثر «يحتاج متابعة» منها بواقع 5 نقاط مئوية حتى 10 أسبوعيا. لا يزال تكرار تقييم المادة محتسبا إلى حين اعتماد آلية جديدة. عند التعادل تصدر شهادة لكل فصل.</p>
+      <p class="sub" style="margin-top:0">ابتداء من أسبوع 1 نوفمبر 2026، يُحتسب أول تقييمين في كل مادة لكل فصل خلال الأسبوع، ويُفضّل أن يكونا في يومين مختلفين. لكل مادة الوزن نفسه مهما اختلف عدد حصصها، وتُقارن الفصول بنسبة التميز. يظهر نقص الرصد للإدارة ولا يُحتسب ضد الطالبات؛ ويُعلّق تكريم المرحلة حتى يكتمل رصد فصولها. تبقى معالجة «أخرى» كما هي، ولا تتغير الأسابيع السابقة.</p>
       <p class="sub" id="weeklyAwardPeriod" role="status">جار تجهيز تكريم الأسبوع…</p>
       <div class="two">
         <div class="invite-box">
@@ -426,6 +426,11 @@ a.btn{text-decoration:none}
       <div class="invite-actions">
         <a class="btn" id="weeklyAwardCertificates" target="_blank" rel="noopener" hidden>إصدار شهادات الفائزين</a>
       </div>
+      <section class="invite-box" id="weeklyCoverage" style="margin-top:12px" hidden aria-live="polite">
+        <h4 style="margin:0 0 6px">متابعة اكتمال التقييمات الأسبوعية</h4>
+        <p class="weekly-award-note" id="weeklyCoverageStatus"></p>
+        <div id="weeklyCoverageDetails" style="margin-top:8px"></div>
+      </section>
 
       <h3 class="adm-h">شهادة «الفصل الأكثر تقدّمًا»</h3>
       <p class="sub" style="margin-top:0">تُحسب بمقارنة نسبة الحصص المتميزة لكل فصل في الشهر الهجري بالشهر الذي قبله (بحد أدنى ٤ تقييمات في كل شهر). هذه القائمة للإدارة فقط.</p>
@@ -674,11 +679,38 @@ a.btn{text-decoration:none}
     $("openSecondaryAward").href = $("boardSecondaryAwardUrl").value;
     $("boardClass").innerHTML = M.CLASSES.map(function (c) { return '<option value="' + c.code + '">' + esc(c.name) + "</option>"; }).join("");
   }
+  function renderCompleteness(counts, b) {
+    var panel = $("weeklyCoverage");
+    panel.hidden = !A.twoRule(b);
+    if (panel.hidden) return;
+    var issues = counts.coverage || [];
+    var missingSlots = issues.reduce(function (sum, x) {
+      return sum + x.missing.reduce(function (n, p) { return n + p.missing; }, 0);
+    }, 0);
+    var completedClasses = M.CLASSES.length - issues.filter(function (x) { return x.missing.length > 0; }).length;
+    $("weeklyCoverageStatus").textContent =
+      "الفصول المكتملة: " + completedClasses + " من " + M.CLASSES.length +
+      " · التقييمات المتبقية: " + missingSlots +
+      ". لا تُحسب التقييمات الناقصة كتقديرات سلبية، ويُؤجل تكريم كل مرحلة حتى اكتمال الرصد.";
+    $("weeklyCoverageDetails").innerHTML = issues.map(function (x) {
+      var rest = x.missing.reduce(function (n, p) { return n + p.missing; }, 0);
+      var details = x.missing.map(function (p) {
+        return "<div>" + esc(p.subject) + ": " + p.recorded + " من 2 (متبقٍ " + p.missing + ")</div>";
+      }).join("");
+      if (x.sameDay.length) details += '<div style="margin-top:6px">يُفضّل التقييم في يومين مختلفين: ' + x.sameDay.map(esc).join("، ") + "</div>";
+      if (x.ignored) details += '<div style="margin-top:6px">' + x.ignored + " تقييمات زائدة محفوظة في السجل، دون احتسابها في المنافسة.</div>";
+      return '<details style="border-top:1px solid #e7e0ce;padding:8px 0"><summary style="cursor:pointer;font-weight:600">' +
+        esc(x.className) + (rest ? " — متبقٍ " + rest : " — مكتمل مع تنبيهات") +
+        '</summary><div style="font-size:13px;line-height:1.9;margin-top:6px">' + details + "</div></details>";
+    }).join("") || '<p class="weekly-award-note">اكتمل الرصد في جميع الفصول، دون ملاحظات إضافية.</p>';
+  }
   function renderWeeklyAwards(b) {
     $("weeklyAwardPeriod").textContent = A.periodLabel(b);
     [["middle", "weeklyMiddleAward"], ["secondary", "weeklySecondaryAward"]].forEach(function (pair) {
       var list = A.winners(b, pair[0]);
-      $(pair[1]).innerHTML = list.length ? (list.length > 1 ? '<p class="weekly-award-note">فصول متعادلة في أعلى رصيد، ولكل منها شهادة.</p>' : "") + list.map(function (x) {
+      var waiting = A.twoRule(b) && !A.stageReady(b, pair[0]);
+      $(pair[1]).innerHTML = waiting ? '<p class="weekly-award-note">بانتظار استكمال تقييمين لكل مادة في جميع فصول المرحلة. لا تصدر شهادات حتى اكتمال الرصد.</p>' :
+        list.length ? (list.length > 1 ? '<p class="weekly-award-note">فصول متعادلة في أعلى نتيجة، ولكل منها شهادة.</p>' : "") + list.map(function (x) {
         return '<div class="weekly-award-row"><div><strong>' + esc(x.c.name) + '</strong><small>' + esc(A.newRule(b) ? 'نتيجة التميز: ' + A.scoreLabel(x.score) : A.countLabel(x.n)) + '</small></div><a class="btn ghost" href="' + esc(A.certificateUrl(b, x.c)) + '" target="_blank" rel="noopener">إصدار الشهادة</a></div>';
       }).join("") : '<p class="weekly-award-note">لا توجد حصص متميزة في هذه المرحلة للأسبوع المعروض، لذلك لا تصدر شهادة بعد.</p>';
     });
@@ -694,7 +726,7 @@ a.btn{text-decoration:none}
       var counts = A.calculate(rows, period);
       var b = { weekStart: period.weekStart, weekEnd: period.weekEnd, prevStart: period.prevStartDay,
         classes: counts.classes, total: counts.total, totalPrev: counts.totalPrev };
-      return S.publishBoard(b).then(function () { renderWeeklyAwards(b); });
+      return S.publishBoard(b).then(function () { renderWeeklyAwards(b); renderCompleteness(counts, b); });
     }).then(function () {
       $("boardStatus").textContent = "حُدِّثت أرقام اللوحة " + new Date().toLocaleTimeString("ar-SA", { hour: "numeric", minute: "2-digit" }) + ".";
     }).catch(function () {
