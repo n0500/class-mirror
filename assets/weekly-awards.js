@@ -1,4 +1,4 @@
-/* تكريم الأسبوع: الرصيد المنشور نفسه للشاشة والشهادة، مع حفظ حق المتعادلين. */
+/* تكريم الأسبوع: إبقاء النتائج السابقة، وتطبيق أحكام «أخرى» بدءا من أسبوع 25 أكتوبر 2026. */
 (function () {
   "use strict";
   var M = window.Miraat;
@@ -23,14 +23,64 @@
   function count(value) {
     return typeof value === "number" && isFinite(value) && value > 0 && Math.floor(value) === value ? value : 0;
   }
-  function winners(b, id) {
-    var s = findStage(id);
-    if (!s || !validBoard(b)) return [];
-    var list = M.CLASSES.filter(function (c) { return c.code.charAt(0) === s.prefix; }).map(function (c) {
-      return { c: c, n: count((b.classes[c.code] || {}).n), stage: s };
+  /* الفترات المنتهية قبل هذا التاريخ تبقى بمنطق الفوز الأصلي. */
+  var NEW_RULE_WEEK = "2026-10-25";
+  function newRule(b) {
+    return validBoard(b) && b.weekStart >= NEW_RULE_WEEK;
+  }
+  function isExtra(subject) {
+    var x = String(subject || "").trim();
+    return x === "أخرى" || x.indexOf("أخرى:") === 0 || x.indexOf("أخرى：") === 0;
+  }
+  /* لا تحدد هذه الآلية عدد مرات تقييم المادة؛ القرار مؤجل. */
+  function calculate(rows, period) {
+    var modern = period.weekStart >= NEW_RULE_WEEK;
+    var classes = {}, followUps = {}, total = 0, totalPrev = 0;
+    M.CLASSES.forEach(function (c) {
+      classes[c.code] = { n: 0, p: 0 };
+      if (modern) { classes[c.code].t = 0; classes[c.code].score = null; followUps[c.code] = 0; }
     });
-    var max = list.reduce(function (n, x) { return Math.max(n, x.n); }, 0);
-    return max ? list.filter(function (x) { return x.n === max; }) : [];
+    rows.forEach(function (r) {
+      var code = r.classCode || ((M.findClass(r.classroom) || {}).code);
+      var x = classes[code];
+      if (!x) return;
+      var rating = M.normRating(r.rating);
+      var extra = isExtra(r.subject);
+      if (r.createdAt >= period.start && r.createdAt < period.end) {
+        if (modern && extra) {
+          if (rating === "يحتاج متابعة") followUps[code]++;
+          return;
+        }
+        if (modern) x.t++;
+        if (rating === "متميز") { x.n++; total++; }
+      } else if (r.createdAt >= period.prevStart && r.createdAt < period.prevEnd) {
+        if ((!modern || !extra) && rating === "متميز") { x.p++; totalPrev++; }
+      }
+    });
+    if (modern) M.CLASSES.forEach(function (c) {
+      var x = classes[c.code];
+      if (x.t > 0) {
+        var base = Math.round(10000 * x.n / x.t) / 100;
+        x.score = Math.max(0, base - Math.min(10, 5 * followUps[c.code]));
+      }
+    });
+    return { classes: classes, total: total, totalPrev: totalPrev };
+  }
+  function scoreLabel(n) {
+    return new Intl.NumberFormat("ar-SA-u-nu-latn", { maximumFractionDigits: 2 }).format(n) + "%";
+  }
+  function winners(b, id) {
+    var stage = findStage(id);
+    if (!stage || !validBoard(b)) return [];
+    var modern = newRule(b);
+    var list = M.CLASSES.filter(function (c) { return c.code.charAt(0) === stage.prefix; }).map(function (c) {
+      var x = b.classes[c.code] || {};
+      return { c: c, n: count(x.n), t: count(x.t),
+        score: typeof x.score === "number" && isFinite(x.score) ? x.score : null, stage: stage };
+    }).filter(function (x) { return x.n > 0 && (!modern || (x.t > 0 && x.score !== null)); });
+    if (!list.length) return [];
+    var max = list.reduce(function (n, x) { return Math.max(n, modern ? x.score : x.n); }, 0);
+    return list.filter(function (x) { return (modern ? x.score : x.n) === max; });
   }
   function allWinners(b) {
     return stages.reduce(function (list, s) { return list.concat(winners(b, s.id)); }, []);
@@ -52,5 +102,5 @@
     return "certificate.html?mode=weekly&week=" + encodeURIComponent(b.weekStart) + (c ? "&c=" + encodeURIComponent(c.code) : "&scope=all");
   }
 
-  M.WeeklyAwards = { stages: stages, findStage: findStage, validBoard: validBoard, winners: winners, allWinners: allWinners, periodLabel: periodLabel, countLabel: countLabel, certificateUrl: certificateUrl };
+  M.WeeklyAwards = { stages: stages, findStage: findStage, validBoard: validBoard, newRule: newRule, calculate: calculate, winners: winners, allWinners: allWinners, periodLabel: periodLabel, countLabel: countLabel, scoreLabel: scoreLabel, certificateUrl: certificateUrl };
 })();
