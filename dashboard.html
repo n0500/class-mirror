@@ -401,7 +401,7 @@ a.btn{text-decoration:none}
       </div>
 
       <h3 class="adm-h">تكريم الفصل الأكثر تميزا هذا الأسبوع</h3>
-      <p class="sub" style="margin-top:0">شاشتان إضافيتان لتكريم أعلى رصيد من الحصص المتميزة في كل مرحلة، عن الأسبوع نفسه المعروض في المرآة. عند التعادل يكرم كل فصل متعادل وتصدر له شهادة مستقلة.</p>
+      <p class="sub" style="margin-top:0">شاشتان لتكريم الفصل الأكثر تميزا في كل مرحلة. بدءا من أسبوع 25 أكتوبر 2026، لا تزيد تقييمات «أخرى» الإيجابية النتيجة، ويؤثر «يحتاج متابعة» منها بواقع 5 نقاط مئوية حتى 10 أسبوعيا. لا يزال تكرار تقييم المادة محتسبا إلى حين اعتماد آلية جديدة. عند التعادل تصدر شهادة لكل فصل.</p>
       <p class="sub" id="weeklyAwardPeriod" role="status">جار تجهيز تكريم الأسبوع…</p>
       <div class="two">
         <div class="invite-box">
@@ -679,7 +679,7 @@ a.btn{text-decoration:none}
     [["middle", "weeklyMiddleAward"], ["secondary", "weeklySecondaryAward"]].forEach(function (pair) {
       var list = A.winners(b, pair[0]);
       $(pair[1]).innerHTML = list.length ? (list.length > 1 ? '<p class="weekly-award-note">فصول متعادلة في أعلى رصيد، ولكل منها شهادة.</p>' : "") + list.map(function (x) {
-        return '<div class="weekly-award-row"><div><strong>' + esc(x.c.name) + '</strong><small>' + esc(A.countLabel(x.n)) + '</small></div><a class="btn ghost" href="' + esc(A.certificateUrl(b, x.c)) + '" target="_blank" rel="noopener">إصدار الشهادة</a></div>';
+        return '<div class="weekly-award-row"><div><strong>' + esc(x.c.name) + '</strong><small>' + esc(A.newRule(b) ? 'نتيجة التميز: ' + A.scoreLabel(x.score) : A.countLabel(x.n)) + '</small></div><a class="btn ghost" href="' + esc(A.certificateUrl(b, x.c)) + '" target="_blank" rel="noopener">إصدار الشهادة</a></div>';
       }).join("") : '<p class="weekly-award-note">لا توجد حصص متميزة في هذه المرحلة للأسبوع المعروض، لذلك لا تصدر شهادة بعد.</p>';
     });
     var link = $("weeklyAwardCertificates");
@@ -691,16 +691,9 @@ a.btn{text-decoration:none}
     $("weeklyAwardCertificates").hidden = true;
     if (!silent) { $("boardStatus").textContent = "جارٍ تحديث الأرقام…"; }
     return S.list(period.prevStart).then(function (rows) {
-      var classes = {}, total = 0, totalPrev = 0;
-      M.CLASSES.forEach(function (c) { classes[c.code] = { n: 0, p: 0 }; });
-      rows.forEach(function (r) {
-        if (M.normRating(r.rating) !== "متميز") return;
-        var code = r.classCode || ((M.findClass(r.classroom) || {}).code);
-        if (!classes[code]) return;
-        if (r.createdAt >= period.start && r.createdAt < period.end) { classes[code].n++; total++; }
-        else if (r.createdAt >= period.prevStart && r.createdAt < period.prevEnd) { classes[code].p++; totalPrev++; }
-      });
-      var b = { weekStart: period.weekStart, weekEnd: period.weekEnd, prevStart: period.prevStartDay, classes: classes, total: total, totalPrev: totalPrev };
+      var counts = A.calculate(rows, period);
+      var b = { weekStart: period.weekStart, weekEnd: period.weekEnd, prevStart: period.prevStartDay,
+        classes: counts.classes, total: counts.total, totalPrev: counts.totalPrev };
       return S.publishBoard(b).then(function () { renderWeeklyAwards(b); });
     }).then(function () {
       $("boardStatus").textContent = "حُدِّثت أرقام اللوحة " + new Date().toLocaleTimeString("ar-SA", { hour: "numeric", minute: "2-digit" }) + ".";
