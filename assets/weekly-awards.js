@@ -43,7 +43,7 @@
       return (b.classes[c.code] || {}).complete === true;
     });
   }
-  /* يؤخذ أول تقييمين زمنيا، وتبقى الزيادات في السجل دون تأثير في التنافس. */
+  /* تُختار أفضل درجتي تقييم لكل مادة أسبوعيا من جميع مرات الرصد، دون حذف بقية السجلات. */
   function calculateTwo(rows, period) {
     var classes = {}, logs = {}, coverage = [], total = 0, totalPrev = 0;
     M.CLASSES.forEach(function (c) {
@@ -66,7 +66,14 @@
       var target = curr ? x.now : x.prev;
       if (Object.prototype.hasOwnProperty.call(target, r.subject)) target[r.subject].push(r);
     });
-    var order = function (a, b) { return a.createdAt - b.createdAt || String(a.id || "").localeCompare(String(b.id || "")); };
+    /* متميز أعلى من جيد، وجيد أعلى من يحتاج متابعة. تعادل التقدير يُحسم بأسبقية الرصد. */
+    function rank(r) {
+      var rating = M.normRating(r.rating);
+      return rating === "متميز" ? 2 : rating === "جيد" ? 1 : 0;
+    }
+    var order = function (a, b) {
+      return rank(b) - rank(a) || a.createdAt - b.createdAt || String(a.id || "").localeCompare(String(b.id || ""));
+    };
     var localDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh", year: "numeric", month: "2-digit", day: "2-digit" });
     M.CLASSES.forEach(function (c) {
       var book = logs[c.code], stat = classes[c.code], deficits = [], sameDay = [], extra = 0;
