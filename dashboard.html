@@ -401,7 +401,7 @@ a.btn{text-decoration:none}
       </div>
 
       <h3 class="adm-h">تكريم الفصل الأكثر تميزا هذا الأسبوع</h3>
-      <p class="sub" style="margin-top:0">ابتداء من أسبوع 1 نوفمبر 2026، يُحتسب أول تقييمين في كل مادة لكل فصل خلال الأسبوع، ويُفضّل أن يكونا في يومين مختلفين. لكل مادة الوزن نفسه مهما اختلف عدد حصصها، وتُقارن الفصول بنسبة التميز. يظهر نقص الرصد للإدارة ولا يُحتسب ضد الطالبات؛ ويُعلّق تكريم المرحلة حتى يكتمل رصد فصولها. تبقى معالجة «أخرى» كما هي، ولا تتغير الأسابيع السابقة.</p>
+      <p class="sub" style="margin-top:0">ابتداء من أسبوع 1 نوفمبر 2026، يُحتسب أفضل تقييمين في كل مادة لكل فصل خلال الأسبوع مهما تكرر الرصد، ويُفضّل توزيع التقييمات على يومين مختلفين. لكل مادة الوزن نفسه مهما اختلف عدد حصصها، وتُقارن الفصول بنسبة التميز. يظهر نقص الرصد للإدارة ولا يُحتسب ضد الطالبات؛ ويُعلّق تكريم المرحلة حتى يكتمل رصد فصولها. تبقى معالجة «أخرى» كما هي، ولا تتغير الأسابيع السابقة.</p>
       <p class="sub" id="weeklyAwardPeriod" role="status">جار تجهيز تكريم الأسبوع…</p>
       <div class="two">
         <div class="invite-box">
@@ -704,7 +704,7 @@ a.btn{text-decoration:none}
         return "<div>" + esc(p.subject) + ": " + p.recorded + " من 2 (متبقٍ " + p.missing + ")</div>";
       }).join("");
       if (x.sameDay.length) details += '<div style="margin-top:6px">يُفضّل التقييم في يومين مختلفين: ' + x.sameDay.map(esc).join("، ") + "</div>";
-      if (x.ignored) details += '<div style="margin-top:6px">' + x.ignored + " تقييمات زائدة محفوظة في السجل، دون احتسابها في المنافسة.</div>";
+      if (x.ignored) details += '<div style="margin-top:6px">سُجّل ' + x.ignored + " تقييمات فوق العدد المطلوب، واختار التطبيق أفضل تقييمين من جميع تقييمات كل مادة للمنافسة، مع حفظ البقية في السجل.</div>";
       return '<details style="border-top:1px solid #e7e0ce;padding:8px 0"><summary style="cursor:pointer;font-weight:600">' +
         esc(x.className) + (rest ? " — متبقٍ " + rest : " — مكتمل مع تنبيهات") +
         '</summary><div style="font-size:13px;line-height:1.9;margin-top:6px">' + details + "</div></details>";
