@@ -64,6 +64,16 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 .subjects.c3 .subj .ck{width:20px;height:20px}
 .subj:active{transform:scale(.985)}
 
+/* مجالات تقييم مدرسي منفصلة بصريًا، بنفس أزرار المواد */
+.school-area-title{margin:11px 0 7px;font-size:16px;font-weight:700;color:var(--ink-green)}
+.school-areas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.school-areas .subj{min-height:74px;flex-direction:column;gap:3px;padding:7px 3px;font-size:12px;line-height:1.35}
+.school-areas .area-icon{width:24px;height:24px;flex:none}
+.school-areas .subj .ck{position:absolute;top:4px;left:4px;width:16px;height:16px}
+.compact .school-area-title{margin:7px 0 5px;font-size:14px}
+.compact .school-areas .subj{min-height:64px;padding:5px 3px;font-size:11.5px}
+.compact .school-areas .area-icon{width:20px;height:20px}
+
 /* التقييم */
 .rate-title{margin:12px 0 8px}
 .rates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -171,6 +181,8 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
           <input id="teacherName" maxlength="60" placeholder="اسم المعلمة (مطلوب)" autocomplete="name" required>
         </div>
         <div class="subjects" id="subjects" role="group" aria-labelledby="subjTitle"></div>
+        <h2 class="school-area-title" id="schoolAreaTitle">التقييم المدرسي</h2>
+        <div class="school-areas" id="schoolAreas" role="group" aria-labelledby="schoolAreaTitle"></div>
 
         <div class="row-title rate-row">
           <h2 class="rate-title">التقييم</h2>
@@ -205,7 +217,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
         <p class="done-lead">تم حفظ التقييم لأداء طالبات الفصل.</p>
         <dl class="done-sum">
           <div><dt>الفصل</dt><dd id="doneClass"></dd></div>
-          <div><dt>المادة</dt><dd id="doneSubject"></dd></div>
+          <div><dt>المادة / المجال</dt><dd id="doneSubject"></dd></div>
           <div id="doneTeacherRow" hidden><dt>المعلمة</dt><dd id="doneTeacher"></dd></div>
           <div><dt>أداء الطالبات</dt><dd id="doneRating"></dd></div>
           <div><dt>الوقت</dt><dd id="doneTime"></dd></div>
@@ -246,7 +258,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
   var CHECK = '<svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M7.2 12.4l3.1 3.1 6.4-6.6" fill="none" stroke="#0b5c37" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* «أخرى» زر مستقل بجانب العنوان، والمواد في الشبكة */
-  var subjects = M.subjectsFor(cls).filter(function (n) { return n !== "أخرى"; });
+  var subjects = M.subjectsFor(cls).filter(function (n) { return n !== "أخرى" && M.SCHOOL_AREAS.indexOf(n) === -1; });
   subjects.forEach(function (name) {
     var b = document.createElement("button");
     b.type = "button";
@@ -256,6 +268,23 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     b.setAttribute("aria-pressed", "false");
     b.addEventListener("click", function () { pick(name, b); });
     grid.appendChild(b);
+  });
+  /* الأيقونات ثابتة لكل الفصول، مع الإبقاء على رموز QR والروابط الأصلية. */
+  var areaGrid = $("schoolAreas");
+  var AREA_ICONS = {
+    "الموجهة الطلابية": '<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 10a3 3 0 0 0-2-5M17 15a5 5 0 0 1 4 5"/>',
+    "مراقبة الصف": '<rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5V3h6v2M8 12l2 2 4-4M8 18h8"/>',
+    "البيئة المدرسية": '<path d="M3 20h18M5 20V9l7-5 7 5v11M9 20v-7h6v7M9 10h6"/>'
+  };
+  M.SCHOOL_AREAS.forEach(function (name) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "subj";
+    b.innerHTML = '<svg class="area-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + AREA_ICONS[name] + '</svg><span></span>' + CHECK;
+    b.querySelector("span").textContent = name;
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function () { pick(name, b); });
+    areaGrid.appendChild(b);
   });
   otherBtn.addEventListener("click", function () { pick("أخرى", otherBtn); $("teacherName").focus(); });
   ["teacherName", "note"].forEach(function (id) { $(id).addEventListener("input", function () { this.classList.remove("need"); }); });
@@ -280,7 +309,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
 
   function pick(name, btn) {
     subject = name;
-    grid.querySelectorAll(".subj").forEach(function (e) { e.setAttribute("aria-pressed", String(e === btn)); });
+    document.querySelectorAll("#subjects .subj, #schoolAreas .subj").forEach(function (e) { e.setAttribute("aria-pressed", String(e === btn)); });
     otherBtn.setAttribute("aria-pressed", String(btn === otherBtn));
     $("otherBox").hidden = name !== "أخرى";
     setStatus("", "يحفظ التقييم مباشرة عند الاختيار");

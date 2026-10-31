@@ -224,7 +224,7 @@ body{background:#d9dfe6;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;col
         var requestedClass = code ? M.findClass(code) : null;
         var stageId = requestedClass ? (requestedClass.code[0] === "m" ? "middle" : "secondary") : null;
         var pending = A.twoRule(b) && (stageId ? !A.stageReady(b, stageId) : !A.stageReady(b, "middle") || !A.stageReady(b, "secondary"));
-        weeklyError(pending ? "تنتظر شهادة هذه المرحلة اكتمال التقييمين لكل مادة في جميع فصولها." :
+        weeklyError(pending ? "تنتظر شهادة هذه المرحلة اكتمال التقييمين لكل مادة ومجال في جميع فصولها." :
           "لا توجد شهادة لهذا الفصل أو الأسبوع ضمن نتائج التكريم المنشورة لهذه المرحلة.");
         return;
       }

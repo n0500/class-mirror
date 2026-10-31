@@ -117,7 +117,7 @@
       var x = classes[code];
       if (!x) return;
       var rating = M.normRating(r.rating);
-      var extra = isExtra(r.subject);
+      var extra = isExtra(r.subject) || M.SCHOOL_AREAS.indexOf(r.subject) !== -1;  /* إبعاد المجالات الجديدة عن حساب الأسابيع القديمة */
       if (r.createdAt >= period.start && r.createdAt < period.end) {
         if (modern && extra) {
           if (rating === "يحتاج متابعة") followUps[code]++;

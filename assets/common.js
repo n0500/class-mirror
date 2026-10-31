@@ -46,6 +46,9 @@
   };
 
 
+  /* مجالات ثابتة للفصول جميعها، بنفس وزن المواد في حساب التميز الأسبوعي. */
+  var SCHOOL_AREAS = ["الموجهة الطلابية", "مراقبة الصف", "البيئة المدرسية"];
+
   var RATINGS = [
     { key: "متميز", cls: "excellent" },
     { key: "جيد", cls: "good" },
@@ -64,7 +67,7 @@
   }
 
   function subjectsFor(cls) {
-    return (SUBJECTS[cls.stage] || []).concat(["أخرى"]);
+    return (SUBJECTS[cls.stage] || []).concat(SCHOOL_AREAS, ["أخرى"]);
   }
 
   function normRating(r) { return LEGACY[r] || r; }
@@ -416,7 +419,7 @@
   };
 
   window.Miraat = {
-    SCHOOL: SCHOOL, CLASSES: CLASSES, SUBJECTS: SUBJECTS, RATINGS: RATINGS,
+    SCHOOL: SCHOOL, CLASSES: CLASSES, SUBJECTS: SUBJECTS, SCHOOL_AREAS: SCHOOL_AREAS, RATINGS: RATINGS,
     findClass: findClass, subjectsFor: subjectsFor, disp: disp, startOfWeek: startOfWeek, hijriMonthRange: hijriMonthRange, hijriMonthLabel: hijriMonthLabel, normRating: normRating, Store: Store
   };
 })();

@@ -157,6 +157,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     var o = { weekday: "long", day: "numeric", month: "long" }; if (withYear) o.year = "numeric";
     return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", o).format(d);
   }
+  function schoolTally(n) { return n === 1 ? "تقييم متميز" : n === 2 ? "تقييمان متميزان" : "تقييمات متميزة"; }
   function hessa(n) { return n === 0 ? "حصص متميزة" : n === 1 ? "حصة متميزة" : n === 2 ? "حصتان متميزتان" : n >= 3 && n <= 10 ? "حصص متميزة" : "حصة متميزة"; }
 
   /* يعرض الإيجابي فقط: عدد الحصص المتميزة، والتقدم إن وجد */
@@ -190,11 +191,11 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     var x = (b.classes || {})[one.code] || {}, n = x.n || 0, p = x.p || 0;
     var stars = ""; for (var i = 0; i < Math.min(n, 20); i++) stars += STAR.replace('class="star"', 'class="star" style="animation-delay:' + (0.25 + i * 0.12).toFixed(2) + 's"');
     var cheer;
-    if (n === 0) cheer = "البدايات الجميلة تبدأ بحصة";
-    else if (n > p) cheer = "التقدم عادة.. وأنتم أهلها<small>بزيادة " + (n - p === 1 ? "حصة واحدة" : n - p === 2 ? "حصتين" : num.format(n - p) + (n - p <= 10 ? " حصص" : " حصة")) + " عن الأسبوع الماضي</small>";
+    if (n === 0) cheer = A.twoRule(b) ? "البدايات الجميلة تبدأ بتقييم" : "البدايات الجميلة تبدأ بحصة";
+    else if (n > p) cheer = "التقدم عادة.. وأنتم أهلها<small>بزيادة " + (A.twoRule(b) ? (n - p === 1 ? "تقييم واحد" : n - p === 2 ? "تقييمين" : num.format(n - p) + " تقييمات") : (n - p === 1 ? "حصة واحدة" : n - p === 2 ? "حصتين" : num.format(n - p) + (n - p <= 10 ? " حصص" : " حصة"))) + " عن الأسبوع الماضي</small>";
     else if (n === p) cheer = "على العهد.. وموعدنا القمة";
     else cheer = "لكل أسبوع بداية.. ولكم موعد مع التميز";
-    $("content").innerHTML = '<div class="hero-num"><div class="q">رصيدكم هذا الأسبوع</div><div class="n">' + STAR + '<span id="cnt">' + num.format(n) + '</span></div><div class="u">' + hessa(n) + "</div></div>" +
+    $("content").innerHTML = '<div class="hero-num"><div class="q">رصيدكم هذا الأسبوع</div><div class="n">' + STAR + '<span id="cnt">' + num.format(n) + '</span></div><div class="u">' + (A.twoRule(b) ? schoolTally(n) : hessa(n)) + "</div></div>" +
       (stars ? '<div class="stars">' + stars + "</div>" : "") + '<div class="cheer">' + cheer + "</div>";
     if (n > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       var el = $("cnt"), t0 = performance.now(), dur = Math.min(1400, 300 + n * 90);
@@ -207,7 +208,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     if (!list.length) {
       var pending = A.twoRule(b) && !A.stageReady(b, stage[2]);
       $("content").innerHTML = '<div class="empty">' + (pending
-        ? "التكريم قيد الإعداد، بانتظار اكتمال تقييمين لكل مادة في جميع فصول المرحلة."
+        ? "التكريم قيد الإعداد، بانتظار اكتمال تقييمين لكل مادة ومجال في جميع فصول المرحلة."
         : modern ? "لا تتوفر نتيجة تميز مؤهلة لهذا الأسبوع بعد. يرجى تحديث النتائج من لوحة الإدارة."
         : "لم تسجل حصص متميزة في " + stage[0] + " لهذا الأسبوع بعد. ننتظر بداية جميلة منكن.") + '</div>';
       return;
@@ -215,7 +216,7 @@ body{background:#d9dfe6;min-height:100vh;min-height:100dvh}
     var cup = '<svg class="award-cup" viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M28 10h44v26c0 15-8 27-19 30v12h17v10H30V78h17V66C36 63 28 51 28 36V10Zm-9 8h-9v16c0 17 9 27 23 29l-5-12c-8-3-10-9-10-17V26h1V18Zm62 0h9v16c0 17-9 27-23 29l5-12c8-3 10-9 10-17V26h-1V18Z"/><path fill="#fff7e5" d="m50 23 4.2 8.5 9.4 1.4-6.8 6.6 1.6 9.3-8.4-4.4-8.4 4.4 1.6-9.3-6.8-6.6 9.4-1.4Z"/></svg>';
     $("content").innerHTML = '<div class="award-intro">' + cup + '<h2>' + (list.length > 1 ? "الفصول الأكثر تميزا هذا الأسبوع" : "الفصل الأكثر تميزا هذا الأسبوع") + '</h2><p>' + stage[0] + '</p></div><div class="award-grid">' + list.map(function (x) {
       return '<article class="award-card"><h3>' + esc(x.c.name) + '</h3><div class="n">' + STAR + '<span>' + (modern ? A.scoreLabel(x.score) : num.format(x.n)) + '</span></div><p class="u">' + (modern ? "مؤشر التميز النهائي" : hessa(x.n)) + '</p></article>';
-    }).join("") + '</div><p class="award-cheer">نحتفي بجهودكن.. تميزكن يلهم الجميع</p><p class="award-rule">' + (modern ? "الأعلى في نسبة التميز النهائية من تقييمات المواد، مع مراعاة الانضباط العام." : "الأعلى في عدد الحصص المتميزة خلال الأسبوع المعروض.") + (list.length > 1 ? " تتقاسم هذه الفصول التكريم لتساوي نتيجتها." : "") + '</p>';
+    }).join("") + '</div><p class="award-cheer">نحتفي بجهودكن.. تميزكن يلهم الجميع</p><p class="award-rule">' + (modern ? "الأعلى في نسبة التميز النهائية من تقييمات المواد والمجالات المدرسية، مع مراعاة الانضباط العام." : "الأعلى في عدد الحصص المتميزة خلال الأسبوع المعروض.") + (list.length > 1 ? " تتقاسم هذه الفصول التكريم لتساوي نتيجتها." : "") + '</p>';
   }
 
   function load() {

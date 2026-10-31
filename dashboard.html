@@ -305,8 +305,8 @@ a.btn{text-decoration:none}
         <span class="grow"></span>
         <label class="sr" for="fClass">الفصل</label>
         <select id="fClass"><option value="">جميع الفصول</option></select>
-        <label class="sr" for="fSubject">المادة</label>
-        <select id="fSubject"><option value="">جميع المواد</option></select>
+        <label class="sr" for="fSubject">المادة أو المجال</label>
+        <select id="fSubject"><option value="">جميع المواد والمجالات</option></select>
         <button class="btn ghost" type="button" id="refresh" style="min-height:42px">تحديث</button>
       </div>
     </section>
@@ -327,7 +327,7 @@ a.btn{text-decoration:none}
         <div class="rows" id="byClass"></div>
       </section>
       <section class="panel">
-        <h2>حسب المادة</h2>
+        <h2>حسب المادة أو المجال</h2>
         <p class="sub" id="bySubjectSub">ضمن الفصول المحددة.</p>
         <div class="rows" id="bySubject"></div>
         <div style="text-align:center"><button class="link" type="button" id="subjMore" hidden></button></div>
@@ -354,7 +354,7 @@ a.btn{text-decoration:none}
         <button class="btn ghost" type="button" id="csv" style="min-height:42px">تصدير Excel (CSV)</button>
       </div>
       <table class="tbl" style="margin-top:10px">
-        <thead><tr><th>الفصل</th><th>المادة</th><th>التقدير</th><th>التاريخ والوقت</th><th></th></tr></thead>
+        <thead><tr><th>الفصل</th><th>المادة أو المجال</th><th>التقدير</th><th>التاريخ والوقت</th><th></th></tr></thead>
         <tbody id="log"></tbody>
       </table>
       <div style="text-align:center"><button class="link" type="button" id="more" hidden>عرض المزيد</button></div>
@@ -401,7 +401,7 @@ a.btn{text-decoration:none}
       </div>
 
       <h3 class="adm-h">تكريم الفصل الأكثر تميزا هذا الأسبوع</h3>
-      <p class="sub" style="margin-top:0">ابتداء من أسبوع 1 نوفمبر 2026، يُحتسب أفضل تقييمين في كل مادة لكل فصل خلال الأسبوع مهما تكرر الرصد، ويُفضّل توزيع التقييمات على يومين مختلفين. لكل مادة الوزن نفسه مهما اختلف عدد حصصها، وتُقارن الفصول بنسبة التميز. يظهر نقص الرصد للإدارة ولا يُحتسب ضد الطالبات؛ ويُعلّق تكريم المرحلة حتى يكتمل رصد فصولها. تبقى معالجة «أخرى» كما هي، ولا تتغير الأسابيع السابقة.</p>
+      <p class="sub" style="margin-top:0">ابتداء من أسبوع 1 نوفمبر 2026، يُحتسب أفضل تقييمين لكل مادة أو مجال تقييم مدرسي في كل فصل خلال الأسبوع مهما تكرر الرصد، ويُفضّل توزيع التقييمات على يومين مختلفين. لجميع المواد والمجالات الثلاثة الوزن نفسه، وتُقارن الفصول بنسبة التميز. يظهر نقص الرصد للإدارة ولا يُحتسب ضد الطالبات؛ ويُعلّق تكريم المرحلة حتى يكتمل رصد فصولها. تبقى معالجة «أخرى» كما هي، ولا تتغير الأسابيع السابقة.</p>
       <p class="sub" id="weeklyAwardPeriod" role="status">جار تجهيز تكريم الأسبوع…</p>
       <div class="two">
         <div class="invite-box">
@@ -704,7 +704,7 @@ a.btn{text-decoration:none}
         return "<div>" + esc(p.subject) + ": " + p.recorded + " من 2 (متبقٍ " + p.missing + ")</div>";
       }).join("");
       if (x.sameDay.length) details += '<div style="margin-top:6px">يُفضّل التقييم في يومين مختلفين: ' + x.sameDay.map(esc).join("، ") + "</div>";
-      if (x.ignored) details += '<div style="margin-top:6px">سُجّل ' + x.ignored + " تقييمات فوق العدد المطلوب، واختار التطبيق أفضل تقييمين من جميع تقييمات كل مادة للمنافسة، مع حفظ البقية في السجل.</div>";
+      if (x.ignored) details += '<div style="margin-top:6px">سُجّل ' + x.ignored + " تقييمات فوق العدد المطلوب، واختار التطبيق أفضل تقييمين من جميع تقييمات كل مادة أو مجال للمنافسة، مع حفظ البقية في السجل.</div>";
       return '<details style="border-top:1px solid #e7e0ce;padding:8px 0"><summary style="cursor:pointer;font-weight:600">' +
         esc(x.className) + (rest ? " — متبقٍ " + rest : " — مكتمل مع تنبيهات") +
         '</summary><div style="font-size:13px;line-height:1.9;margin-top:6px">' + details + "</div></details>";
@@ -715,7 +715,7 @@ a.btn{text-decoration:none}
     [["middle", "weeklyMiddleAward"], ["secondary", "weeklySecondaryAward"]].forEach(function (pair) {
       var list = A.winners(b, pair[0]);
       var waiting = A.twoRule(b) && !A.stageReady(b, pair[0]);
-      $(pair[1]).innerHTML = waiting ? '<p class="weekly-award-note">بانتظار استكمال تقييمين لكل مادة في جميع فصول المرحلة. لا تصدر شهادات حتى اكتمال الرصد.</p>' :
+      $(pair[1]).innerHTML = waiting ? '<p class="weekly-award-note">بانتظار استكمال تقييمين لكل مادة ومجال في جميع فصول المرحلة. لا تصدر شهادات حتى اكتمال الرصد.</p>' :
         list.length ? (list.length > 1 ? '<p class="weekly-award-note">فصول متعادلة في أعلى نتيجة، ولكل منها شهادة.</p>' : "") + list.map(function (x) {
         return '<div class="weekly-award-row"><div><strong>' + esc(x.c.name) + '</strong><small>' + esc(A.newRule(b) ? 'نتيجة التميز: ' + A.scoreLabel(x.score) : A.countLabel(x.n)) + '</small></div><a class="btn ghost" href="' + esc(A.certificateUrl(b, x.c)) + '" target="_blank" rel="noopener">إصدار الشهادة</a></div>';
       }).join("") : '<p class="weekly-award-note">لا توجد حصص متميزة في هذه المرحلة للأسبوع المعروض، لذلك لا تصدر شهادة بعد.</p>';
@@ -941,7 +941,7 @@ a.btn{text-decoration:none}
     var subs = {};
     byCls.forEach(function (r) { subs[r.subject] = 1; });
     var sel = $("fSubject"), cur = state.subject;
-    sel.innerHTML = '<option value="">جميع المواد</option>' + Object.keys(subs).sort().map(function (s) { return '<option value="' + esc(s) + '"' + (s === cur ? " selected" : "") + ">" + esc(M.disp(s)) + "</option>"; }).join("");
+    sel.innerHTML = '<option value="">جميع المواد والمجالات</option>' + Object.keys(subs).sort().map(function (s) { return '<option value="' + esc(s) + '"' + (s === cur ? " selected" : "") + ">" + esc(M.disp(s)) + "</option>"; }).join("");
     var rows = state.subject ? byCls.filter(function (r) { return r.subject === state.subject; }) : byCls;
     var c = count(rows);
 
@@ -978,7 +978,7 @@ a.btn{text-decoration:none}
     var full = list.length;
     if (!state.allSubj) list = list.slice(0, 8);
     $("subjMore").hidden = full <= 12;
-    $("subjMore").textContent = state.allSubj ? "عرض أقل" : "عرض جميع المواد (" + fmt.format(full) + ")";
+    $("subjMore").textContent = state.allSubj ? "عرض أقل" : "عرض جميع المواد والمجالات (" + fmt.format(full) + ")";
     $("bySubject").innerHTML = list.length ? list.map(function (s) {
       return '<div class="row"><span class="name">' + esc(M.disp(s.k)) + "</span>" + bar(s.c) + '<span class="counts">' + counts(s.c) + "</span></div>";
     }).join("") : '<div class="empty">لا توجد تقييمات.</div>';
@@ -1151,7 +1151,7 @@ a.btn{text-decoration:none}
   $("csv").addEventListener("click", function () {
     var rows = state.current || [];
     var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-    var lines = [["الفصل", "المادة", "المعلمة", "التقدير", "الملاحظة", "التاريخ", "الوقت"].map(q).join(",")];
+    var lines = [["الفصل", "المادة أو المجال", "المعلمة", "التقدير", "الملاحظة", "التاريخ", "الوقت"].map(q).join(",")];
     rows.forEach(function (r) {
       lines.push([r.classroom, r.subject, r.teacher || "", r.rating, r.note, r.createdAt.toLocaleDateString("en-CA"), r.createdAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })].map(q).join(","));
     });
