@@ -40,6 +40,11 @@
 .link{border:0;background:none;color:var(--green-700);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:4px;margin-top:12px;padding:4px}
 .msg{margin-top:12px;font-size:14px;font-weight:600}
 .msg.bad{color:var(--danger)}.msg.good{color:var(--green-700)}
+.password-form label,.reset-box label{display:block;margin:12px 0 6px;font-size:14px;font-weight:600}
+.password-form .btn{margin-top:12px}
+.reset-box{padding:12px 14px;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#f7faf8}
+.reset-box .btn{min-height:42px;margin-top:10px}
+button:disabled{opacity:.55;cursor:wait}
 
 /* المرشحات */
 .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -242,7 +247,14 @@ a.btn{text-decoration:none}
       <label for="pw">كلمة المرور</label>
       <input class="field" id="pw" type="password" autocomplete="current-password" dir="ltr" required>
       <button class="btn full" type="submit" id="loginBtn">دخول</button>
-      <button class="link" type="button" id="forgot">نسيت كلمة المرور</button>
+      <button class="link" type="button" id="forgot" aria-expanded="false" aria-controls="resetBox">نسيت كلمة المرور؟</button>
+      <div class="reset-box" id="resetBox" hidden>
+        <p class="sub" style="margin:0">أدخلي البريد الإلكتروني المسجّل في حسابك، ثم افتحي الرابط الذي يصلك لإعداد كلمة مرور جديدة.</p>
+        <label for="resetEmail">البريد الإلكتروني المسجّل</label>
+        <input class="field" id="resetEmail" type="email" autocomplete="username" dir="ltr">
+        <button class="btn" type="button" id="sendReset">إرسال رابط إعادة التعيين</button>
+        <p class="msg" id="resetMsg" role="status" aria-live="polite"></p>
+      </div>
     </form>
 
     <form id="signupForm" novalidate hidden>
@@ -449,6 +461,28 @@ a.btn{text-decoration:none}
     </div>
 
     <div class="pane" data-pane="settings" hidden>
+    <section class="panel" id="passwordPanel">
+      <h2>أمان الحساب — تغيير كلمة المرور</h2>
+      <p class="sub">يمكن لأي حساب إدارة مسجّل تغيير كلمة مروره دون التأثير على تقييمات المدرسة أو صلاحياته.</p>
+      <form id="changePwForm" class="password-form" style="max-width:460px" novalidate>
+        <label for="currentPass">كلمة المرور الحالية</label>
+        <input class="field" id="currentPass" type="password" autocomplete="current-password" dir="ltr" required>
+        <label for="newPass">كلمة المرور الجديدة</label>
+        <input class="field" id="newPass" type="password" autocomplete="new-password" dir="ltr" minlength="8" required>
+        <label for="confirmPass">تأكيد كلمة المرور الجديدة</label>
+        <input class="field" id="confirmPass" type="password" autocomplete="new-password" dir="ltr" minlength="8" required>
+        <p class="sub" style="margin:8px 0 0">ثمانية أحرف على الأقل، وتختلف عن كلمة المرور الحالية.</p>
+        <button class="btn" id="changePwBtn" type="submit">حفظ كلمة المرور الجديدة</button>
+        <p class="msg" id="changePwMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="reset-box" style="max-width:460px">
+        <strong>نسيت كلمة المرور الحالية؟</strong>
+        <p class="sub" style="margin:6px 0 0">يمكن إرسال رابط إعادة التعيين إلى البريد الإلكتروني لحسابك الحالي.</p>
+        <button class="btn ghost" type="button" id="sendAccountReset">إرسال رابط إلى بريدي</button>
+        <p class="msg" id="accountResetMsg" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
     <section class="panel" id="adminsPanel" hidden>
       <h2>حسابات الإدارة</h2>
       <p class="sub">يُرسَل رابط الدعوة إلى من تُمنح صلاحية الاطلاع على النتائج؛ فتفتحه وتنشئ حسابها بنفسها، ويظهر حسابها هنا تلقائيًا.</p>
@@ -550,7 +584,7 @@ a.btn{text-decoration:none}
       if (!role) return show("deniedView");
       if (inviteCode) { inviteCode = ""; history.replaceState(null, "", location.pathname); }
       show("dash");
-      if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; }
+      if (S.demo) { $("demoBar").hidden = false; $("logout").hidden = true; $("passwordPanel").hidden = true; }
       canDelete = role === "owner" || role === "admin-del";
       if (role === "owner") { $("adminsPanel").hidden = false; $("resetPanel").hidden = false; loadInvite(false); loadAdmins(); }
       if (state.rows) render();
@@ -595,12 +629,85 @@ a.btn{text-decoration:none}
     }).then(function () { $("signupBtn").disabled = false; });
   });
 
+  /* خيار مستقل لإعادة تعيين كلمة المرور عند نسيانها */
   $("forgot").addEventListener("click", function () {
-    var m = $("loginMsg"), em = $("email").value.trim();
-    if (!em) { m.className = "msg bad"; m.textContent = "يُرجى كتابة البريد الإلكتروني أولًا."; return; }
+    var box = $("resetBox");
+    box.hidden = !box.hidden;
+    this.setAttribute("aria-expanded", String(!box.hidden));
+    if (!box.hidden) {
+      $("resetEmail").value = $("email").value.trim();
+      $("resetMsg").textContent = "";
+      $("resetEmail").focus();
+    }
+  });
+  $("sendReset").addEventListener("click", function () {
+    var em = $("resetEmail").value.trim(), m = $("resetMsg"), btn = this;
+    m.className = "msg";
+    if (!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(em)) {
+      m.className = "msg bad"; m.textContent = "يُرجى إدخال بريد إلكتروني صحيح."; return;
+    }
+    btn.disabled = true;
+    m.textContent = "جارٍ إرسال الرابط…";
     S.resetPassword(em).then(function () {
-      m.className = "msg good"; m.textContent = "أُرسل رابط إعادة تعيين كلمة المرور إلى بريدك.";
-    }).catch(function () { m.className = "msg bad"; m.textContent = "تعذّر إرسال الرابط. يُرجى التحقق من البريد."; });
+      m.className = "msg good";
+      m.textContent = "إذا كان البريد مسجّلًا، فستصلك رسالة لإعادة تعيين كلمة المرور. تحققي أيضًا من البريد غير الهام.";
+    }).catch(function (err) {
+      m.className = "msg bad";
+      m.textContent = err && err.code === "auth/too-many-requests"
+        ? "تم إرسال طلبات كثيرة. يُرجى إعادة المحاولة لاحقًا."
+        : "تعذّر إرسال رابط التعيين. تحققي من البريد والاتصال.";
+    }).then(function () { btn.disabled = false; });
+  });
+
+  /* حسابات الإدارة: تغيير كلمة المرور وإعادة تعيينها بأمان */
+  $("changePwForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var current = $("currentPass").value, next = $("newPass").value, confirmed = $("confirmPass").value;
+    var m = $("changePwMsg"), btn = $("changePwBtn");
+    m.className = "msg";
+    if (!current || !next || !confirmed) {
+      m.className = "msg bad"; m.textContent = "يُرجى تعبئة جميع الحقول."; return;
+    }
+    if (next.length < 8) {
+      m.className = "msg bad"; m.textContent = "كلمة المرور الجديدة يجب أن تتكون من ثمانية أحرف على الأقل."; return;
+    }
+    if (next === current) {
+      m.className = "msg bad"; m.textContent = "اختاري كلمة مرور جديدة تختلف عن الحالية."; return;
+    }
+    if (next !== confirmed) {
+      m.className = "msg bad"; m.textContent = "تأكيد كلمة المرور لا يطابق الكلمة الجديدة."; return;
+    }
+    btn.disabled = true;
+    m.textContent = "جارٍ تحديث كلمة المرور…";
+    S.changePassword(current, next).then(function () {
+      $("changePwForm").reset();
+      m.className = "msg good";
+      m.textContent = "تم تغيير كلمة المرور بنجاح. استخدمي الكلمة الجديدة عند تسجيل الدخول لاحقًا.";
+    }).catch(function (err) {
+      var c = err && err.code;
+      m.className = "msg bad";
+      m.textContent =
+        c === "auth/wrong-password" || c === "auth/invalid-credential" || c === "auth/invalid-login-credentials"
+          ? "كلمة المرور الحالية غير صحيحة."
+        : c === "auth/weak-password" ? "كلمة المرور الجديدة ضعيفة. اختاري كلمة أقوى."
+        : c === "auth/too-many-requests" ? "تجاوزتِ عدد المحاولات المسموح. أعيدي المحاولة لاحقًا."
+        : c === "auth/network-request-failed" ? "تعذّر الاتصال. تحققي من الإنترنت."
+        : "تعذّر تغيير كلمة المرور. استخدمي خيار «نسيت كلمة المرور الحالية؟» لإعادة التعيين عبر البريد.";
+    }).then(function () { btn.disabled = false; });
+  });
+  $("sendAccountReset").addEventListener("click", function () {
+    var m = $("accountResetMsg"), btn = this;
+    btn.disabled = true;
+    m.className = "msg"; m.textContent = "جارٍ إرسال الرابط…";
+    S.resetOwnPassword().then(function () {
+      m.className = "msg good";
+      m.textContent = "أُرسل رابط إعادة التعيين إلى بريد حسابك الحالي. تحققي أيضًا من البريد غير الهام.";
+    }).catch(function (err) {
+      m.className = "msg bad";
+      m.textContent = err && err.code === "auth/too-many-requests"
+        ? "تم إرسال طلبات كثيرة. يُرجى المحاولة لاحقًا."
+        : "تعذّر إرسال رابط إعادة التعيين. تحققي من الاتصال.";
+    }).then(function () { btn.disabled = false; });
   });
 
   /* ---------- حسابات الإدارة (للمالكة فقط) ---------- */
