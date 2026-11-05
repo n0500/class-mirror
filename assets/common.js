@@ -177,6 +177,29 @@
       return firebase().then(function (F) { return F.au.sendPasswordResetEmail(F.auth, email); });
     },
 
+    /* إعادة تعيين كلمة المرور عبر البريد المرتبط بالحساب المسجّل دخوله */
+    resetOwnPassword: function () {
+      if (DEMO) return Promise.reject({ code: "auth/unavailable" });
+      return firebase().then(function (F) {
+        var user = F.auth.currentUser;
+        if (!user || !user.email) return Promise.reject({ code: "auth/user-not-found" });
+        return F.au.sendPasswordResetEmail(F.auth, user.email);
+      });
+    },
+
+    /* إعادة المصادقة أولًا ثم تحديث كلمة المرور للحساب الحالي فقط */
+    changePassword: function (currentPassword, newPassword) {
+      if (DEMO) return Promise.reject({ code: "auth/unavailable" });
+      return firebase().then(function (F) {
+        var user = F.auth.currentUser;
+        if (!user || !user.email) return Promise.reject({ code: "auth/user-not-found" });
+        var credential = F.au.EmailAuthProvider.credential(user.email, currentPassword);
+        return F.au.reauthenticateWithCredential(user, credential).then(function () {
+          return F.au.updatePassword(user, newPassword);
+        });
+      });
+    },
+
     signOut: function () {
       if (DEMO) return Promise.resolve();
       return firebase().then(function (F) { return F.au.signOut(F.auth); });
